@@ -12,8 +12,6 @@ to deal with that again, which is why I'm creating this. It's March 8 right now 
 going to do any work until probably July, August, or September. I'm just getting this out
 there right now so I can have a solid start.
 
-## Me
-My name is Jonah, I'm not telling you my age, and I'm very tired all the time. 
 
 ## Goals
 The goals for this project (which will probably change) are as follows:
@@ -32,8 +30,8 @@ I have to make some choices for the format of this project such as:
 
 
 ## Style (I'm picky)
-I have a very defined style and will fight people over it. If you want to contribute but can't stand my requirements, deal with it (or write the code and apply formatting afterwards).
-Here's the code style requirements for pull requests or changes (I will reject/modify your pull request if it is ugly):
+I have a very defined style and will fight people over it. If you want to contribute but can't stand my requirements, just submit it as-is and I will modify it to match.
+Here's the code style requirements for pull requests or changes:
 
 - 4 spaces for indentation
 - Braces don't start on a new line
@@ -84,7 +82,7 @@ Feel free to contribute to this project! I'm not a god at programming and will m
 
 # Issues
 
-I'm not a GitHub Repository Manager<sup>TM</sup> and don't have a solid issue format. Just state the issue, provide error messages if applicable, and do other stuff.
+I'm not a GitHub Repository Manager<sup>TM</sup> and don't have a solid issue format. Just state the issue, provide error messages if applicable, and do other stuff. Basically be reasonable.
 
 
 ### The end :)
