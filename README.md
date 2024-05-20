@@ -1,4 +1,4 @@
-# easy-metal-cpp
+# MetalCompute
 A C++ wrapper for the Apple metal-cpp library to make it easier to run compute kernels on the GPU
 
 # Usage
@@ -19,14 +19,8 @@ The goals for this project (which will probably change) are as follows:
 - Concise and easy to read code
 - A working API (duh)
 - Minimal overhead
-- Extensive documentation (probably Doxygen)
+- Extensive documentation (Doxygen)
 - and more!! (i cant think)
-
-## Choices
-I have to make some choices for the format of this project such as:
-
-- OOP or functional (SFML vs OpenGL)
-- more but that's it for now
 
 # Issues
 
