@@ -26,7 +26,24 @@
 *.a
 *.lib
 
+# Compiled Metal Libraries
+*.metallib
+*.air
+
 # Executables
 *.exe
 *.out
 *.app
+
+# .vscode folder
+.vscode/
+
+# clangd files and folders
+.cache/
+compile_commands.json
+
+# CMake build folder
+build/
+
+# Output binary
+MetalCompute/hellogpu
