@@ -20,6 +20,7 @@ The goals for this project (which will probably change) are as follows:
 - A working API (duh)
 - Minimal overhead
 - Extensive documentation (Doxygen)
+- Good, if not complete testing code coverage (doctest)
 - and more!! (i cant think)
 
 # Issues
