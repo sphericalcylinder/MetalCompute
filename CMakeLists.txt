@@ -1,42 +1,62 @@
 cmake_minimum_required(VERSION 3.19)
 
+option(MTLCOMPUTE_BUILD_TESTING "Build the tests" ON)
+option(MTLCOMPUTE_BUILD_DOCS "Build the documentation" OFF)
+
 project(MetalCompute VERSION 1.0
                      DESCRIPTION "An API to make GPU compute calls easier"
                      LANGUAGES CXX)
 
-set(DIR "MetalCompute")
 
-# metal library
+if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
-add_custom_target(metal
-    COMMAND xcrun -sdk macosx metal -c ${DIR}/default.metal -o ${CMAKE_CURRENT_BINARY_DIR}/default.air
-    COMMAND xcrun -sdk macosx metallib ${CMAKE_CURRENT_BINARY_DIR}/default.air -o ${CMAKE_CURRENT_BINARY_DIR}/default.metallib
-    DEPENDS ${DIR}/default.metal
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Compiling Metal shader"
-    VERBATIM
-)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_executable(hellogpu ${DIR}/hellogpu.cpp)
-add_dependencies(hellogpu metal)
-target_compile_features(hellogpu PUBLIC cxx_std_20)
-set_target_properties(hellogpu PROPERTIES CXX_EXTENSIONS OFF)
+    include(CTest)
+    include(FetchContent)
 
-find_library(METAL Metal)
-find_library(METALKIT MetalKit)
-find_library(FOUNDATION Foundation)
+    # generate compile_commands.json
+    # https://stackoverflow.com/questions/23960835/cmake-not-generating-compile-commands-json
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
-if (NOT METAL)
-    message(FATAL_ERROR "Metal not found")
+    # add the compile_commands.json to the src directory
+    configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/src/compile_commands.json COPYONLY)
+
+    if (MTLCOMPUTE_BUILD_DOCS MATCHES ON OR MTLCOMPUTE_BUILD_DOCS MATCHES TRUE)
+        find_package(Doxygen REQUIRED doxygen)
+        if (Doxygen_FOUND)
+            message(STATUS "Adding docs to build")
+            add_subdirectory(docs)
+        else()
+            message(FATAL_ERROR "Doxygen not found!")
+        endif()
+    endif()
+
+    get_filename_component(FETCHDIR "${CMAKE_BINARY_DIR}/_deps" REALPATH)
+    if (NOT EXISTS "${FETCHDIR}")
+        message(STATUS "Creating directory ${FETCHDIR}")
+        FetchContent_Declare(
+            METALCPP
+            GIT_REPOSITORY https://github.com/bkaradzic/metal-cpp.git
+            GIT_TAG        a63bd17
+        )
+        FetchContent_MakeAvailable(METALCPP)
+    else()
+        set(metalcpp_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/metalcpp-src")
+    endif()
+
+
 endif()
 
-if (NOT METALKIT)
-    message(FATAL_ERROR "MetalKit not found")
-endif()
+add_subdirectory(src)
 
-if (NOT FOUNDATION)
-    message(FATAL_ERROR "Foundation not found")
-endif()
+if ((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MTLCOMPUTE_BUILD_TESTING)
+    AND BUILD_TESTING)
 
-target_include_directories(hellogpu PUBLIC metal-cpp)
-target_link_libraries(hellogpu ${METAL} ${METALKIT} ${FOUNDATION})
+    add_subdirectory(test)
+
+endif()
