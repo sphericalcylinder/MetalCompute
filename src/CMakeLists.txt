@@ -10,11 +10,13 @@ add_custom_target(metal
 
 add_executable(hellogpu hellogpu.cpp)
 add_dependencies(hellogpu metal)
+target_include_directories(hellogpu PRIVATE ${metalcpp_SOURCE_DIR})
 
-include(FindMetal)
-include(FindMetalKit)
-include(FindFoundation)
+find_package(doctest REQUIRED)
+if (NOT doctest_FOUND)
+    message(FATAL_ERROR "Doctest not found!")
+endif()
 
-target_include_directories(hellogpu PUBLIC ${metalcpp_SOURCE_DIR})
-
-target_link_libraries(hellogpu ${METAL} ${METALKIT} ${FOUNDATION})
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)

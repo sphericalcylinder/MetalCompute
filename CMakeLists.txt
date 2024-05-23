@@ -23,8 +23,14 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     # https://stackoverflow.com/questions/23960835/cmake-not-generating-compile-commands-json
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
-    # add the compile_commands.json to the src directory
-    configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/src/compile_commands.json COPYONLY)
+    get_filename_component(JSONFILE "${CMAKE_BINARY_DIR}/compile_commands.json" REALPATH)
+    if (EXISTS "${JSONFILE}")
+        # add the compile_commands.json to the src directory
+        configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/src/compile_commands.json COPYONLY)
+        # add the compile_commands.json to the test directory
+        configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/test/compile_commands.json COPYONLY)
+    endif()
+
 
     if (MTLCOMPUTE_BUILD_DOCS MATCHES ON OR MTLCOMPUTE_BUILD_DOCS MATCHES TRUE)
         find_package(Doxygen REQUIRED doxygen)
@@ -36,6 +42,7 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         endif()
     endif()
 
+    # Fetch metal-cpp if it doesn't exist
     get_filename_component(FETCHDIR "${CMAKE_BINARY_DIR}/_deps" REALPATH)
     if (NOT EXISTS "${FETCHDIR}")
         message(STATUS "Creating directory ${FETCHDIR}")
@@ -47,6 +54,11 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         FetchContent_MakeAvailable(METALCPP)
     else()
         set(metalcpp_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/metalcpp-src")
+    endif()
+
+    find_package(doctest REQUIRED)
+    if (NOT doctest_FOUND)
+        message(FATAL_ERROR "Doctest not found!")
     endif()
 
 
