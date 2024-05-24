@@ -34,7 +34,7 @@ jobs:
 
     - name: Run
       working-directory: ${{github.workspace}}/build/src
-      run: ./hellometalcompute
+      run: ./MTLComputeHello
 
     #- name: Test
       #working-directory: ${{github.workspace}}/build
