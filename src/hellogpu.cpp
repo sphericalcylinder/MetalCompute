@@ -10,7 +10,6 @@
  * @return int
  *
 */
-
 int main() {
 
     MTL::Device *gpu = MTL::CreateSystemDefaultDevice(); // Create a GPU device
@@ -55,7 +54,6 @@ int main() {
     for (int i = 0; i < bufferlength; i++) {
         bufferBcontents[i] = rand() % 1000;
     }
-
 
     // Calculate the grid size and thread group size
     MTL::Size gridsize = MTL::Size(bufferlength, 1, 1);

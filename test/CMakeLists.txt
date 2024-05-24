@@ -17,6 +17,15 @@ include(FindMetal)
 include(FindMetalKit)
 include(FindFoundation)
 
+add_custom_target(testingmetal
+    COMMAND xcrun -sdk macosx metal -c ${CMAKE_SOURCE_DIR}/src/default.metal -o ${CMAKE_CURRENT_BINARY_DIR}/default.air
+    COMMAND xcrun -sdk macosx metallib ${CMAKE_CURRENT_BINARY_DIR}/default.air -o ${CMAKE_CURRENT_BINARY_DIR}/default.metallib
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/default.metal
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Compiling Metal shader for testing"
+    VERBATIM
+)
+
 file(GLOB TESTFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 foreach(TESTFILE ${TESTFILES})
@@ -24,12 +33,16 @@ foreach(TESTFILE ${TESTFILES})
     message(STATUS "Adding test: ${TESTNAME}")
 
     add_executable(${TESTNAME} ${TESTFILE})
+    list(APPEND TESTLIST ${TESTNAME})
 
     target_include_directories(${TESTNAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${metalcpp_SOURCE_DIR})
     target_link_libraries(${TESTNAME} PUBLIC doctest::doctest)
     target_link_libraries(${TESTNAME} PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})
+    add_dependencies(${TESTNAME} testingmetal)
 
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME})
 
 endforeach()
 
+# add all tests to a custom target
+add_custom_target(alltests DEPENDS ${TESTLIST})

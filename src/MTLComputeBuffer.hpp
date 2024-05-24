@@ -9,7 +9,10 @@ namespace MTLCompute {
     template<typename T>
     class Buffer {
         private:
+            MTL::Device *gpu; ///< The Metal device object
             MTL::Buffer *buffer; ///< The Metal buffer object
+            bool freed = false; ///< Whether the buffer has been freed
+            MTLCompute::ResourceStorage storageMode; ///< The storage mode of the buffer
             
         public:
             /**
@@ -24,8 +27,10 @@ namespace MTLCompute {
              *
             */
             Buffer(size_t length, MTL::Device *gpu, ResourceStorage storageMode) {
+                this->gpu = gpu;
                 this->length = length;
                 this->itemsize = sizeof(T);
+                this->storageMode = storageMode;
                 this->buffer = gpu->newBuffer(length*itemsize, static_cast<MTL::ResourceOptions>(storageMode));
             }
 
@@ -36,7 +41,20 @@ namespace MTLCompute {
              *
             */
             ~Buffer() {
-                this->buffer->release();
+                if (!this->freed) {
+                    //this->buffer->release();
+                    this->freed = true;
+                }
+            }
+
+            /**
+             * @brief Get the MTL::Buffer object
+             *
+             * @return MTL::Buffer* The MTL::Buffer object
+             *
+            */
+            MTL::Buffer *getBuffer() {
+                return this->buffer;
             }
 
             /**
@@ -46,6 +64,9 @@ namespace MTLCompute {
              *
             */
             T *contents() {
+                if (this->freed) {
+                    throw std::runtime_error("Buffer already freed");
+                }
                 return (T *)this->buffer->contents();
             }
 
@@ -54,10 +75,30 @@ namespace MTLCompute {
              *
              * @param[in] index The index to get the value from
              * @return T The value at the index
+             *
             */
-            T operator[](size_t index) {
+            T operator[](size_t index) const {
+                if (this->freed) {
+                    throw std::runtime_error("Buffer already freed");
+                }
                 if (index >= this->length) {
-                    std::cerr << "Index out of bounds" << std::endl;
+                    throw std::out_of_range("Index out of bounds");
+                }
+                return ((T *)this->buffer->contents())[index];
+            }
+
+            /**
+             * @brief Overload the [] operator to set the value at an index
+             *
+             * @param[in] index The index to set the value at
+             * @return T The value to set at the index
+             *
+            */
+            T& operator[](size_t index) {
+                if (this->freed) {
+                    throw std::runtime_error("Buffer already freed");
+                }
+                if (index >= this->length) {
                     throw std::out_of_range("Index out of bounds");
                 }
                 return ((T *)this->buffer->contents())[index];
@@ -70,12 +111,32 @@ namespace MTLCompute {
              *
             */
             void operator=(std::vector<T> data) {
+                if (this->freed) {
+                    throw std::runtime_error("Buffer already freed");
+                }
                 if (data.size() != this->length) {
-                    std::cerr << "Data size does not match buffer size" << std::endl;
                     throw std::invalid_argument("Data size does not match buffer size");
-                    return;
                 }
                 memcpy(this->buffer->contents(), data.data(), this->length*this->itemsize);
+
+                if (this->storageMode == MTLCompute::ResourceStorage::Managed) {
+                    this->buffer->didModifyRange(NS::Range(0, this->length*this->itemsize));
+                }
+            }
+
+            /**
+             * @brief Get the data from the buffer as a vector
+             *
+             * @return std::vector<T> The data from the buffer
+             *
+            */
+            std::vector<T> getData() {
+                if (this->freed) {
+                    throw std::runtime_error("Buffer already freed");
+                }
+                std::vector<T> data(this->length);
+                memcpy(data.data(), this->buffer->contents(), this->length*this->itemsize);
+                return data;
             }
 
             size_t length; ///< The length of the buffer
@@ -83,3 +144,5 @@ namespace MTLCompute {
     };
 
 }
+
+template class MTLCompute::Buffer<float>;

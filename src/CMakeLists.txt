@@ -8,15 +8,21 @@ add_custom_target(metal
     VERBATIM
 )
 
-add_executable(hellogpu hellogpu.cpp)
-add_dependencies(hellogpu metal)
-target_include_directories(hellogpu PRIVATE ${metalcpp_SOURCE_DIR})
-
-find_package(doctest REQUIRED)
-if (NOT doctest_FOUND)
-    message(FATAL_ERROR "Doctest not found!")
-endif()
+# get frameworks
+include(FindMetal)
+include(FindMetalKit)
+include(FindFoundation)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+add_executable(hellogpu hellogpu.cpp)
+add_dependencies(hellogpu metal)
+target_include_directories(hellogpu PRIVATE ${metalcpp_SOURCE_DIR})
+target_link_libraries(hellogpu PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})
+
+add_executable(MTLComputeHello hellometalcompute.cpp)
+add_dependencies(MTLComputeHello metal)
+target_include_directories(MTLComputeHello PRIVATE ${metalcpp_SOURCE_DIR})
+target_link_libraries(MTLComputeHello PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 
-option(MTLCOMPUTE_BUILD_TESTING "Build the tests" ON)
-option(MTLCOMPUTE_BUILD_DOCS "Build the documentation" OFF)
+option(MTLCOMPUTE_BUILD_TESTS "Build the tests")
+option(MTLCOMPUTE_BUILD_DOCS "Build the documentation")
 
 project(MetalCompute VERSION 1.0
                      DESCRIPTION "An API to make GPU compute calls easier"
@@ -16,7 +16,7 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENSIONS OFF)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-    include(CTest)
+    enable_testing()
     include(FetchContent)
 
     # generate compile_commands.json
@@ -66,9 +66,9 @@ endif()
 
 add_subdirectory(src)
 
-if ((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MTLCOMPUTE_BUILD_TESTING)
-    AND BUILD_TESTING)
+if ((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND MTLCOMPUTE_BUILD_TESTS)
 
+    message(STATUS "Adding tests to build")
     add_subdirectory(test)
 
 endif()
