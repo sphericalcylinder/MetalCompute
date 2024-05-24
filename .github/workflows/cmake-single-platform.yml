@@ -25,7 +25,7 @@ jobs:
       working-directory: ${{github.workspace}}
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DMTLCOMPUTE_BUILD_TESTS=OFF -G"Unix Makefiles"
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DMTLCOMPUTE_BUILD_TESTS=ON -G"Unix Makefiles"
 
     - name: Build
       working-directory: ${{github.workspace}}
