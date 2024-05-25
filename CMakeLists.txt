@@ -60,7 +60,7 @@ add_subdirectory(src)
 if (MTLCOMPUTE_BUILD_TESTS)
 
     message(STATUS "Adding tests to build")
-    find_package(doctest REQUIRED)
+    find_package(doctest QUIET)
     if (NOT doctest_FOUND)
         message(STATUS "Doctest not found, fetching")
 
