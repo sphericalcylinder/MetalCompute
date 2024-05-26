@@ -51,7 +51,7 @@ if (NOT EXISTS "${MTLCPPDIR}")
     )
     FetchContent_MakeAvailable(METALCPP)
 else()
-    set(metalcpp_SOURCE_DIR "${MTLCPPDIR}/_deps/metalcpp-src")
+    set(metalcpp_SOURCE_DIR "${MTLCPPDIR}")
 endif()
 
 add_subdirectory(src)

@@ -1,9 +1,4 @@
-#include "Foundation/NSString.hpp"
-#include "Foundation/NSURL.hpp"
 #include "MTLComputeGlobals.hpp"
-#include "Metal/MTLDevice.hpp"
-#include "Metal/MTLLibrary.hpp"
-#include "Metal/MTLRenderCommandEncoder.hpp"
 
 #pragma once
 

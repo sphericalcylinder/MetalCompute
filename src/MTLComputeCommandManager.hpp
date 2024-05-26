@@ -1,7 +1,6 @@
 #include "MTLComputeBuffer.hpp"
 #include "MTLComputeGlobals.hpp"
 #include "MTLComputeKernel.hpp"
-#include "Metal/MTLComputePipeline.hpp"
 #include <iostream>
 #include <vector>
 
