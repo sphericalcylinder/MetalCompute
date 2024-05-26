@@ -1,7 +1,6 @@
 #include "MTLComputeBuffer.hpp"
 #include "MTLComputeGlobals.hpp"
 #include "MTLComputeKernel.hpp"
-#include "Metal/MTLComputePipeline.hpp"
 #include <iostream>
 #include <vector>
 
@@ -21,6 +20,7 @@ namespace MTLCompute {
             int bufferlength = -1; ///< The length of the buffer
             bool bufferindecies[50]; ///< The buffer indecies
             bool stale = false; ///< The stale flag
+            bool endedencoding = false; ///< The ended encoding flag
 
         public:
 
@@ -84,11 +84,15 @@ namespace MTLCompute {
                 this->commandBuffer->commit();
                 this->commandBuffer->waitUntilCompleted();
 
-                stale = true;
+                this->stale = true;
+                this->endedencoding = true;
             }
 
             void refresh() {
-                this->commandEncoder->endEncoding();
+                if (!this->endedencoding) {
+                    this->commandEncoder->endEncoding();
+                    this->endedencoding = true;
+                }
                 this->commandEncoder->release();
                 this->commandBuffer->release();
                 this->commandQueue->release();
@@ -104,6 +108,7 @@ namespace MTLCompute {
                 }
 
                 this->stale = false;
+                this->endedencoding = false;
             }
 
     };

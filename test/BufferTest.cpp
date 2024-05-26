@@ -37,6 +37,7 @@ TEST_CASE("Test set with [] operator") {
 }
 
 TEST_CASE("Test get with returned vector") {
+    buffer = data;
     std::vector<int> result = buffer.getData();
     for (int i = 0; i < buffer.length; i++) {
         CHECK(result[i] == i);
@@ -57,10 +58,11 @@ TEST_CASE("Test Buffer Destructor") {
 }
 
 TEST_CASE("Double free") {
-    CHECK_NOTHROW(buffer.~Buffer());
+    REQUIRE_NOTHROW(buffer.~Buffer());
 }
 
 TEST_CASE("Test freed buffer access") {
+    buffer.~Buffer();
     CHECK_THROWS(buffer[0]);
     CHECK_THROWS(buffer = data);
 }

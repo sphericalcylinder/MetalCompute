@@ -35,12 +35,15 @@ foreach(TESTFILE ${TESTFILES})
     add_executable(${TESTNAME} ${TESTFILE})
     list(APPEND TESTLIST ${TESTNAME})
 
-    target_include_directories(${TESTNAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${metalcpp_SOURCE_DIR})
-    target_link_libraries(${TESTNAME} PUBLIC doctest::doctest)
+    target_include_directories(${TESTNAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${metalcpp_SOURCE_DIR} ${DOCTEST_INCLUDE_DIR})
     target_link_libraries(${TESTNAME} PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})
+    target_link_libraries(${TESTNAME} PRIVATE doctest::doctest)
     add_dependencies(${TESTNAME} testingmetal)
 
-    add_test(NAME ${TESTNAME} COMMAND ${TESTNAME})
+    #add_test(NAME ${TESTNAME} COMMAND ${TESTNAME})
+    string(REPLACE "Test" "" TESTPREFIX ${TESTNAME})
+    string(APPEND TESTPREFIX "---")
+    doctest_discover_tests(${TESTNAME} TEST_PREFIX ${TESTPREFIX})
 
 endforeach()
 
