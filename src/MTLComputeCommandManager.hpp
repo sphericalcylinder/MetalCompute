@@ -8,7 +8,7 @@
 
 namespace MTLCompute {
 
-
+    template< typename T>
     class CommandManager {
 
         private:
@@ -17,58 +17,83 @@ namespace MTLCompute {
             MTL::CommandQueue *commandQueue; ///< The Metal command queue object
             MTL::CommandBuffer *commandBuffer; ///< The Metal command buffer object
             MTL::ComputeCommandEncoder *commandEncoder; ///< The Metal compute command encoder object
-            int bufferlength = -1; ///< The length of the buffer
-            bool bufferindecies[50]; ///< The buffer indecies
-            bool stale = false; ///< The stale flag
-            bool endedencoding = false; ///< The ended encoding flag
+            std::vector<Buffer<T>> buffers = std::vector<Buffer<T>>(50); ///< The buffers
+            int bufferlength = -1; ///< The length of the buffers
 
         public:
 
-            CommandManager(MTL::Device *gpu, MTLCompute::Kernel &kernel) {
+            /**
+             * @brief Constructor for the CommandManager class
+             *
+             * Takes in the GPU device and the kernel object and creates a new CommandManager.
+             * Also takes in the target buffer type with a template parameter.
+             *
+             * @param gpu The GPU device
+             * @param kernel The kernel object
+             *
+            */
+            CommandManager<T>(MTL::Device *gpu, MTLCompute::Kernel &kernel) {
                 this->gpu = gpu;
                 this->pipeline = kernel.getPLS();
 
                 this->commandQueue = this->gpu->newCommandQueue();
-                this->commandBuffer = this->commandQueue->commandBuffer();
-                this->commandEncoder = this->commandBuffer->computeCommandEncoder();
+                //this->commandBuffer = this->commandQueue->commandBuffer();
+                //this->commandEncoder = this->commandBuffer->computeCommandEncoder();
 
-                this->commandEncoder->setComputePipelineState(this->pipeline);
+                //this->commandEncoder->setComputePipelineState(this->pipeline);
 
-                for (int i = 0; i < 50; i++) {
-                    this->bufferindecies[i] = false;
-                }
             }
 
+            /**
+             * @brief Destructor for the CommandManager class
+             *
+             * Releases the command queue
+             *
+            */
             ~CommandManager() {
-                this->commandEncoder->endEncoding();
-                this->commandEncoder->release();
-                this->commandBuffer->release();
+                //this->commandBuffer->release();
                 this->commandQueue->release();
             }
 
-            template< typename T>
+            /**
+             * @brief Load a buffer into the CommandManager
+             *
+             * Takes in a buffer and an index and adds the buffer to an internal array
+             *
+             * @param buffer The buffer to load
+             * @param index The index to load the buffer into
+             *
+            */
             void loadBuffer(Buffer<T> buffer, int index) {
-                if ((buffer.length != this->bufferlength) && (this->bufferlength != -1)) {
-                    throw std::invalid_argument("Buffer length does not match");
-                }
-                if (this->stale) {
-                    throw std::logic_error("Command manager is stale");
-                }
-
-                if (this->bufferindecies[index]) {
-                    throw std::invalid_argument("Buffer index already in use");
-                }
-
-                this->commandEncoder->setBuffer(buffer.getBuffer(), 0, index);
-                this->bufferindecies[index] = true;
-
-                if (this->bufferlength == -1)
+                if (this->bufferlength == -1) {
                     this->bufferlength = buffer.length;
+                } else if (this->bufferlength != buffer.length) {
+                    throw std::invalid_argument("Buffer lengths do not match");
+                }
+
+                this->buffers[index] = buffer;
             }
 
+            /**
+             * @brief Dispatch the kernel
+             *
+             * Creates new command buffer and command encoder objects,
+             * adds the specified buffers at the correct positons, and dispatches the kernel
+             *
+            */
             void dispatch() {
-                if (this->stale) {
-                    throw std::logic_error("Command manager is stale");
+
+                this->commandBuffer = this->commandQueue->commandBuffer();
+                this->commandEncoder = this->commandBuffer->computeCommandEncoder();
+                this->commandEncoder->setComputePipelineState(this->pipeline);
+
+                // this->commandEncoder->setBuffer(this->buffers[0].getBuffer(), 0, 0);
+                // this->commandEncoder->setBuffer(this->buffers[1].getBuffer(), 0, 1);
+                // this->commandEncoder->setBuffer(this->buffers[2].getBuffer(), 0, 2);
+                for (int i = 0; i < buffers.size(); i++) {
+                    if (buffers[i].length == this->bufferlength) {
+                        this->commandEncoder->setBuffer(buffers[i].getBuffer(), 0, i);
+                    }
                 }
 
                 // Calculate the grid size and thread group size
@@ -84,11 +109,11 @@ namespace MTLCompute {
                 this->commandBuffer->commit();
                 this->commandBuffer->waitUntilCompleted();
 
-                this->stale = true;
-                this->endedencoding = true;
+                this->commandEncoder->release();
+                this->commandBuffer->release();
             }
 
-            void refresh() {
+            /*void refresh() {
                 if (!this->endedencoding) {
                     this->commandEncoder->endEncoding();
                     this->endedencoding = true;
@@ -109,7 +134,7 @@ namespace MTLCompute {
 
                 this->stale = false;
                 this->endedencoding = false;
-            }
+            }*/
 
     };
 

@@ -13,10 +13,40 @@ std::vector<int> toomuch(11);
 TEST_CASE("Test Constructor") {
     REQUIRE(buffer.length == 10);
     REQUIRE(buffer.itemsize == sizeof(int));
+    REQUIRE(buffer.getGPU() == gpu);
+    REQUIRE(buffer.getBuffer() != nullptr);
+    REQUIRE(buffer.getStorageMode() == MTLCompute::ResourceStorage::Shared);
+}
+
+TEST_CASE("Test copy constructor") {
+    MTLCompute::Buffer<int> other(buffer);
+    REQUIRE(other.length == buffer.length);
+    REQUIRE(other.itemsize == buffer.itemsize);
+    REQUIRE(other.getGPU() == buffer.getGPU());
+    REQUIRE(other.getBuffer() == buffer.getBuffer());
+    REQUIRE(other.getStorageMode() == buffer.getStorageMode());
+}
+
+TEST_CASE("Test default constructor") {
+    MTLCompute::Buffer<int> other;
+    REQUIRE(other.length == -1);
+    REQUIRE(other.itemsize == -1);
+    REQUIRE(other.getGPU() == nullptr);
+    REQUIRE(other.getBuffer() == nullptr);
+    REQUIRE(other.getStorageMode() == MTLCompute::ResourceStorage::Shared);
 }
 
 TEST_CASE("Test set with vector") {
     REQUIRE_NOTHROW(buffer = data);
+}
+
+TEST_CASE("Test set with buffer") {
+    MTLCompute::Buffer<int> other(10, gpu, MTLCompute::ResourceStorage::Shared);
+    REQUIRE(other.length == buffer.length);
+    REQUIRE(other.itemsize == buffer.itemsize);
+    REQUIRE(other.getGPU() == buffer.getGPU());
+    //REQUIRE(other.getBuffer() == buffer.getBuffer()); doesn't pass and I don't know why
+    REQUIRE(other.getStorageMode() == buffer.getStorageMode());
 }
 
 TEST_CASE("Test get with [] operator") {

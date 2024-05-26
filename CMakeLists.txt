@@ -60,7 +60,6 @@ if (MTLCOMPUTE_BUILD_TESTS)
 
     message(STATUS "Adding tests to build")
     find_package(doctest QUIET)
-    set(doctest_FOUND OFF)
     if (NOT doctest_FOUND)
 
         get_filename_component(DOCTESTDIR "${CMAKE_BINARY_DIR}/_deps/doctest-src" REALPATH)

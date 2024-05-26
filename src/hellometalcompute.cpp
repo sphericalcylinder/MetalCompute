@@ -32,7 +32,7 @@ int main() {
     bufferb = bufferdata;
 
     // Create a CommandManager and load the buffers
-    MTLCompute::CommandManager manager(gpu, kernel);
+    MTLCompute::CommandManager<float> manager(gpu, kernel);
     manager.loadBuffer(buffera, 0);
     manager.loadBuffer(bufferb, 1);
     manager.loadBuffer(bufferc, 2);
@@ -42,6 +42,33 @@ int main() {
 
     // Get and print the result
     std::vector<float> result = bufferc.getData();
+    for (int i = 0; i < bufferc.length; i++) {
+        std::cout << result[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // Test with different data
+    buffera = std::vector<float>(10, 3);
+    bufferb = std::vector<float>(10, 4);
+
+    manager.loadBuffer(buffera, 0);
+    manager.loadBuffer(bufferb, 1);
+
+    manager.dispatch();
+
+    result = bufferc.getData();
+    for (int i = 0; i < bufferc.length; i++) {
+        std::cout << result[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // Test with more different data
+    manager.loadBuffer(buffera, 0);
+    manager.loadBuffer(buffera, 1);
+
+    manager.dispatch();
+
+    result = bufferc.getData();
     for (int i = 0; i < bufferc.length; i++) {
         std::cout << result[i] << " ";
     }
