@@ -17,12 +17,19 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(hellogpu hellogpu.cpp)
-add_dependencies(hellogpu metal)
-target_include_directories(hellogpu PRIVATE ${metalcpp_SOURCE_DIR})
-target_link_libraries(hellogpu PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})
+file(GLOB SOURCEFILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-add_executable(MTLComputeHello hellometalcompute.cpp)
-add_dependencies(MTLComputeHello metal)
-target_include_directories(MTLComputeHello PRIVATE ${metalcpp_SOURCE_DIR})
-target_link_libraries(MTLComputeHello PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})
+foreach(SOURCEFILE ${SOURCEFILES})
+
+    get_filename_component(EXENAME ${SOURCEFILE} NAME_WE)
+    message(STATUS "Adding executable ${EXENAME}")
+
+    add_executable(${EXENAME} ${SOURCEFILE})
+    
+    add_dependencies(${EXENAME} metal)
+    target_include_directories(${EXENAME} PRIVATE ${metalcpp_SOURCE_DIR})
+    target_link_libraries(${EXENAME} PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})
+
+endforeach()
+
+

@@ -15,30 +15,22 @@ before the `-S`. To get the docs, add `-DMTLCOMPUTE_BUILD_DOCS=ON`. Enjoy!!!!!
 
 # This update:
 
-- More initialization for MTLCompute::Buffer
-  - Initialize buffers with other buffers!
-  - Set buffers to other buffers even after initialization!
-  - Copy and swap!!
-  - Default constructor (initalize blank buffer!)
-- I love the new MTLCompute::CommandManager! :heart:
-  - Less likely to segfault
-  - Set buffers to any index (less than 50)
-  - Do it however many times you want
-  - Call `dispatch()` an infinite number of times, it won't break (probably)
-  - And no more pesky `refresh()` after calling it
-  - I forgot to add something to clear the buffers
-  - gosh darn it
-  - I'll do it in another commit
-  - **You have to supply the type that you're using for the buffers**
-  - If your buffers are `MTLCompute::Buffer<float>` then the CommandManager
-  has to be `MTLCompute::CommandManager<float>`
-  - Please don't supply the wrong type
-- MTLCompute::Kernel!
-  - I didn't do anything with it
-  - Just wrote documentation
-- Docs
-  - Technically complete
-  - Need to write a mainpage
+- Verbose texture example [here](src/hellotexture.cpp)
+- Basic Texture support: MTLCompute::Texture
+  - Only 2d
+  - Multiple types
+    - Unsigned and signed 8, 16, and 32 bit integers
+    - 8 and 16 bit normals (0.0 to 1.0)
+    - 16 and 32 bit floats
+    - All through MTLCompute::TextureType
+  - Basically a less functional clone of MTLCompute::Buffer
+  - Mostly documented
+- MTLCompute::TextureCommandManager
+  - For use with textures
+  - Will disappear later
+  - Just temporary
+  - It was confusing to add textures to the regular CommandManager
+  - Deal with it for now
 
 
 # About

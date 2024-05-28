@@ -2,6 +2,7 @@
 #include "MTLComputeBuffer.hpp"
 #include "MTLComputeKernel.hpp"
 #include "MTLComputeCommandManager.hpp"
+#include "MTLComputeTexture.hpp"
 
 /**
  * @file MTLCompute.hpp

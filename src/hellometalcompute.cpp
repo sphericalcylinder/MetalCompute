@@ -47,31 +47,36 @@ int main() {
     }
     std::cout << std::endl;
 
-    // Test with different data
-    buffera = std::vector<float>(10, 3);
-    bufferb = std::vector<float>(10, 4);
+    // Create the textures
+    std::vector<std::vector<float>> texdata(10, std::vector<float>(10, 1));
 
-    manager.loadBuffer(buffera, 0);
-    manager.loadBuffer(bufferb, 1);
+    MTLCompute::Texture<float> textureA(gpu, 10, 10, MTLCompute::TextureType::float32);
+    textureA = texdata;
 
-    manager.dispatch();
+    MTLCompute::Texture<float> textureB(gpu, 10, 10, MTLCompute::TextureType::float32);
+    textureB = texdata;
 
-    result = bufferc.getData();
-    for (int i = 0; i < bufferc.length; i++) {
-        std::cout << result[i] << " ";
+    MTLCompute::Texture<float> textureC(gpu, 10, 10, MTLCompute::TextureType::float32);
+
+    // Select the "matrix_add" function to use
+    kernel.useFunction("matrix_add");   
+
+    // Create a TextureCommandManager and load the textures
+    MTLCompute::TextureCommandManager<float> texturemanager(gpu, kernel);
+    texturemanager.loadTexture(textureA, 0);
+    texturemanager.loadTexture(textureB, 1);
+    texturemanager.loadTexture(textureC, 2);
+
+    // Dispatch the kernel
+    texturemanager.dispatch();
+
+    // Get and print the result
+    std::vector<std::vector<float>> texresult = textureC.getData();
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            std::cout << texresult[i][j] << " ";
+        }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
-
-    // Test with more different data
-    manager.loadBuffer(buffera, 0);
-    manager.loadBuffer(buffera, 1);
-
-    manager.dispatch();
-
-    result = bufferc.getData();
-    for (int i = 0; i < bufferc.length; i++) {
-        std::cout << result[i] << " ";
-    }
-    std::cout << std::endl;
 
 }
