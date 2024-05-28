@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
 #include "Foundation/Foundation.hpp"
@@ -19,15 +20,21 @@ namespace MTLCompute {
         uint16 = MTL::PixelFormatR16Uint,
         uint32 = MTL::PixelFormatR32Uint,
 
-        sint8 = MTL::PixelFormatR8Sint,
-        sint16 = MTL::PixelFormatR16Sint,
-        sint32 = MTL::PixelFormatR32Sint,
+        int8 = MTL::PixelFormatR8Sint,
+        int16 = MTL::PixelFormatR16Sint,
+        int32 = MTL::PixelFormatR32Sint,
 
-        float16 = MTL::PixelFormatR16Float,
         float32 = MTL::PixelFormatR32Float,
-        
-        norm8 = MTL::PixelFormatR8Unorm,
-        norm16 = MTL::PixelFormatR16Unorm,
+    };
+
+    inline std::map<TextureType, size_t> TextureTypeSizes = {
+        {TextureType::uint8, sizeof(uint8_t)},
+        {TextureType::uint16, sizeof(uint16_t)},
+        {TextureType::uint32, sizeof(uint32_t)},
+        {TextureType::int8, sizeof(int8_t)},
+        {TextureType::int16, sizeof(int16_t)},
+        {TextureType::int32, sizeof(int32_t)},
+        {TextureType::float32, sizeof(float_t)}
     };
 
 }

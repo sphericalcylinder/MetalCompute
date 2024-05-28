@@ -87,6 +87,10 @@ namespace MTLCompute {
                 this->descriptor = MTL::TextureDescriptor::alloc()->init();
                 this->descriptor->setTextureType(MTL::TextureType2D);
                 this->descriptor->setPixelFormat(static_cast<MTL::PixelFormat>(tt));
+                if (sizeof(T) != TextureTypeSizes[tt]) {
+                    std::cout << sizeof(T) << " " << TextureTypeSizes[tt] << std::endl;
+                    throw std::invalid_argument("Texture type does not match template type");
+                }
                 this->descriptor->setWidth(width);
                 this->descriptor->setHeight(height);
                 this->texture = this->gpu->newTexture(this->descriptor);
@@ -178,6 +182,9 @@ namespace MTLCompute {
             std::vector<std::vector<T>> getData() {
                 if (this->freed) {
                     throw std::runtime_error("Buffer already freed");
+                }
+                if (this->width == -1 || this->height == -1) {
+                    throw std::runtime_error("Buffer not initialized");
                 }
                 std::vector<T> flat(this->width*this->height);
                 this->texture->getBytes(flat.data(), this->width*sizeof(T), MTL::Region::Make2D(0, 0, this->width, this->height), 0);

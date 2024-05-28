@@ -1,6 +1,7 @@
 #include "MTLCompute.hpp"
 #include <algorithm>
 #include <vector>
+#include <iostream>
 
 int main() {
 
@@ -32,7 +33,7 @@ int main() {
     bufferb = bufferdata;
 
     // Create a CommandManager and load the buffers
-    MTLCompute::CommandManager<float> manager(gpu, kernel);
+    MTLCompute::CommandManager<float> manager(gpu, &kernel);
     manager.loadBuffer(buffera, 0);
     manager.loadBuffer(bufferb, 1);
     manager.loadBuffer(bufferc, 2);
@@ -47,36 +48,69 @@ int main() {
     }
     std::cout << std::endl;
 
-    // Create the textures
-    std::vector<std::vector<float>> texdata(10, std::vector<float>(10, 1));
+    int width = 5;
+    int height = 5;
 
-    MTLCompute::Texture<float> textureA(gpu, 10, 10, MTLCompute::TextureType::float32);
+    // Create the textures
+    std::vector<std::vector<float>> texdata(height, std::vector<float>(width, 1));
+
+    MTLCompute::Texture<float> textureA(gpu, width, height, MTLCompute::TextureType::float32);
     textureA = texdata;
 
-    MTLCompute::Texture<float> textureB(gpu, 10, 10, MTLCompute::TextureType::float32);
+    MTLCompute::Texture<float> textureB(gpu, width, height, MTLCompute::TextureType::float32);
     textureB = texdata;
 
-    MTLCompute::Texture<float> textureC(gpu, 10, 10, MTLCompute::TextureType::float32);
+    MTLCompute::Texture<float> textureC(gpu, width, height, MTLCompute::TextureType::float32);
 
     // Select the "matrix_add" function to use
     kernel.useFunction("matrix_add");   
 
-    // Create a TextureCommandManager and load the textures
-    MTLCompute::TextureCommandManager<float> texturemanager(gpu, kernel);
-    texturemanager.loadTexture(textureA, 0);
-    texturemanager.loadTexture(textureB, 1);
-    texturemanager.loadTexture(textureC, 2);
+    // Clear buffers
+    manager.resetBuffers();
+
+    // Load the textures
+    manager.loadTexture(textureA, 0);
+    manager.loadTexture(textureB, 1);
+    manager.loadTexture(textureC, 2);
 
     // Dispatch the kernel
-    texturemanager.dispatch();
+    manager.dispatch();
 
     // Get and print the result
     std::vector<std::vector<float>> texresult = textureC.getData();
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
             std::cout << texresult[i][j] << " ";
         }
         std::cout << std::endl;
     }
+
+    // Clear textures
+    manager.resetTextures();
+
+    // Select the "both" function to use
+    kernel.useFunction("both");
+
+    // Create a buffer
+    MTLCompute::Texture<float> textureD(gpu, width, height, MTLCompute::TextureType::float32);
+
+    // Load the buffer and texture
+    manager.loadBuffer(buffera, 0);
+    manager.loadTexture(textureD, 0);
+
+    // Dispatch the kernel
+    manager.dispatch();
+
+    // Get and print the result (addition tables)
+    std::cout << std::endl;
+    std::vector<std::vector<float>> bothresult = textureD.getData();
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            std::cout << bothresult[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    manager.resetBuffers();
 
 }

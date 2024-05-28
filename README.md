@@ -15,23 +15,22 @@ before the `-S`. To get the docs, add `-DMTLCOMPUTE_BUILD_DOCS=ON`. Enjoy!!!!!
 
 # This update:
 
-- Verbose texture example [here](src/hellotexture.cpp)
-- Basic Texture support: MTLCompute::Texture
-  - Only 2d
-  - Multiple types
-    - Unsigned and signed 8, 16, and 32 bit integers
-    - 8 and 16 bit normals (0.0 to 1.0)
-    - 16 and 32 bit floats
-    - All through MTLCompute::TextureType
-  - Basically a less functional clone of MTLCompute::Buffer
-  - Mostly documented
-- MTLCompute::TextureCommandManager
-  - For use with textures
-  - Will disappear later
-  - Just temporary
-  - It was confusing to add textures to the regular CommandManager
-  - Deal with it for now
+- No more MTLCompute::TextureCommandManager
+  - Use loadTexture to load a texture to the CommandManager
+  - Takes the kernel address instead of the kernel
+  - Automatically updates the pipeline
+  - Call `resetBuffers()`, `resetTextures()`, and `reset()` to reset the cached values
+- No docs for the new stuff
 
+### Want to do:
+
+- [x] One CommandManager
+- [ ] 1d and 3d textures
+- [ ] MTLCompute::GPU class to manage everything else
+- [ ] More access to texture data (like [])
+- [ ] Convert buffers to textures
+- [ ] More kernel info commands
+- [ ] More texture values (RGBA)
 
 # About
 I not so recently created a C++ application and wanted to use Apple's metal-cpp library to add gpu

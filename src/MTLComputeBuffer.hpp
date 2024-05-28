@@ -181,6 +181,9 @@ namespace MTLCompute {
                 if (this->freed) {
                     throw std::runtime_error("Buffer already freed");
                 }
+                if (this->length == -1) {
+                    throw std::runtime_error("Buffer not initialized");
+                }
                 std::vector<T> data(this->length);
                 memcpy(data.data(), this->buffer->contents(), this->length*this->itemsize);
                 return data;
