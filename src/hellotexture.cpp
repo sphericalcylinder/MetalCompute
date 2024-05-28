@@ -56,8 +56,6 @@ int main() {
     txdesc->setWidth(width);
     txdesc->setHeight(height);
 
-    gpu->newBuffer(10, MTL::ResourceStorageModeShared);
-
     MTL::Texture *textureA = gpu->newTexture(txdesc);
     MTL::Texture *textureB = gpu->newTexture(txdesc);
     MTL::Texture *textureC = gpu->newTexture(txdesc);
@@ -120,6 +118,9 @@ int main() {
     commencoder->release();
     commbuffer->release();
     commqueue->release();
+    textureA->release();
+    textureB->release();
+    textureC->release();
     computepipeline->release();
     addfunction->release();
     library->release();
