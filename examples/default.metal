@@ -20,9 +20,6 @@ kernel void matrix_add(texture2d<float, access::read> a [[texture(0)]],
                        texture2d<float, access::write> c [[texture(2)]],
                        uint2 gid [[thread_position_in_grid]]) {
 
-  if (gid.x >= a.get_width() || gid.y >= a.get_height()) {
-    return;
-  }
   float sum = a.read(gid).r + b.read(gid).r;
   c.write(sum, gid);
 }

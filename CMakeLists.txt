@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.19)
 
 option(MTLCOMPUTE_BUILD_TESTS "Build the tests")
 option(MTLCOMPUTE_BUILD_DOCS "Build the documentation")
+option(MTLCOMPUTE_INSTALL_DOCS "Install the documentation")
+option(MTLCOMPUTE_INSTALL_EXAMPLES "Install the example source files")
+option(MTLCOMPUTE_INSTALL_TESTS "Install the tests")
 
 project(MetalCompute VERSION 1.0
                      DESCRIPTION "An API to make GPU compute calls easier"
@@ -21,13 +24,13 @@ include(FetchContent)
 # https://stackoverflow.com/questions/23960835/cmake-not-generating-compile-commands-json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
-get_filename_component(JSONFILE "${CMAKE_BINARY_DIR}/compile_commands.json" REALPATH)
-if (EXISTS "${JSONFILE}")
-    # add the compile_commands.json to the src directory
-    configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/src/compile_commands.json COPYONLY)
-    # add the compile_commands.json to the test directory
-    configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/test/compile_commands.json COPYONLY)
-endif()
+# get_filename_component(JSONFILE "${CMAKE_BINARY_DIR}/compile_commands.json" REALPATH)
+# if (EXISTS "${JSONFILE}")
+#     # add the compile_commands.json to the src directory
+#     configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/src/compile_commands.json COPYONLY)
+#     # add the compile_commands.json to the test directory
+#     configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/test/compile_commands.json COPYONLY)
+# endif()
 
 
 if (MTLCOMPUTE_BUILD_DOCS MATCHES ON OR MTLCOMPUTE_BUILD_DOCS MATCHES TRUE)
@@ -37,6 +40,9 @@ if (MTLCOMPUTE_BUILD_DOCS MATCHES ON OR MTLCOMPUTE_BUILD_DOCS MATCHES TRUE)
         add_subdirectory(docs)
     else()
         message(WARNING "Doxygen not found, not building docs")
+    endif()
+    if (MTLCOMPUTE_INSTALL_DOCS)
+        install(DIRECTORY ${CMAKE_BINARY_DIR}/docs/html DESTINATION docs)
     endif()
 endif()
 
@@ -55,6 +61,7 @@ else()
 endif()
 
 add_subdirectory(src)
+add_subdirectory(examples)
 
 if (MTLCOMPUTE_BUILD_TESTS)
 
@@ -81,28 +88,6 @@ if (MTLCOMPUTE_BUILD_TESTS)
         include_directories(${doctest_SOURCE_DIR})
         include(doctest)
 
-        # include(ExternalProject)
-        # find_package(Git REQUIRED)
-
-        # ExternalProject_Add(
-        #     doctest
-        #     PREFIX ${CMAKE_BINARY_DIR}/test/doctest
-        #     GIT_REPOSITORY https://github.com/doctest/doctest.git
-        #     TIMEOUT 10
-        #     UPDATE_COMMAND ${GIT_EXECUTABLE} pull
-        #     CONFIGURE_COMMAND ""
-        #     BUILD_COMMAND ""
-        #     INSTALL_COMMAND ""
-        #     LOG_DOWNLOAD ON
-        # )
-
-        # # Expose required variable (DOCTEST_INCLUDE_DIR) to parent scope
-        # ExternalProject_Get_Property(doctest SOURCE_DIR)
-        # set(DOCTEST_INCLUDE_DIR ${SOURCE_DIR}/doctest CACHE INTERNAL "Path to include folder for doctest")
-        # ExternalProject_Get_Property(doctest DOWNLOAD_DIR)
-        # set(DOCTEST_SCRIPT_DIR ${DOWNLOAD_DIR}/doctest CACHE INTERNAL "Path to include folder for doctest")
-        # list(APPEND CMAKE_MODULE_PATH "${DOCTEST_INCLUDE_DIR}")
-        # include(${DOCTEST_SCRIPT_DIR}/scripts/cmake/doctest.cmake)
     else()
         message(STATUS "Doctest found")
         include(doctest)

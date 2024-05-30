@@ -9,25 +9,33 @@ for more info.
 > ***YOU CAN*** build the documentation. I wrote it. It's ugly though.
 
 Building is simple, just run `cmake -S . -B build/` and then `cmake --build build/` in the top directory.
-That will build the two example files. To get tests, add `-DMTLCOMPUTE_BUILD_TESTS=ON` to the first command
-before the `-S`. To get the docs, add `-DMTLCOMPUTE_BUILD_DOCS=ON`. Enjoy!!!!!
+
+| Thing for CMake to do | Command |
+-----------------------------------
+| Build tests | `-DMTLCOMPUTE_BUILD_TESTS=ON` |
+| Build docs | `-DMTLCOMPUTE_BUILD_DOCS=ON` |
+| Install tests | `-DMTLCOMPUTE_INSTALL_TESTS=ON` |
+| Install docs | `-DMTLCOMPUTE_INSTALL_DOCS=ON` |
+| Install examples | `-DMTLCOMPUTE_INSTALL_EXAMPLES=ON` |
 
 
 # This update:
 
-- Tragic oversight fixed!!
-  - MTLCompute::CommandManager::dispatch() used `commandEncoder->dispatchThreadgroups()`
-    when the arguments were meant for `commandEncoder->dispatchThreads()`
-  - The texture size was limited to 32x32
-  - It's fixed now
-  - Now the texture limit is 16384x16384 as defined
-    by the [Metal Feature Set Tables](https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf)
+- Seperate examples from actual code
+  - Now they're in the 'examples' folder
+- CMake install exists
+  - I think I did it well
+  - No idea though
+- Builds shared library for you to use (libmtlcompute)
+- Limits on texture size and number of loadable textures
+  and buffers
+- I didn't write the docs
 
 ### Want to do:
 
 - [x] One CommandManager
-- [ ] Implement strict limits on texture size (16384)
-- [ ] Limit number of loadable textures and buffers
+- [x] Implement strict limits on texture size (16384)
+- [x] Limit number of loadable textures and buffers
 - [ ] 1d and 3d textures
 - [ ] MTLCompute::GPU class to manage everything else
 - [ ] More access to texture data (like [])

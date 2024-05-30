@@ -70,3 +70,8 @@ TEST_CASE("Test set with too much data") {
 TEST_CASE("Test set with too little data") {
     REQUIRE_THROWS(texture = toosmall);
 }
+
+TEST_CASE("Test create texture larger than max size") {
+    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture<float>(gpu, 16385, 16385, MTLCompute::TextureType::float32),
+        std::invalid_argument, "Texture size too large, max size is 16384");
+}

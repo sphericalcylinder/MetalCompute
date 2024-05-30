@@ -82,6 +82,9 @@ namespace MTLCompute {
             */
             Texture(MTL::Device *gpu, int width, int height, TextureType tt) {
                 this->gpu = gpu;
+                if (width > MAX_TEXTURE_SIZE || height > MAX_TEXTURE_SIZE) {
+                    throw std::invalid_argument("Texture size too large, max size is 16384");
+                }
                 this->width = width;
                 this->height = height;
                 this->descriptor = MTL::TextureDescriptor::alloc()->init();
@@ -154,6 +157,9 @@ namespace MTLCompute {
                 }
                 if (data.size() != this->height || data[0].size() != this->width) {
                     throw std::invalid_argument("Data size does not match texture size");
+                }
+                if (data.size() > MAX_TEXTURE_SIZE || data[0].size() > MAX_TEXTURE_SIZE) {
+                    throw std::invalid_argument("Data size too large, max size is 16384");
                 }
                 std::vector<T> flat = flatten(data);
                 this->texture->replaceRegion(MTL::Region::Make2D(0, 0, this->width, this->height), 0, flat.data(), this->width*sizeof(T));

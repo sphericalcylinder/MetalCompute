@@ -18,9 +18,9 @@ include(FindMetalKit)
 include(FindFoundation)
 
 add_custom_target(testingmetal
-    COMMAND xcrun -sdk macosx metal -c ${CMAKE_SOURCE_DIR}/src/default.metal -o ${CMAKE_CURRENT_BINARY_DIR}/default.air
+    COMMAND xcrun -sdk macosx metal -c ${CMAKE_CURRENT_SOURCE_DIR}/default.metal -o ${CMAKE_CURRENT_BINARY_DIR}/default.air
     COMMAND xcrun -sdk macosx metallib ${CMAKE_CURRENT_BINARY_DIR}/default.air -o ${CMAKE_CURRENT_BINARY_DIR}/default.metallib
-    DEPENDS ${CMAKE_SOURCE_DIR}/src/default.metal
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/default.metal
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Compiling Metal shader for testing"
     VERBATIM
@@ -49,3 +49,10 @@ endforeach()
 
 # add all tests to a custom target
 add_custom_target(alltests DEPENDS ${TESTLIST})
+
+if (MTLCOMPUTE_INSTALL_TESTS)
+
+    install(TARGETS ${TESTLIST} DESTINATION tests)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/default.metallib DESTINATION tests)
+
+endif()

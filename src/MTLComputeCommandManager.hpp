@@ -19,9 +19,9 @@ namespace MTLCompute {
             MTL::CommandQueue *commandQueue; ///< The Metal command queue object
             MTL::CommandBuffer *commandBuffer; ///< The Metal command buffer object
             MTL::ComputeCommandEncoder *commandEncoder; ///< The Metal compute command encoder object
-            int arraysize = 50; ///< The size of the buffer and texture arrays
-            std::vector<Buffer<T>> buffers = std::vector<Buffer<T>>(arraysize); ///< The buffers
-            std::vector<Texture<T>> textures = std::vector<Texture<T>>(arraysize); ///< The textures
+
+            std::vector<Buffer<T>> buffers = std::vector<Buffer<T>>(MAX_BUFFERS); ///< The buffers
+            std::vector<Texture<T>> textures = std::vector<Texture<T>>(MAX_TEXTURES); ///< The textures
             int bufferlength = -1; ///< The length of the buffers
             int texwidth = -1; ///< The width of the textures
             int texheight = -1; ///< The height of the textures
@@ -82,6 +82,9 @@ namespace MTLCompute {
                 if (this->texwidth == -1 && this->texheight == -1) {
                     this->texwidth = texture.getWidth();
                     this->texheight = texture.getHeight();
+                    if (this->texwidth > MAX_TEXTURE_SIZE || this->texheight > MAX_TEXTURE_SIZE) {
+                        throw std::invalid_argument("Texture size too large, max size is 16384");
+                    }
                 } else if (this->texwidth != texture.getWidth() || this->texheight != texture.getHeight()) {
                     std::cout << this->texwidth << " " << this->texheight << std::endl;
                     std::cout << texture.getTexture()->width() << " " << texture.getTexture()->height() << std::endl;
@@ -109,11 +112,18 @@ namespace MTLCompute {
                 bool usingbuffers = false;
                 bool usingtextures = false;
 
-                for (int i = 0; i < arraysize; i++) {
+                for (int i = 0; i < MAX_BUFFERS; i++) {
                     if (buffers[i].length == this->bufferlength && buffers[i].getBuffer() != nullptr) {
                         this->commandEncoder->setBuffer(buffers[i].getBuffer(), 0, i);
                         usingbuffers = true;
                     }
+                    if (textures[i].getWidth() == this->texwidth && textures[i].getHeight() == this->texheight
+                            && textures[i].getTexture() != nullptr) {
+                        this->commandEncoder->setTexture(textures[i].getTexture(), i);
+                        usingtextures = true;
+                    }
+                }
+                for (int i = MAX_BUFFERS; i < MAX_TEXTURES; i++) {
                     if (textures[i].getWidth() == this->texwidth && textures[i].getHeight() == this->texheight
                             && textures[i].getTexture() != nullptr) {
                         this->commandEncoder->setTexture(textures[i].getTexture(), i);
@@ -155,12 +165,12 @@ namespace MTLCompute {
 
             void resetBuffers() {
                 this->buffers.clear();
-                this->buffers = std::vector<Buffer<T>>(this->arraysize);
+                this->buffers = std::vector<Buffer<T>>(MAX_BUFFERS);
             }
 
             void resetTextures() {
                 this->textures.clear();
-                this->textures = std::vector<Texture<T>>(this->arraysize);
+                this->textures = std::vector<Texture<T>>(MAX_TEXTURES);
             }
 
             void reset() {

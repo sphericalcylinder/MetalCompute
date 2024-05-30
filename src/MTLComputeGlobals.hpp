@@ -9,6 +9,11 @@
 
 namespace MTLCompute {
 
+    constexpr int MAX_BUFFERS = 31;
+    constexpr int MAX_TEXTURES = 128;
+    constexpr long MAX_TEXTURE_SIZE = 16384;
+    // i cant find the max buffer size
+
     enum class ResourceStorage {
         Shared = MTL::ResourceStorageModeShared,
         Managed = MTL::ResourceStorageModeManaged,
