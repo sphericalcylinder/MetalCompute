@@ -35,12 +35,13 @@ namespace MTLCompute {
              * @param storageMode The storage mode of the buffer
              *
             */
-            Buffer(size_t length, MTL::Device *gpu, ResourceStorage storageMode) {
+            Buffer(MTL::Device *gpu, size_t length, ResourceStorage storageMode) {
                 this->gpu = gpu;
                 this->length = length;
                 this->itemsize = sizeof(T);
                 this->storageMode = storageMode;
                 this->buffer = gpu->newBuffer(length*itemsize, static_cast<MTL::ResourceOptions>(storageMode));
+                this->buffer->retain();
             }
 
 
@@ -78,13 +79,13 @@ namespace MTLCompute {
             /**
              * @brief Destructor for the Buffer class
              *
-             * Sets the buffer to be freed but does not actually free it
-             * because sometime is segfaults and this is easier
+             * Calls autorelease on the buffer object
+             * and sets the freed flag to true
              *
             */
             ~Buffer() {
                 if (!this->freed) {
-                    //this->buffer->release();
+                    this->buffer->autorelease();
                     this->freed = true;
                 }
             }

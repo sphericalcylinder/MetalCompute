@@ -7,7 +7,7 @@ MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
 MTLCompute::Texture<float> texture(gpu, 10, 10, MTLCompute::TextureType::float32);
 std::vector<std::vector<float>> data(10, std::vector<float>(10, 1.0));
 std::vector<std::vector<float>> toomuch(11, std::vector<float>(10, 1.0));
-std::vector<std::vector<float>> toosmall(9, std::vector<float>(10, 1.0));
+std::vector<std::vector<float>> toolittle(9, std::vector<float>(10, 1.0));
 
 TEST_CASE("Test Constructor") {
     REQUIRE(texture.getWidth() == 10);
@@ -63,12 +63,29 @@ TEST_CASE("Test get with vector") {
     }
 }
 
+TEST_CASE("Test get row with [] operator") {
+    texture = data;
+    for (int i = 0; i < texture.getHeight(); i++) {
+        CHECK(texture[i] == data[i]);
+    }
+}
+
+TEST_CASE("Test get item with [] operator") {
+    texture = data;
+    for (int i = 0; i < texture.getHeight(); i++) {
+        for (int j = 0; j < texture.getWidth(); j++) {
+            CHECK(texture[i][j] == data[i][j]);
+        }
+    }
+}
+
+
 TEST_CASE("Test set with too much data") {
     REQUIRE_THROWS(texture = toomuch);
 }
 
 TEST_CASE("Test set with too little data") {
-    REQUIRE_THROWS(texture = toosmall);
+    REQUIRE_THROWS(texture = toolittle);
 }
 
 TEST_CASE("Test create texture larger than max size") {

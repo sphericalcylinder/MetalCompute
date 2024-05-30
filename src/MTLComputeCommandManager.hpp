@@ -38,7 +38,7 @@ namespace MTLCompute {
              * @param kernel The kernel object
              *
             */
-            CommandManager<T>(MTL::Device *gpu, MTLCompute::Kernel *kernel) {
+            CommandManager(MTL::Device *gpu, MTLCompute::Kernel *kernel) {
                 this->gpu = gpu;
                 this->kernel = kernel;
                 this->pipeline = this->kernel->getPLS();
@@ -48,14 +48,19 @@ namespace MTLCompute {
             }
 
             /**
+             * @brief Default constructor for the CommandManager class
+             *
+            */
+            CommandManager() = default;
+
+            /**
              * @brief Destructor for the CommandManager class
              *
              * Releases the command queue
              *
             */
             ~CommandManager() {
-                //this->commandBuffer->release();
-                this->commandQueue->release();
+                this->commandQueue->autorelease();
             }
 
             /**
@@ -78,6 +83,15 @@ namespace MTLCompute {
             }
 
 
+            /**
+             * @brief Load a texture into the CommandManager
+             *
+             * Takes in a texture and an index and adds the texture to an internal array
+             *
+             * @param texture The texture to load
+             * @param index The index to load the texture into
+             *
+            */
             void loadTexture(Texture<T> texture, int index) {
                 if (this->texwidth == -1 && this->texheight == -1) {
                     this->texwidth = texture.getWidth();
@@ -103,15 +117,18 @@ namespace MTLCompute {
             */
             void dispatch() {
                 if (this->kernel->getPLS() != this->pipeline) {
+                    // Refresh the pipeline if it has changed
                     this->pipeline = this->kernel->getPLS();
                 }
 
+                // Create a new command buffer and command encoder
                 this->commandBuffer = this->commandQueue->commandBuffer();
                 this->commandEncoder = this->commandBuffer->computeCommandEncoder();
                 this->commandEncoder->setComputePipelineState(this->pipeline);
                 bool usingbuffers = false;
                 bool usingtextures = false;
 
+                // Load the buffers and textures into the commandEncoder
                 for (int i = 0; i < MAX_BUFFERS; i++) {
                     if (buffers[i].length == this->bufferlength && buffers[i].getBuffer() != nullptr) {
                         this->commandEncoder->setBuffer(buffers[i].getBuffer(), 0, i);
@@ -159,37 +176,79 @@ namespace MTLCompute {
                 this->commandBuffer->commit();
                 this->commandBuffer->waitUntilCompleted();
 
+                // Release the command encoder and command buffer
                 this->commandEncoder->release();
                 this->commandBuffer->release();
             }
 
+            /**
+             * @brief reset the buffers and cached length
+             *
+            */
             void resetBuffers() {
                 this->buffers.clear();
                 this->buffers = std::vector<Buffer<T>>(MAX_BUFFERS);
+                this->bufferlength = -1;
             }
 
+            /**
+             * @brief reset the textures and cached width and height
+             *
+            */
             void resetTextures() {
                 this->textures.clear();
                 this->textures = std::vector<Texture<T>>(MAX_TEXTURES);
+                this->texwidth = -1;
+                this->texheight = -1;
             }
 
+            /**
+             * @brief reset the buffers and textures
+             *
+             * Calls CommandManager::resetBuffers and CommandManager::resetTextures
+             *
+            */
             void reset() {
                 this->resetBuffers();
                 this->resetTextures();
             }
 
+            /**
+             * @brief Get the GPU device
+             *
+             * @return MTL::Device* The GPU device
+             *
+            */
             MTL::Device *getGPU() {
                 return this->gpu;
             }
 
+            /**
+             * @brief Get the kernel object
+             *
+             * @return Kernel* The kernel object
+             *
+            */
             Kernel *getKernel() {
                 return this->kernel;
             }
 
+            /**
+             * @brief Get the loaded buffers
+             *
+             * @return std::vector<Buffer<T>> The buffers
+             *
+            */
             std::vector<Buffer<T>>& getBuffers() {
                 return this->buffers;
             }
 
+            /**
+             * @brief Get the loaded textures
+             *
+             * @return std::vector<Texture<T>> The textures
+             *
+            */
             std::vector<Texture<T>>& getTextures() {
                 return this->textures;
             }

@@ -5,7 +5,7 @@
 
 
 MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
-MTLCompute::Buffer<int> buffer(10, gpu, MTLCompute::ResourceStorage::Shared);
+MTLCompute::Buffer<int> buffer(gpu, 10, MTLCompute::ResourceStorage::Shared);
 std::vector<int> data = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 std::vector<int> toomuch(11);
 

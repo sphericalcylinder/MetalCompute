@@ -21,15 +21,22 @@ Building is simple, just run `cmake -S . -B build/` and then `cmake --build buil
 
 # This update:
 
-- Seperate examples from actual code
-  - Now they're in the 'examples' folder
-- CMake install exists
-  - I think I did it well
-  - No idea though
-- Builds shared library for you to use (libmtlcompute)
-- Limits on texture size and number of loadable textures
-  and buffers
-- I didn't write the docs
+- MTLCompute::GPU class
+  - If you want to touch barely any metal-cpp looking code
+  - The simplest possible
+  - Example [here](examples/metalcomputegpu.cpp) (it's really short)
+  - So easy it's practically useless
+- Objects actually release in their destructors
+  - Buffers, Textures, and Kernels oh my! (wizard of oz reference)
+- Rearrange Buffer constructor arguments
+- Default constructors for CommandManager and Kernel
+- Some Texture stuff
+  - Constructor that automatically determines texture type
+  - Slice get access to textures (i think there's a better way to do it though)
+- Wrote more docs
+  - Working on actual usage docs
+
+Once I'm satisfied with the docs I'll probably merge with main
 
 ### Want to do:
 
@@ -37,8 +44,8 @@ Building is simple, just run `cmake -S . -B build/` and then `cmake --build buil
 - [x] Implement strict limits on texture size (16384)
 - [x] Limit number of loadable textures and buffers
 - [ ] 1d and 3d textures
-- [ ] MTLCompute::GPU class to manage everything else
-- [ ] More access to texture data (like [])
+- [x] MTLCompute::GPU class to manage everything else
+- [x] More access to texture data (like [])
 - [ ] Convert buffers to textures
 - [ ] More kernel info commands
 - [ ] More texture values (RGBA)

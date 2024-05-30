@@ -50,8 +50,7 @@ namespace MTLCompute {
             Kernel(MTL::Device *gpu, const std::string &filename, const std::string &funcname) {
                 this->gpu = gpu;
 
-                this->library = this->gpu->newLibrary(NS::URL::fileURLWithPath(NS::String::string(filename.c_str(), \
-                            NS::ASCIIStringEncoding)), nullptr);
+                this->library = this->gpu->newLibrary(NS::String::string(filename.c_str(), NS::ASCIIStringEncoding), nullptr);
 
                 if (this->library == nullptr) {
                     std::cerr << "Error: Could not load library " << filename << std::endl;
@@ -62,15 +61,19 @@ namespace MTLCompute {
             }
 
             /**
+             * @brief Default constructor for the Kernel class
+             *
+            */
+            Kernel() = default;
+
+            /**
              * @brief Destructor for the Kernel class
              *
-             * Releases the pipeline, function, and library objects
+             * Releases the library object
              *
             */
             ~Kernel() {
-                this->pipeline->release();
-                this->function->release();
-                this->library->release();
+                this->library->autorelease();
             }
 
             /**

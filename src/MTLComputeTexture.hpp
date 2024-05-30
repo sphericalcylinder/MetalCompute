@@ -39,7 +39,7 @@ namespace MTLCompute {
              * @return std::vector<T> The flattened vector
              *
             */
-            std::vector<T> flatten(std::vector<std::vector<T>> &v) {
+            std::vector<T> flatten(std::vector<std::vector<T>> &v) const {
                 std::vector<T> result;
                 for (auto &inner : v) {
                     result.insert(result.end(), inner.begin(), inner.end());
@@ -57,7 +57,7 @@ namespace MTLCompute {
              * @return std::vector<std::vector<T>> The unflattened vector
              *
             */
-            std::vector<std::vector<T>> unflatten(std::vector<T> &v, int width, int height) {
+            std::vector<std::vector<T>> unflatten(std::vector<T> &v, int width, int height) const {
                 std::vector<std::vector<T>> result(height, std::vector<T>(width));
                 for (int i = 0; i < height; i++) {
                     for (int j = 0; j < width; j++) {
@@ -99,6 +99,49 @@ namespace MTLCompute {
                 this->texture = this->gpu->newTexture(this->descriptor);
             }
 
+            /**
+             * @brief Constructor for the Texture class
+             *
+             * Constructs a new texture object and tries to infer the texture type
+             *
+             * @param gpu The Metal device object
+             * @param width The width of the texture
+             * @param height The height of the texture
+             *
+            */
+            Texture(MTL::Device *gpu, int width, int height) {
+                this->gpu = gpu;
+                if (width > MAX_TEXTURE_SIZE || height > MAX_TEXTURE_SIZE) {
+                    throw std::invalid_argument("Texture size too large, max size is 16384");
+                }
+                this->width = width;
+                this->height = height;
+                this->descriptor = MTL::TextureDescriptor::alloc()->init();
+                this->descriptor->setTextureType(MTL::TextureType2D);
+                if (typeid(uint8_t) == typeid(T)) {
+                    this->descriptor->setPixelFormat(MTL::PixelFormatR8Uint);
+                } else if (typeid(uint16_t) == typeid(T)) {
+                    this->descriptor->setPixelFormat(MTL::PixelFormatR16Uint);
+                } else if (typeid(uint32_t) == typeid(T)) {
+                    this->descriptor->setPixelFormat(MTL::PixelFormatR32Uint);
+                } else if (typeid(float) == typeid(T)) {
+                    this->descriptor->setPixelFormat(MTL::PixelFormatR32Float);
+                } else if (typeid(int8_t) == typeid(T)) {
+                    this->descriptor->setPixelFormat(MTL::PixelFormatR8Sint);
+                } else if (typeid(int16_t) == typeid(T)) {
+                    this->descriptor->setPixelFormat(MTL::PixelFormatR16Sint);
+                } else if (typeid(int32_t) == typeid(T)) {
+                    this->descriptor->setPixelFormat(MTL::PixelFormatR32Sint);
+                } else if (typeid(float) == typeid(T)) {
+                    this->descriptor->setPixelFormat(MTL::PixelFormatR32Float);
+                } else {
+                    throw std::invalid_argument("Texture type not supported");
+                }
+                this->descriptor->setWidth(width);
+                this->descriptor->setHeight(height);
+                this->texture = this->gpu->newTexture(this->descriptor);
+            }
+
 
             /**
              * @brief Copy constructor for the Texture class
@@ -134,13 +177,14 @@ namespace MTLCompute {
             /**
              * @brief Destructor for the Texture class
              *
-             * Sets the texture to be freed but does not actually free it
-             * because sometime it segfaults and this is easier
+             * Calls autorelease on the texture and descriptor objects
+             * and sets the freed flag to true
              *
             */
             ~Texture() {
                 if (!this->freed) {
-                    //this->buffer->release();
+                    this->texture->autorelease();
+                    this->descriptor->autorelease();
                     this->freed = true;
                 }
             }
@@ -177,6 +221,26 @@ namespace MTLCompute {
                 swap(temp);
 
                 return *this;
+            }
+
+            /**
+             * @brief Overload the [] operator to get a row from the texture
+             *
+             * @param index The index of the row to get
+             *
+             * @return std::vector<T> The row from the texture
+             *
+            */
+            std::vector<T> operator[](size_t index) const {
+                if (this->freed) {
+                    throw std::runtime_error("Texture already freed");
+                }
+                if (index >= this->width*this->height) {
+                    throw std::out_of_range("Index out of bounds");
+                }
+                std::vector<T> flat(this->width*this->height);
+                this->texture->getBytes(flat.data(), this->width*sizeof(T), MTL::Region::Make2D(0, 0, this->width, this->height), 0);
+                return unflatten(flat, this->width, this->height)[index];
             }
 
             /**

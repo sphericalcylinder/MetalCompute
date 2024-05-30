@@ -24,14 +24,6 @@ include(FetchContent)
 # https://stackoverflow.com/questions/23960835/cmake-not-generating-compile-commands-json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
-# get_filename_component(JSONFILE "${CMAKE_BINARY_DIR}/compile_commands.json" REALPATH)
-# if (EXISTS "${JSONFILE}")
-#     # add the compile_commands.json to the src directory
-#     configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/src/compile_commands.json COPYONLY)
-#     # add the compile_commands.json to the test directory
-#     configure_file(${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR}/test/compile_commands.json COPYONLY)
-# endif()
-
 
 if (MTLCOMPUTE_BUILD_DOCS MATCHES ON OR MTLCOMPUTE_BUILD_DOCS MATCHES TRUE)
     find_package(Doxygen REQUIRED doxygen)

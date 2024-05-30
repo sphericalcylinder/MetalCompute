@@ -22,9 +22,9 @@ int main() {
     kernel.useFunction("add_arrays");
 
     // Create buffers
-    MTLCompute::Buffer<float> buffera(10, gpu, MTLCompute::ResourceStorage::Shared);
-    MTLCompute::Buffer<float> bufferb(10, gpu, MTLCompute::ResourceStorage::Shared);
-    MTLCompute::Buffer<float> bufferc(10, gpu, MTLCompute::ResourceStorage::Shared);
+    MTLCompute::Buffer<float> buffera(gpu, 10, MTLCompute::ResourceStorage::Shared);
+    MTLCompute::Buffer<float> bufferb(gpu, 10, MTLCompute::ResourceStorage::Shared);
+    MTLCompute::Buffer<float> bufferc(gpu, 10, MTLCompute::ResourceStorage::Shared);
 
     // Create a vector of data
     std::vector<float> bufferdata = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

@@ -8,3 +8,11 @@ kernel void add_arrays(const device float* a [[buffer(0)]],
   
   c[i] = a[i] + b[i];
 }
+
+kernel void both(const device float* a [[buffer(0)]],
+                 texture2d<float, access::write> b [[texture(0)]],
+                  uint2 gid [[thread_position_in_grid]]) {
+  
+  float sum = a[gid.y] + a[gid.x];
+  b.write(sum, gid);
+}

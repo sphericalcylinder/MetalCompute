@@ -15,7 +15,7 @@ int main() {
     MTLCompute::CommandManager<float> manager(gpu, &kernel);
 
     // Create a buffer
-    MTLCompute::Buffer<float> buffera(10, gpu, MTLCompute::ResourceStorage::Shared);
+    MTLCompute::Buffer<float> buffera(gpu, 10, MTLCompute::ResourceStorage::Shared);
 
     // Create a vector of data
     std::vector<float> bufferdata = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
