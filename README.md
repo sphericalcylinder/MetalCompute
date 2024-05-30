@@ -15,16 +15,19 @@ before the `-S`. To get the docs, add `-DMTLCOMPUTE_BUILD_DOCS=ON`. Enjoy!!!!!
 
 # This update:
 
-- No more MTLCompute::TextureCommandManager
-  - Use loadTexture to load a texture to the CommandManager
-  - Takes the kernel address instead of the kernel
-  - Automatically updates the pipeline
-  - Call `resetBuffers()`, `resetTextures()`, and `reset()` to reset the cached values
-- No docs for the new stuff
+- Tragic oversight fixed!!
+  - MTLCompute::CommandManager::dispatch() used `commandEncoder->dispatchThreadgroups()`
+    when the arguments were meant for `commandEncoder->dispatchThreads()`
+  - The texture size was limited to 32x32
+  - It's fixed now
+  - Now the texture limit is 16384x16384 as defined
+    by the [Metal Feature Set Tables](https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf)
 
 ### Want to do:
 
 - [x] One CommandManager
+- [ ] Implement strict limits on texture size (16384)
+- [ ] Limit number of loadable textures and buffers
 - [ ] 1d and 3d textures
 - [ ] MTLCompute::GPU class to manage everything else
 - [ ] More access to texture data (like [])
@@ -48,5 +51,12 @@ The goals for this project (which will probably change) are as follows:
 - Good, if not complete testing code coverage (doctest)
 - and more!! (i cant think)
 
+
+# Development Resources
+
+- [Metal Docs](https://developer.apple.com/documentation/metal/) (they're in Objective-C)
+- [Metal Best Practices](https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html)
+- [Metal Feature Set Tables](https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf)
+- [Metal Shading Language Specs](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf)
 
 ### The end :)

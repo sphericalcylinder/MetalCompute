@@ -122,26 +122,29 @@ namespace MTLCompute {
                 }
 
                 // Calculate the grid size and thread group size
-                MTL::Size threadsperthreadgroup;
-                MTL::Size threadspergrid;
+                MTL::Size threadsPerThreadgroup;
+                threadsPerThreadgroup.width = this->pipeline->threadExecutionWidth();
+                threadsPerThreadgroup.height = this->pipeline->maxTotalThreadsPerThreadgroup() / threadsPerThreadgroup.width;
+                threadsPerThreadgroup.depth = 1;
 
+                MTL::Size threadsPerGrid;
                 if (usingbuffers && usingtextures) {
-                    threadsperthreadgroup = MTL::Size(this->texwidth, this->texheight, 1);
-                    threadspergrid = MTL::Size(this->bufferlength, 1, 1);
-
+                    if (this->bufferlength > this->texwidth)
+                        threadsPerGrid = MTL::Size::Make(this->bufferlength, this->texheight, 1);
+                    else
+                        threadsPerGrid = MTL::Size::Make(this->texwidth, this->texheight, 1);
                 } else if (usingbuffers && !usingtextures) {
-                    threadsperthreadgroup = MTL::Size(1, 1, 1);
-                    threadspergrid = MTL::Size(this->bufferlength, 1, 1);
+                    threadsPerGrid = MTL::Size::Make(this->bufferlength, 1, 1);
 
-                } else if (usingtextures && !usingbuffers) {
-                    threadsperthreadgroup = MTL::Size(this->texwidth, this->texheight, 1);
-                    threadspergrid = MTL::Size(1, 1, 1);
+                } else if (!usingbuffers && usingtextures) {
+                    threadsPerGrid = MTL::Size::Make(this->texwidth, this->texheight, 1);
                     
                 } else {
                     throw std::invalid_argument("No buffers or textures loaded");
                 }
 
-                this->commandEncoder->dispatchThreadgroups(threadspergrid, threadsperthreadgroup);
+                // Use dispatchThreads NOT dispatchThreadgroups
+                this->commandEncoder->dispatchThreads(threadsPerGrid, threadsPerThreadgroup);
                 this->commandEncoder->endEncoding();
                 this->commandBuffer->commit();
                 this->commandBuffer->waitUntilCompleted();
@@ -180,7 +183,6 @@ namespace MTLCompute {
             std::vector<Texture<T>>& getTextures() {
                 return this->textures;
             }
-
 
     };
 
