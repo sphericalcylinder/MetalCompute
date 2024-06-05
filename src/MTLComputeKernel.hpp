@@ -1,9 +1,4 @@
-#include "Foundation/NSString.hpp"
-#include "Foundation/NSURL.hpp"
 #include "MTLComputeGlobals.hpp"
-#include "Metal/MTLDevice.hpp"
-#include "Metal/MTLLibrary.hpp"
-#include "Metal/MTLRenderCommandEncoder.hpp"
 
 #pragma once
 
@@ -19,6 +14,16 @@ namespace MTLCompute {
 
         public:
 
+            /**
+             * @brief Constructor for the Kernel class
+             *
+             * Takes in the GPU device and the filename of the Metal library
+             * and creates a new Kernel object and MTL::Library
+             *
+             * @param gpu The GPU device
+             * @param filename The filename of the Metal library
+             *
+            */
             Kernel(MTL::Device *gpu, const std::string &filename) {
                 this->gpu = gpu;
 
@@ -31,11 +36,21 @@ namespace MTLCompute {
 
             }
 
+            /**
+             * @brief Constructor for the Kernel class with function name
+             *
+             * Takes in the GPU device, the filename of the Metal library, and the name of the function
+             * and creates a new Kernel object and MTL::Library. Also calls useFunction with the function name
+             *
+             * @param gpu The GPU device
+             * @param filename The filename of the Metal library
+             * @param funcname The name of the function
+             *
+            */
             Kernel(MTL::Device *gpu, const std::string &filename, const std::string &funcname) {
                 this->gpu = gpu;
 
-                this->library = this->gpu->newLibrary(NS::URL::fileURLWithPath(NS::String::string(filename.c_str(), \
-                            NS::ASCIIStringEncoding)), nullptr);
+                this->library = this->gpu->newLibrary(NS::String::string(filename.c_str(), NS::ASCIIStringEncoding), nullptr);
 
                 if (this->library == nullptr) {
                     std::cerr << "Error: Could not load library " << filename << std::endl;
@@ -45,12 +60,28 @@ namespace MTLCompute {
 
             }
 
+            /**
+             * @brief Default constructor for the Kernel class
+             *
+            */
+            Kernel() = default;
+
+            /**
+             * @brief Destructor for the Kernel class
+             *
+             * Releases the library object
+             *
+            */
             ~Kernel() {
-                this->pipeline->release();
-                this->function->release();
-                this->library->release();
+                this->library->autorelease();
             }
 
+            /**
+             * @brief Get the names of the functions in the library
+             *
+             * @return A vector of strings containing the names of the functions in the library
+             *
+            */
             std::vector<std::string> getFunctionNames() {
                 std::vector<std::string> names;
                 for (int i = 0; i < this->library->functionNames()->count(); i++) {
@@ -59,6 +90,14 @@ namespace MTLCompute {
                 return names;
             }
 
+            /**
+             * @brief Use a function in the library
+             *
+             * Takes in the name of a function in the library and creates a new function and compute pipeline state
+             *
+             * @param funcname The name of the function
+             *
+            */
             void useFunction(const std::string &funcname) {
                 this->function = this->library->newFunction(NS::String::string(funcname.c_str(), NS::ASCIIStringEncoding));
                 if (this->function == nullptr) {
@@ -69,6 +108,12 @@ namespace MTLCompute {
                 this->pipeline = gpu->newComputePipelineState(this->function, &error);
             }
 
+            /**
+             * @brief Get the MTL::ComputePipelineState object
+             *
+             * @return MTL::ComputePipelineState* The MTL::ComputePipelineState object
+             *
+            */
             MTL::ComputePipelineState *getPLS() {
                 return this->pipeline;
             }

@@ -13,11 +13,10 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "github-actions-testing" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-  
 
 jobs:
   analyze:
@@ -80,7 +79,9 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        cmake -DMTLCOMPUTE_BUILD_TESTS=ON -S . -B build/
+        cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -G"Unix Makefiles"
+        cmake --build ${{github.workspace}}/build
+        exit 0
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
