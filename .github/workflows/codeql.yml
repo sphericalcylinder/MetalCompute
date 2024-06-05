@@ -79,7 +79,7 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DMTLCOMPUTE_BUILD_TESTS=ON -G"Unix Makefiles"
+        cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -G"Unix Makefiles"
         cmake --build ${{github.workspace}}/build
         exit 0
 
