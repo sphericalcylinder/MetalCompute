@@ -1,10 +1,25 @@
 cmake_minimum_required(VERSION 3.19)
 
 option(MTLCOMPUTE_BUILD_TESTS "Build the tests")
+option(MTLCOMPUTE_INSTALL_TESTS "Install the tests")
+
 option(MTLCOMPUTE_BUILD_DOCS "Build the documentation")
 option(MTLCOMPUTE_INSTALL_DOCS "Install the documentation")
+
+option(MTLCOMPUTE_BUILD_EXAMPLES "Build the example source files")
 option(MTLCOMPUTE_INSTALL_EXAMPLES "Install the example source files")
-option(MTLCOMPUTE_INSTALL_TESTS "Install the tests")
+
+if (MTLCOMPUTE_INSTALL_TESTS MATCHES ON OR MTLCOMPUTE_INSTALL_TESTS MATCHES TRUE)
+    set(MTLCOMPUTE_BUILD_TESTS ON)
+endif()
+
+if (MTLCOMPUTE_INSTALL_DOCS MATCHES ON OR MTLCOMPUTE_INSTALL_DOCS MATCHES TRUE)
+    set(MTLCOMPUTE_BUILD_DOCS ON)
+endif()
+
+if (MTLCOMPUTE_INSTALL_EXAMPLES MATCHES ON OR MTLCOMPUTE_INSTALL_EXAMPLES MATCHES TRUE)
+    set(MTLCOMPUTE_BUILD_EXAMPLES ON)
+endif()
 
 project(MetalCompute VERSION 1.0
                      DESCRIPTION "An API to make GPU compute calls easier"
@@ -48,12 +63,27 @@ if (NOT EXISTS "${MTLCPPDIR}")
         GIT_TAG        a63bd17
     )
     FetchContent_MakeAvailable(METALCPP)
-else()
-    set(metalcpp_SOURCE_DIR "${MTLCPPDIR}")
+endif()
+set(metalcpp_SOURCE_DIR "${MTLCPPDIR}")
+
+get_filename_component(SINGLEHEADER "${metalcpp_SOURCE_DIR}/SingleHeader/Metal.hpp" REALPATH)
+if (NOT EXISTS "${SINGLEHEADER}")
+    # run the script to generate the single header
+    message(STATUS "Generating single header for metal-cpp")
+    execute_process(COMMAND ${metalcpp_SOURCE_DIR}/SingleHeader/MakeSingleHeader.py 
+                            ${metalcpp_SOURCE_DIR}/Metal/Metal.hpp 
+                            ${metalcpp_SOURCE_DIR}/Foundation/Foundation.hpp 
+                            WORKING_DIRECTORY ${metalcpp_SOURCE_DIR}
+                    )
 endif()
 
+
+
 add_subdirectory(src)
-add_subdirectory(examples)
+
+if (MTLCOMPUTE_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 if (MTLCOMPUTE_BUILD_TESTS)
 
