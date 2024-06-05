@@ -15,12 +15,13 @@ TEST_CASE("Test loadKernel") {
 }
 
 TEST_CASE("Test loadArray and getArray") {
+    gpu.loadKernel("default", "both");
     CHECK_NOTHROW(gpu.loadArray(array, 0));
     CHECK(gpu.getArray(0) == array);
 }
 
 TEST_CASE("Test loadMatrix and getMatrix") {
-    
+    gpu.loadKernel("default", "both");
     CHECK_NOTHROW(gpu.loadMatrix(matrix, 0));
     CHECK(gpu.getMatrix(0) == matrix);
 }

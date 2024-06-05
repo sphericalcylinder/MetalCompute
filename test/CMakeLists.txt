@@ -35,7 +35,7 @@ foreach(TESTFILE ${TESTFILES})
     add_executable(${TESTNAME} ${TESTFILE})
     list(APPEND TESTLIST ${TESTNAME})
 
-    target_include_directories(${TESTNAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${metalcpp_SOURCE_DIR} ${DOCTEST_INCLUDE_DIR})
+    target_include_directories(${TESTNAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${metalcpp_SOURCE_DIR}/SingleHeader ${DOCTEST_INCLUDE_DIR})
     target_link_libraries(${TESTNAME} PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})
     target_link_libraries(${TESTNAME} PRIVATE doctest::doctest)
     add_dependencies(${TESTNAME} testingmetal)

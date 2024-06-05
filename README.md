@@ -21,22 +21,14 @@ Building is simple, just run `cmake -S . -B build/` and then `cmake --build buil
 
 # This update:
 
-- MTLCompute::GPU class
-  - If you want to touch barely any metal-cpp looking code
-  - The simplest possible
-  - Example [here](examples/metalcomputegpu.cpp) (it's really short)
-  - So easy it's practically useless
-- Objects actually release in their destructors
-  - Buffers, Textures, and Kernels oh my! (wizard of oz reference)
-- Rearrange Buffer constructor arguments
-- Default constructors for CommandManager and Kernel
-- Some Texture stuff
-  - Constructor that automatically determines texture type
-  - Slice get access to textures (i think there's a better way to do it though)
-- Wrote more docs
-  - Working on actual usage docs
+- Documentation main page is written!
+- It's not very good
+- Small CMake tweaks
+  - Added build and install options for tests, docs, examples
+  - Use single metal header insted of two
+  - aaaaa
 
-Once I'm satisfied with the docs I'll probably merge with main
+I'm satisfied with the docs for now so it's time to merge with main!
 
 ### Want to do:
 
