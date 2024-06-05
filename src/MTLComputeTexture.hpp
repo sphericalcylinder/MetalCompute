@@ -235,10 +235,10 @@ namespace MTLCompute {
                 if (this->freed) {
                     throw std::runtime_error("Texture already freed");
                 }
-                if (index >= this->width*this->height) {
+                if (index >= (long)this->width*(long)this->height) {
                     throw std::out_of_range("Index out of bounds");
                 }
-                std::vector<T> flat(this->width*this->height);
+                std::vector<T> flat((long)this->width*(long)this->height);
                 this->texture->getBytes(flat.data(), this->width*sizeof(T), MTL::Region::Make2D(0, 0, this->width, this->height), 0);
                 return unflatten(flat, this->width, this->height)[index];
             }
@@ -256,7 +256,7 @@ namespace MTLCompute {
                 if (this->width == -1 || this->height == -1) {
                     throw std::runtime_error("Buffer not initialized");
                 }
-                std::vector<T> flat(this->width*this->height);
+                std::vector<T> flat((long)this->width*(long)this->height);
                 this->texture->getBytes(flat.data(), this->width*sizeof(T), MTL::Region::Make2D(0, 0, this->width, this->height), 0);
                 return unflatten(flat, this->width, this->height);
             }
