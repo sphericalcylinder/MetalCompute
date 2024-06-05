@@ -1,8 +1,4 @@
 
-include(FindFoundation)
-include(FindMetal)
-include(FindMetalKit)
-
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
 message(STATUS "Headers: ${HEADERS}")
 add_library(mtlcompute SHARED ${HEADERS})
