@@ -1,13 +1,13 @@
 # This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
-name: Build and run tests
+name: Prod Tests
 
 # [push, pull_request, workflow_dispatch] controls when the action will run.
 on: 
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
