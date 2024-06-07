@@ -12,11 +12,10 @@ project.
 
 ================
 
-# Problems (help) {#problems}
-The CMake build for this project creates a dynamic library, libmtlcompute.dylib, that is SUPPOSED to have the Foundation,
-Metal, and MetalKit frameworks already inside. Unfortunately, it doesn't. This means that you have to add 
-`-framework Foundation -framework Metal -framework MetalKit` when compiling. There's also a problem with MacOS Sonoma 
-where you have to add `-rpath [library directory]` as well when using the dylib. Don't ask me why because I don't know.
+# Compilation {#compilation}
+This is a header only API, you just need to include the directory where MTLCompute.hpp is located after cmake install.
+You also have to add the
+`-framework Foundation -framework Metal -framework MetalKit` flags or there will be problems.
 
 ================
 
@@ -26,7 +25,7 @@ where you have to add `-rpath [library directory]` as well when using the dylib.
 
 ### Starting {#starting}
 To use the API regularly, like in the buffer and texture
-examples, include the `MTLCompute.hpp` header and link with the `libmtlcompute.dylib` library (and add the [other flags](#problems)).
+examples, include the `MTLCompute.hpp` header and add the [other flags](#compilation).
 
 Currently, you still have to access the raw MTL::Device object because I haven't really made a good wrapper for that yet. There is
 a MTLCompute::GPU class, but it's not for wrapping the MTL::Device. The start of your file should look like this:

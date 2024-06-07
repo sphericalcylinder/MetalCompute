@@ -23,6 +23,8 @@ Building is simple, just run `cmake -S . -B build/` and then `cmake --build buil
 
 If you enable an install flag, the build flag will be automatically enabled as well.
 
+# This release
+Turns out you can't bundle multiple frameworks into a dynamic library and I don't have any source files, so no more dynamic library. Just include the header files and you're good to go.
 
 # Overview
 Read the docs [here](https://sphericalcylinder.github.io/MetalCompute/). I spent a lot of time
