@@ -64,6 +64,7 @@ if (NOT EXISTS "${MTLCPPDIR}")
     FetchContent_MakeAvailable(METALCPP)
 endif()
 set(metalcpp_SOURCE_DIR "${MTLCPPDIR}")
+include_directories(${metalcpp_SOURCE_DIR} ${metalcpp_SOURCE_DIR}/SingleHeader)
 
 get_filename_component(SINGLEHEADER "${metalcpp_SOURCE_DIR}/SingleHeader/Metal.hpp" REALPATH)
 if (NOT EXISTS "${SINGLEHEADER}")
