@@ -26,8 +26,8 @@ int main() {
     int width = 5; // width of the texture
     int height = 5; // height of the texture
 
-    // Create a texture
-    MTLCompute::Texture<float> textureD(gpu, width, height, MTLCompute::TextureType::float32);
+    // Create a 2D texture
+    MTLCompute::Texture2D<float> textureD(gpu, width, height, MTLCompute::TextureType::float32);
 
     // Load the buffer and texture
     manager.loadBuffer(buffera, 0);

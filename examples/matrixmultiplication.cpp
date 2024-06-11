@@ -12,10 +12,10 @@ int main() {
     // set the matrix size to 800x800
     size_t texsize = 800;
 
-    // Create 3 textures for 2 input matrices and an output matrix
-    MTLCompute::Texture<float> a(gpu, texsize, texsize, MTLCompute::TextureType::float32);
-    MTLCompute::Texture<float> b(gpu, texsize, texsize, MTLCompute::TextureType::float32);
-    MTLCompute::Texture<float> c(gpu, texsize, texsize, MTLCompute::TextureType::float32);
+    // Create 3 2D textures for 2 input matrices and an output matrix
+    MTLCompute::Texture2D<float> a(gpu, texsize, texsize, MTLCompute::TextureType::float32);
+    MTLCompute::Texture2D<float> b(gpu, texsize, texsize, MTLCompute::TextureType::float32);
+    MTLCompute::Texture2D<float> c(gpu, texsize, texsize, MTLCompute::TextureType::float32);
 
     // Create 2D vectors to store the data for the input matrices
     std::vector<std::vector<float>> adata(texsize, std::vector<float>(texsize));

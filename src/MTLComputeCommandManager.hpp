@@ -21,7 +21,7 @@ namespace MTLCompute {
             MTL::ComputeCommandEncoder *commandEncoder; ///< The Metal compute command encoder object
 
             std::vector<Buffer<T>> buffers = std::vector<Buffer<T>>(MAX_BUFFERS); ///< The buffers
-            std::vector<Texture<T>> textures = std::vector<Texture<T>>(MAX_TEXTURES); ///< The textures
+            std::vector<Texture2D<T>> textures = std::vector<Texture2D<T>>(MAX_TEXTURES); ///< The 2D textures
             int bufferlength = -1; ///< The length of the buffers
             int texwidth = -1; ///< The width of the textures
             int texheight = -1; ///< The height of the textures
@@ -92,7 +92,7 @@ namespace MTLCompute {
              * @param index The index to load the texture into
              *
             */
-            void loadTexture(Texture<T> texture, int index) {
+            void loadTexture(Texture2D<T> texture, int index) {
                 if (this->texwidth == -1 && this->texheight == -1) {
                     this->texwidth = texture.getWidth();
                     this->texheight = texture.getHeight();
@@ -197,7 +197,7 @@ namespace MTLCompute {
             */
             void resetTextures() {
                 this->textures.clear();
-                this->textures = std::vector<Texture<T>>(MAX_TEXTURES);
+                this->textures = std::vector<Texture2D<T>>(MAX_TEXTURES);
                 this->texwidth = -1;
                 this->texheight = -1;
             }
@@ -246,10 +246,10 @@ namespace MTLCompute {
             /**
              * @brief Get the loaded textures
              *
-             * @return std::vector<Texture<T>> The textures
+             * @return std::vector<Texture2D<T>> The textures
              *
             */
-            std::vector<Texture<T>>& getTextures() {
+            std::vector<Texture2D<T>>& getTextures() {
                 return this->textures;
             }
 

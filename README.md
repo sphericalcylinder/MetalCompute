@@ -24,7 +24,19 @@ Building is simple, just run `cmake -S . -B build/` and then `cmake --build buil
 If you enable an install flag, the build flag will be automatically enabled as well.
 
 # This release
-Turns out you can't bundle multiple frameworks into a dynamic library and I don't have any source files, so no more dynamic library. Just include the header files and you're good to go.
+- Textures
+  - Multiple types (1d, 2d, 3d)
+  - I think i did it right
+  - Maybe not
+  - Tests are written
+  - Docs are not
+- CommandManager
+  - Only supports 2d textures for the time being
+  - I can't think of an elegant way to do multiple
+- GPU
+  - Same problem as CommandManager
+
+Sorry this one took so long. I had finals the last two weeks. The docs are coming in the next commit.
 
 # Overview
 Read the docs [here](https://sphericalcylinder.github.io/MetalCompute/). I spent a lot of time
@@ -33,7 +45,8 @@ on them so I hope they're good.
 
 ### Want to do:
 
-- [ ] 1d and 3d textures
+- [x] 1d and 3d textures
+- [ ] Command Manager 1d and 3d texture support
 - [ ] Convert buffers to textures
 - [ ] More kernel info commands
 - [ ] More texture values (RGBA)

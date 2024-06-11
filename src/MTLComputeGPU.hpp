@@ -121,7 +121,7 @@ namespace MTLCompute {
             */
             void loadMatrix(std::vector<std::vector<T>> &matrix, int index) {
                 this->checkloaded();
-                MTLCompute::Texture<T> texture(gpu, matrix[0].size(), matrix.size());
+                MTLCompute::Texture2D<T> texture(gpu, matrix[0].size(), matrix.size());
                 texture = matrix;
                 this->commandManager.loadTexture(texture, index);
             }
@@ -165,7 +165,7 @@ namespace MTLCompute {
             */
             std::vector<std::vector<T>> getMatrix(int index) {
                 this->checkloaded();
-                MTLCompute::Texture<T> texture = commandManager.getTextures()[index];
+                MTLCompute::Texture2D<T> texture = commandManager.getTextures()[index];
                 return texture.getData();
             }
 

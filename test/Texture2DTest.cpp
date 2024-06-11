@@ -4,10 +4,10 @@
 
 
 MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
-MTLCompute::Texture<float> texture(gpu, 10, 10, MTLCompute::TextureType::float32);
+MTLCompute::Texture2D<float> texture(gpu, 10, 10, MTLCompute::TextureType::float32);
 std::vector<std::vector<float>> data(10, std::vector<float>(10, 1.0));
-std::vector<std::vector<float>> toomuch(11, std::vector<float>(10, 1.0));
-std::vector<std::vector<float>> toolittle(9, std::vector<float>(10, 1.0));
+std::vector<std::vector<float>> toomuch(11, std::vector<float>(11, 1.0));
+std::vector<std::vector<float>> toolittle(9, std::vector<float>(9, 1.0));
 
 TEST_CASE("Test Constructor") {
     REQUIRE(texture.getWidth() == 10);
@@ -19,7 +19,7 @@ TEST_CASE("Test Constructor") {
 }
 
 TEST_CASE("Test copy constructor") {
-    MTLCompute::Texture<float> other(texture);
+    MTLCompute::Texture2D<float> other(texture);
     REQUIRE(other.getWidth() == texture.getWidth());
     REQUIRE(other.getHeight() == texture.getHeight());
     REQUIRE(other.getGPU() == texture.getGPU());
@@ -29,7 +29,7 @@ TEST_CASE("Test copy constructor") {
 }
 
 TEST_CASE("Test default constructor") {
-    MTLCompute::Texture<float> other;
+    MTLCompute::Texture2D<float> other;
     REQUIRE(other.getWidth() == -1);
     REQUIRE(other.getHeight() == -1);
     REQUIRE(other.getGPU() == nullptr);
@@ -45,7 +45,7 @@ TEST_CASE("Test set with vector") {
 }
 
 TEST_CASE("Test set with texture") {
-    MTLCompute::Texture<float> other = texture;
+    MTLCompute::Texture2D<float> other = texture;
     REQUIRE(other.getWidth() == texture.getWidth());
     REQUIRE(other.getHeight() == texture.getHeight());
     REQUIRE(other.getGPU() == texture.getGPU());
@@ -79,7 +79,6 @@ TEST_CASE("Test get item with [] operator") {
     }
 }
 
-
 TEST_CASE("Test set with too much data") {
     REQUIRE_THROWS(texture = toomuch);
 }
@@ -89,6 +88,6 @@ TEST_CASE("Test set with too little data") {
 }
 
 TEST_CASE("Test create texture larger than max size") {
-    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture<float>(gpu, 16385, 16385, MTLCompute::TextureType::float32),
+    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture2D<float>(gpu, 16385, 16385, MTLCompute::TextureType::float32),
         std::invalid_argument, "Texture size too large, max size is 16384");
 }

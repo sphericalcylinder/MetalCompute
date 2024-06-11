@@ -20,16 +20,16 @@ int main() {
     int width = 5; // width of the texture
     int height = 5; // height of the texture
 
-    // Create the textures and fill them with data
+    // Create the 2d textures and fill them with data
     std::vector<std::vector<float>> texdata(height, std::vector<float>(width, 1));
 
-    MTLCompute::Texture<float> textureA(gpu, width, height, MTLCompute::TextureType::float32);
+    MTLCompute::Texture2D<float> textureA(gpu, width, height, MTLCompute::TextureType::float32);
     textureA = texdata;
 
-    MTLCompute::Texture<float> textureB(gpu, width, height, MTLCompute::TextureType::float32);
+    MTLCompute::Texture2D<float> textureB(gpu, width, height, MTLCompute::TextureType::float32);
     textureB = texdata;
 
-    MTLCompute::Texture<float> textureC(gpu, width, height, MTLCompute::TextureType::float32);
+    MTLCompute::Texture2D<float> textureC(gpu, width, height, MTLCompute::TextureType::float32);
 
     // Select the "matrix_add" function to use
     kernel.useFunction("matrix_add");   
