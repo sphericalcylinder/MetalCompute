@@ -9,7 +9,7 @@ MTLCompute::Kernel kernel(gpu, name);
 
 
 TEST_CASE("Test getFunctionNames") {
-    std::vector<std::string> names = kernel.getFunctionNames();
+    vec<std::string> names = kernel.getFunctionNames();
     CHECK(names.size() > 0);
 }
 

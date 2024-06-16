@@ -1,5 +1,3 @@
-#include <iostream>
-#include <vector>
 #include "MTLComputeGlobals.hpp"
 
 #pragma once
@@ -143,7 +141,7 @@ namespace MTLCompute {
              * @param data The data to set the buffer contents to
              *
             */
-            void operator=(std::vector<T> data) {
+            void operator=(vec<T> data) {
                 if (this->freed) {
                     throw std::runtime_error("Buffer already freed");
                 }
@@ -178,14 +176,14 @@ namespace MTLCompute {
              * @return std::vector<T> The data from the buffer
              *
             */
-            std::vector<T> getData() {
+            vec<T> getData() {
                 if (this->freed) {
                     throw std::runtime_error("Buffer already freed");
                 }
                 if (this->length == -1) {
                     throw std::runtime_error("Buffer not initialized");
                 }
-                std::vector<T> data(this->length);
+                vec<T> data(this->length);
                 memcpy(data.data(), this->buffer->contents(), this->length*this->itemsize);
                 return data;
             }

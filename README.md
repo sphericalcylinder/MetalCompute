@@ -23,20 +23,32 @@ Building is simple, just run `cmake -S . -B build/` and then `cmake --build buil
 
 If you enable an install flag, the build flag will be automatically enabled as well.
 
-# This release
-- Textures
-  - Multiple types (1d, 2d, 3d)
-  - I think i did it right
-  - Maybe not
-  - Tests are written
-  - Docs are not
-- CommandManager
-  - Only supports 2d textures for the time being
-  - I can't think of an elegant way to do multiple
-- GPU
-  - Same problem as CommandManager
 
-Sorry this one took so long. I had finals the last two weeks. The docs are coming in the next commit.
+# This release
+- This is a big one!!
+- Globals
+  - TextureType has become TextureItemType
+  - vec, vec2, and vec3 are shorthands for std::vector
+  - Each texture dimension has its own storage size (MAX_TEXTURExD_SIZE)
+- Textures
+  - Added documentation
+  - Tests are written and they pass
+  - Small updates
+- CommandManager
+  - Support for 1d and 3d textures
+  - use loadTexture to load them
+  - if you really need to get them, use getTexture1,2,3D
+  - lots of ugly if statements in the code
+  - no docs yet
+- GPU
+  - support for and 3d textures
+  - no 1d texture support (just use buffers/arrays)
+- Examples
+  - Seperate texture 2d and 3d examples
+  - No 1d texture examples (you can figure it out)
+
+I wrote the texure docs, but still need to write the new CommandManager and GPU docs.
+
 
 # Overview
 Read the docs [here](https://sphericalcylinder.github.io/MetalCompute/). I spent a lot of time
@@ -46,10 +58,9 @@ on them so I hope they're good.
 ### Want to do:
 
 - [x] 1d and 3d textures
-- [ ] Command Manager 1d and 3d texture support
+- [x] Command Manager 1d and 3d texture support
 - [ ] Convert buffers to textures
-- [ ] More kernel info commands
-- [ ] More texture values (RGBA)
+- [ ] More texture components (RGBA)
 
 # About
 I not so recently created a C++ application and wanted to use Apple's metal-cpp library to add gpu

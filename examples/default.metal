@@ -44,3 +44,14 @@ kernel void both(const device float* a [[buffer(0)]],
   float sum = a[gid.y] + a[gid.x];
   b.write(sum, gid);
 }
+
+
+kernel void matrix_add_3d(texture3d<float, access::read> a [[texture(0)]],
+                          texture3d<float, access::read> b [[texture(1)]],
+                          texture3d<float, access::write> c [[texture(2)]],
+                          uint3 gid [[thread_position_in_grid]]) {
+
+  float sum = a.read(gid).r + b.read(gid).r;
+  c.write(sum, gid);
+
+}

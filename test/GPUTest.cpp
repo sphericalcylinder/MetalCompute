@@ -3,8 +3,9 @@
 #include <doctest/doctest.h>
 
 MTLCompute::GPU<float> gpu;
-std::vector<std::vector<float>> matrix(10, std::vector<float>(10, 1.0));
-std::vector<float> array(10, 1.0);
+vec2<float> matrix2d(10, vec<float>(10, 1.0));
+vec3<float> matrix3d(5, vec2<float>(10, vec<float>(10, 1.0)));
+vec<float> array(10, 1.0);
 
 TEST_CASE("Test constructor") {
     REQUIRE(gpu.getGPU() != nullptr);
@@ -20,15 +21,21 @@ TEST_CASE("Test loadArray and getArray") {
     CHECK(gpu.getArray(0) == array);
 }
 
-TEST_CASE("Test loadMatrix and getMatrix") {
+TEST_CASE("Test 2D loadMatrix and getMatrix") {
     gpu.loadKernel("default", "both");
-    CHECK_NOTHROW(gpu.loadMatrix(matrix, 0));
-    CHECK(gpu.getMatrix(0) == matrix);
+    CHECK_NOTHROW(gpu.loadMatrix(matrix2d, 0));
+    CHECK(gpu.get2DMatrix(0) == matrix2d);
+}
+
+TEST_CASE("Test 3D loadMatrix and getMatrix") {
+    gpu.loadKernel("default", "both");
+    CHECK_NOTHROW(gpu.loadMatrix(matrix3d, 0));
+    CHECK(gpu.get3DMatrix(0) == matrix3d);
 }
 
 TEST_CASE("Test runKernel") {
     gpu.loadKernel("default", "both");
     gpu.loadArray(array, 0);
-    gpu.loadMatrix(matrix, 0);
+    gpu.loadMatrix(matrix2d, 0);
     CHECK_NOTHROW(gpu.runKernel());
 }

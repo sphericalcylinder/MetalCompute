@@ -6,9 +6,9 @@ int main() {
     MTLCompute::GPU<float> gpu("default", "add_arrays");
 
     // Create arrays
-    std::vector<float> array1(10, 1.0);
-    std::vector<float> array2(10, 2.0);
-    std::vector<float> array3(10);
+    vec<float> array1(10, 1.0);
+    vec<float> array2(10, 2.0);
+    vec<float> array3(10);
 
     // Load arrays
     gpu.loadArray(array1, 0);

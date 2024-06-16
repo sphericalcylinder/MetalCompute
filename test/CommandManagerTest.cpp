@@ -27,18 +27,32 @@ TEST_CASE("Test resetBuffers") {
     CHECK_THROWS_AS_MESSAGE(manager.getBuffers()[0].getData(), std::runtime_error, "Buffer not initialized");
 }
 
-TEST_CASE("Test loadTexture") {
-    MTLCompute::Texture2D<float> texture(gpu, 10, 10, MTLCompute::TextureType::float32);
+TEST_CASE("Test 1D loadTexture") {
+    MTLCompute::Texture1D<float> texture(gpu, 10, MTLCompute::TextureItemType::float32);
     CHECK_NOTHROW(manager.loadTexture(texture, 0));
-    CHECK(manager.getTextures()[0].getData() == texture.getData());
+    CHECK(manager.getTexture1D(0).getData() == texture.getData());
+    manager.resetTextures();
+}
+
+TEST_CASE("Test 2D loadTexture") {
+    MTLCompute::Texture2D<float> texture(gpu, 10, 10, MTLCompute::TextureItemType::float32);
+    CHECK_NOTHROW(manager.loadTexture(texture, 0));
+    CHECK(manager.getTexture2D(0).getData() == texture.getData());
+    manager.resetTextures();
+}
+
+TEST_CASE("Test 3D loadTexture") {
+    MTLCompute::Texture3D<float> texture(gpu, 10, 10, 10, MTLCompute::TextureItemType::float32);
+    CHECK_NOTHROW(manager.loadTexture(texture, 0));
+    CHECK(manager.getTexture3D(0).getData() == texture.getData());
     manager.resetTextures();
 }
 
 TEST_CASE("Test resetTextures") {
-    MTLCompute::Texture2D<float> texture(gpu, 10, 10, MTLCompute::TextureType::float32);
+    MTLCompute::Texture2D<float> texture(gpu, 10, 10, MTLCompute::TextureItemType::float32);
     CHECK_NOTHROW(manager.loadTexture(texture, 0));
     manager.resetTextures();
-    CHECK_THROWS_AS_MESSAGE(manager.getTextures()[0].getData(), std::runtime_error, "Texture not initialized");
+    CHECK_THROWS(manager.getTexture2D(0).getData());
 }
 
 TEST_CASE("Test empty dispatch") {
@@ -76,18 +90,60 @@ TEST_CASE("Test inconsistent size loadBuffer") {
     manager.resetBuffers();
 }
 
-TEST_CASE("Test double load texture on same index") {
-    MTLCompute::Texture2D<float> textureone(gpu, 10, 10, MTLCompute::TextureType::float32);
-    MTLCompute::Texture2D<float> texturetwo(gpu, 10, 10, MTLCompute::TextureType::float32);
+TEST_CASE("Test double load 1D texture on same index") {
+    MTLCompute::Texture1D<float> textureone(gpu, 10, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture1D<float> texturetwo(gpu, 10, MTLCompute::TextureItemType::float32);
     CHECK_NOTHROW(manager.loadTexture(textureone, 0));
     CHECK_NOTHROW(manager.loadTexture(texturetwo, 0));
     manager.resetTextures();
 }
 
-TEST_CASE("Test inconsistent size loadTexture") {
-    MTLCompute::Texture2D<float> textureone(gpu, 10, 10, MTLCompute::TextureType::float32);
-    MTLCompute::Texture2D<float> texturetwo(gpu, 12, 12, MTLCompute::TextureType::float32);
+TEST_CASE("Test double load 2D texture on same index") {
+    MTLCompute::Texture2D<float> textureone(gpu, 10, 10, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> texturetwo(gpu, 10, 10, MTLCompute::TextureItemType::float32);
+    CHECK_NOTHROW(manager.loadTexture(textureone, 0));
+    CHECK_NOTHROW(manager.loadTexture(texturetwo, 0));
+    manager.resetTextures();
+}
+
+TEST_CASE("Test double load 3D texture on same index") {
+    MTLCompute::Texture3D<float> textureone(gpu, 10, 10, 10, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture3D<float> texturetwo(gpu, 10, 10, 10, MTLCompute::TextureItemType::float32);
+    CHECK_NOTHROW(manager.loadTexture(textureone, 0));
+    CHECK_NOTHROW(manager.loadTexture(texturetwo, 0));
+    manager.resetTextures();
+}
+
+TEST_CASE("Test inconsistent size 1D loadTexture") {
+    MTLCompute::Texture1D<float> textureone(gpu, 10, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture1D<float> texturetwo(gpu, 12, MTLCompute::TextureItemType::float32);
     CHECK_NOTHROW(manager.loadTexture(textureone, 0));
     CHECK_THROWS(manager.loadTexture(texturetwo, 1));
+    manager.resetTextures();
+}
+
+TEST_CASE("Test inconsistent size 2D loadTexture") {
+    MTLCompute::Texture2D<float> textureone(gpu, 10, 10, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> texturetwo(gpu, 12, 12, MTLCompute::TextureItemType::float32);
+    CHECK_NOTHROW(manager.loadTexture(textureone, 0));
+    CHECK_THROWS(manager.loadTexture(texturetwo, 1));
+    manager.resetTextures();
+}
+
+TEST_CASE("Test inconsistent size 3D loadTexture") {
+    MTLCompute::Texture3D<float> textureone(gpu, 10, 10, 10, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture3D<float> texturetwo(gpu, 12, 12, 12, MTLCompute::TextureItemType::float32);
+    CHECK_NOTHROW(manager.loadTexture(textureone, 0));
+    CHECK_THROWS(manager.loadTexture(texturetwo, 1));
+    manager.resetTextures();
+}
+
+TEST_CASE("Test inconsistent size mixed loadTexture") {
+    MTLCompute::Texture1D<float> textureone(gpu, 10, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> texturetwo(gpu, 11, 11, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture3D<float> texturethree(gpu, 12, 12, 12, MTLCompute::TextureItemType::float32);
+    CHECK_NOTHROW(manager.loadTexture(textureone, 0));
+    CHECK_THROWS(manager.loadTexture(texturetwo, 1));
+    CHECK_THROWS(manager.loadTexture(texturethree, 2));
     manager.resetTextures();
 }

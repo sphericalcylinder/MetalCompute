@@ -102,7 +102,7 @@ namespace MTLCompute {
              * @param index The index to load the array into
              *
             */
-            void loadArray(std::vector<T> &array, int index) {
+            void loadArray(vec<T> &array, int index) {
                 this->checkloaded();
                 MTLCompute::Buffer<T> buffer(gpu, array.size(), MTLCompute::ResourceStorage::Shared);
                 buffer = array;
@@ -110,7 +110,7 @@ namespace MTLCompute {
             }
 
             /**
-             * @brief Load a matrix into the GPU
+             * @brief Load a 2d matrix into the GPU
              *
              * Takes in a vector of vectors of type T and an index and loads the matrix into the GPU
              * at that index
@@ -119,9 +119,26 @@ namespace MTLCompute {
              * @param index The index to load the matrix into
              *
             */
-            void loadMatrix(std::vector<std::vector<T>> &matrix, int index) {
+            void loadMatrix(vec2<T> &matrix, int index) {
                 this->checkloaded();
                 MTLCompute::Texture2D<T> texture(gpu, matrix[0].size(), matrix.size());
+                texture = matrix;
+                this->commandManager.loadTexture(texture, index);
+            }
+
+            /**
+             * @brief Load a 3d matrix into the GPU
+             *
+             * Takes in a vector of vectors of vectors of type T and an index and loads the matrix into the GPU
+             * at that index
+             *
+             * @param matrix The matrix to load
+             * @param index The index to load the matrix into
+             *
+            */
+            void loadMatrix(vec3<T> &matrix, int index) {
+                this->checkloaded();
+                MTLCompute::Texture3D<T> texture(gpu, matrix[0][0].size(), matrix[0].size(), matrix.size());
                 texture = matrix;
                 this->commandManager.loadTexture(texture, index);
             }
@@ -147,25 +164,41 @@ namespace MTLCompute {
              * @return The array at the index
              *
             */
-            std::vector<T> getArray(int index) {
+            vec<T> getArray(int index) {
                 this->checkloaded();
                 MTLCompute::Buffer<T> buffer = commandManager.getBuffers()[index];
                 return buffer.getData();
             }
 
             /**
-             * @brief Get a matrix from the GPU
+             * @brief Get a 2d matrix from the GPU
              *
              * Takes in an index and returns the matrix at that index
              *
-             * @param index The index of the matrix
+             * @param index The index of the 2d matrix
              *
-             * @return The matrix at the index
+             * @return The 2d matrix at the index
              *
             */
-            std::vector<std::vector<T>> getMatrix(int index) {
+            vec2<T> get2DMatrix(int index) {
                 this->checkloaded();
-                MTLCompute::Texture2D<T> texture = commandManager.getTextures()[index];
+                MTLCompute::Texture2D<T> texture = commandManager.getTexture2D(index);
+                return texture.getData();
+            }
+
+            /**
+             * @brief Get a 3d matrix from the GPU
+             *
+             * Takes in an index and returns the matrix at that index
+             *
+             * @param index The index of the 3d matrix
+             *
+             * @return The 3d matrix at the index
+             *
+            */
+            vec3<T> get3DMatrix(int index) {
+                this->checkloaded();
+                MTLCompute::Texture3D<T> texture = commandManager.getTexture3D(index);
                 return texture.getData();
             }
 

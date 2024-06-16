@@ -1,7 +1,4 @@
 #include "MTLCompute.hpp"
-#include <algorithm>
-#include <vector>
-#include <iostream>
 
 int main() {
 
@@ -13,7 +10,7 @@ int main() {
 
     // Print the functions in the default.metallib
     std::cout << "Functions in the default.metallib: " << std::endl;
-    std::vector<std::string> names = kernel.getFunctionNames();
+    vec<std::string> names = kernel.getFunctionNames();
     for (int i = 0; i < names.size(); i++) {
         std::cout << names[i] << std::endl;
     }
@@ -27,7 +24,7 @@ int main() {
     MTLCompute::Buffer<float> bufferc(gpu, 10, MTLCompute::ResourceStorage::Shared);
 
     // Create a vector of data
-    std::vector<float> bufferdata = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    vec<float> bufferdata = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     // Fill the buffers with data
     buffera = bufferdata;
@@ -43,7 +40,7 @@ int main() {
     manager.dispatch();
 
     // Get and print the result
-    std::vector<float> result = bufferc.getData();
+    vec<float> result = bufferc.getData();
     for (int i = 0; i < bufferc.length; i++) {
         std::cout << result[i] << " ";
     }

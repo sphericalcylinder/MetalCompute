@@ -2,10 +2,9 @@
 #include "MTLComputeGlobals.hpp"
 #include "MTLComputeKernel.hpp"
 #include "MTLComputeTexture.hpp"
-#include <iostream>
-#include <vector>
 
 #pragma once
+
 
 namespace MTLCompute {
 
@@ -20,11 +19,14 @@ namespace MTLCompute {
             MTL::CommandBuffer *commandBuffer; ///< The Metal command buffer object
             MTL::ComputeCommandEncoder *commandEncoder; ///< The Metal compute command encoder object
 
-            std::vector<Buffer<T>> buffers = std::vector<Buffer<T>>(MAX_BUFFERS); ///< The buffers
-            std::vector<Texture2D<T>> textures = std::vector<Texture2D<T>>(MAX_TEXTURES); ///< The 2D textures
+            using Texture = std::variant<Texture1D<T>, Texture2D<T>, Texture3D<T>>;
+
+            vec<Buffer<T>> buffers = vec<Buffer<T>>(MAX_BUFFERS); ///< The buffers
+            vec<Texture> textures = vec<Texture>(MAX_TEXTURES); ///< The 2D textures
             int bufferlength = -1; ///< The length of the buffers
             int texwidth = -1; ///< The width of the textures
             int texheight = -1; ///< The height of the textures
+            int texdepth = -1; ///< The depth of the textures
 
         public:
 
@@ -82,28 +84,70 @@ namespace MTLCompute {
                 this->buffers[index] = buffer;
             }
 
+            /**
+             * @brief Load a 1d texture into the CommandManager
+             *
+             * Takes in a 1d texture and an index and adds the texture to an internal array
+             *
+             * @param texture The 1d texture to load
+             * @param index The index to load the texture into
+             *
+            */
+            void loadTexture(Texture1D<T> texture, int index) {
+                if (this->texwidth == -1)
+                    this->texwidth = texture.getWidth();
+                
+                if (this->texwidth != texture.getWidth())
+                    throw std::invalid_argument("Texture sizes do not match");
+
+
+                this->textures[index] = texture;
+            }
 
             /**
-             * @brief Load a texture into the CommandManager
+             * @brief Load a 2d texture into the CommandManager
              *
-             * Takes in a texture and an index and adds the texture to an internal array
+             * Takes in a 2d texture and an index and adds the texture to an internal array
              *
-             * @param texture The texture to load
+             * @param texture The 2d texture to load
              * @param index The index to load the texture into
              *
             */
             void loadTexture(Texture2D<T> texture, int index) {
-                if (this->texwidth == -1 && this->texheight == -1) {
+                if (this->texwidth == -1)
                     this->texwidth = texture.getWidth();
+                
+                if (this->texheight == -1) 
                     this->texheight = texture.getHeight();
-                    if (this->texwidth > MAX_TEXTURE_SIZE || this->texheight > MAX_TEXTURE_SIZE) {
-                        throw std::invalid_argument("Texture size too large, max size is 16384");
-                    }
-                } else if (this->texwidth != texture.getWidth() || this->texheight != texture.getHeight()) {
-                    std::cout << this->texwidth << " " << this->texheight << std::endl;
-                    std::cout << texture.getTexture()->width() << " " << texture.getTexture()->height() << std::endl;
+
+                if (this->texwidth != texture.getWidth() || this->texheight != texture.getHeight())
                     throw std::invalid_argument("Texture sizes do not match");
-                }
+                
+
+                this->textures[index] = texture;
+            }
+
+            /**
+             * @brief Load a 3d texture into the CommandManager
+             *
+             * Takes in a 3d texture and an index and adds the texture to an internal array
+             *
+             * @param texture The 3d texture to load
+             * @param index The index to load the texture into
+             *
+            */
+            void loadTexture(Texture3D<T> texture, int index) {
+                if (this->texwidth == -1)
+                    this->texwidth = texture.getWidth();
+                
+                if (this->texheight == -1) 
+                    this->texheight = texture.getHeight();
+
+                if (this->texdepth == -1) 
+                    this->texdepth = texture.getDepth();
+
+                if (this->texwidth != texture.getWidth() || this->texheight != texture.getHeight() || this->texdepth != texture.getDepth())
+                    throw std::invalid_argument("Texture sizes do not match");
 
                 this->textures[index] = texture;
             }
@@ -134,17 +178,74 @@ namespace MTLCompute {
                         this->commandEncoder->setBuffer(buffers[i].getBuffer(), 0, i);
                         usingbuffers = true;
                     }
-                    if (textures[i].getWidth() == this->texwidth && textures[i].getHeight() == this->texheight
-                            && textures[i].getTexture() != nullptr) {
-                        this->commandEncoder->setTexture(textures[i].getTexture(), i);
-                        usingtextures = true;
+
+                    Texture tex = this->textures[i];
+                    if (std::holds_alternative<Texture1D<T>>(tex)) {
+                        Texture1D<T> texture = std::get<Texture1D<T>>(tex);
+
+                        if (texture.getWidth() == this->texwidth && texture.getTexture() != nullptr) {
+                            this->commandEncoder->setTexture(texture.getTexture(), i);
+
+                            if (!usingtextures)
+                                usingtextures = true;
+                        }
+                    }
+                    else if (std::holds_alternative<Texture2D<T>>(tex)) {
+                        Texture2D<T> texture = std::get<Texture2D<T>>(tex);
+
+                        if (texture.getWidth() == this->texwidth && texture.getHeight() == this->texheight
+                                && texture.getTexture() != nullptr) {
+                            this->commandEncoder->setTexture(texture.getTexture(), i);
+                            
+                            if (!usingtextures)
+                                usingtextures = true;
+                        }
+                    } else if (std::holds_alternative<Texture3D<T>>(tex)) {
+                        Texture3D<T> texture = std::get<Texture3D<T>>(tex);
+
+                        if (texture.getWidth() == this->texwidth && texture.getHeight() == this->texheight
+                                && texture.getDepth() == this->texdepth && texture.getTexture() != nullptr) {
+                            this->commandEncoder->setTexture(texture.getTexture(), i);
+                            
+                            if (!usingtextures)
+                                usingtextures = true;
+                        }
                     }
                 }
+
+
                 for (int i = MAX_BUFFERS; i < MAX_TEXTURES; i++) {
-                    if (textures[i].getWidth() == this->texwidth && textures[i].getHeight() == this->texheight
-                            && textures[i].getTexture() != nullptr) {
-                        this->commandEncoder->setTexture(textures[i].getTexture(), i);
-                        usingtextures = true;
+                    Texture tex = this->textures[i];
+                    if (std::holds_alternative<Texture1D<T>>(tex)) {
+                        Texture1D<T> texture = std::get<Texture1D<T>>(tex);
+
+                        if (texture.getWidth() == this->texwidth && texture.getTexture() != nullptr) {
+                            this->commandEncoder->setTexture(texture.getTexture(), i);
+
+                            if (!usingtextures)
+                                usingtextures = true;
+                        }
+                    }
+                    else if (std::holds_alternative<Texture2D<T>>(tex)) {
+                        Texture2D<T> texture = std::get<Texture2D<T>>(tex);
+
+                        if (texture.getWidth() == this->texwidth && texture.getHeight() == this->texheight
+                                && texture.getTexture() != nullptr) {
+                            this->commandEncoder->setTexture(texture.getTexture(), i);
+                            
+                            if (!usingtextures)
+                                usingtextures = true;
+                        }
+                    } else if (std::holds_alternative<Texture3D<T>>(tex)) {
+                        Texture3D<T> texture = std::get<Texture3D<T>>(tex);
+
+                        if (texture.getWidth() == this->texwidth && texture.getHeight() == this->texheight
+                                && texture.getDepth() == this->texdepth && texture.getTexture() != nullptr) {
+                            this->commandEncoder->setTexture(texture.getTexture(), i);
+                            
+                            if (!usingtextures)
+                                usingtextures = true;
+                        }
                     }
                 }
 
@@ -155,20 +256,27 @@ namespace MTLCompute {
                 threadsPerThreadgroup.depth = 1;
 
                 MTL::Size threadsPerGrid;
+
+                int currentwidth = this->texwidth;
+                int currentheight = (this->texheight == -1 ? 1 : this->texheight);
+                int currentdepth = (this->texdepth == -1 ? 1 : this->texdepth);
+
                 if (usingbuffers && usingtextures) {
-                    if (this->bufferlength > this->texwidth)
-                        threadsPerGrid = MTL::Size::Make(this->bufferlength, this->texheight, 1);
+                    if (this->bufferlength > currentwidth)
+                        threadsPerGrid = MTL::Size::Make(this->bufferlength, currentheight, currentdepth);
                     else
-                        threadsPerGrid = MTL::Size::Make(this->texwidth, this->texheight, 1);
+                        threadsPerGrid = MTL::Size::Make(currentwidth, currentheight, currentdepth);
+
                 } else if (usingbuffers && !usingtextures) {
                     threadsPerGrid = MTL::Size::Make(this->bufferlength, 1, 1);
 
                 } else if (!usingbuffers && usingtextures) {
-                    threadsPerGrid = MTL::Size::Make(this->texwidth, this->texheight, 1);
+                    threadsPerGrid = MTL::Size::Make(currentwidth, currentheight, currentdepth);
                     
                 } else {
                     throw std::invalid_argument("No buffers or textures loaded");
                 }
+
 
                 // Use dispatchThreads NOT dispatchThreadgroups
                 this->commandEncoder->dispatchThreads(threadsPerGrid, threadsPerThreadgroup);
@@ -187,7 +295,7 @@ namespace MTLCompute {
             */
             void resetBuffers() {
                 this->buffers.clear();
-                this->buffers = std::vector<Buffer<T>>(MAX_BUFFERS);
+                this->buffers = vec<Buffer<T>>(MAX_BUFFERS);
                 this->bufferlength = -1;
             }
 
@@ -197,9 +305,10 @@ namespace MTLCompute {
             */
             void resetTextures() {
                 this->textures.clear();
-                this->textures = std::vector<Texture2D<T>>(MAX_TEXTURES);
+                this->textures = vec<Texture>(MAX_TEXTURES);
                 this->texwidth = -1;
                 this->texheight = -1;
+                this->texdepth = -1;
             }
 
             /**
@@ -239,18 +348,44 @@ namespace MTLCompute {
              * @return std::vector<Buffer<T>> The buffers
              *
             */
-            std::vector<Buffer<T>>& getBuffers() {
+            vec<Buffer<T>>& getBuffers() {
                 return this->buffers;
             }
 
             /**
-             * @brief Get the loaded textures
+             * @brief Get a loaded 1D texture
              *
-             * @return std::vector<Texture2D<T>> The textures
+             * @return Texture1D<T> The texture
              *
             */
-            std::vector<Texture2D<T>>& getTextures() {
-                return this->textures;
+            Texture1D<T>& getTexture1D(int index) {
+                if (!std::holds_alternative<Texture1D<T>>(this->textures[index]))
+                    throw std::invalid_argument("Texture is not a 1D texture");
+                return std::get<Texture1D<T>>(this->textures[index]);
+            }
+
+            /**
+             * @brief Get a loaded 2D texture
+             *
+             * @return Texture2D<T> The texture
+             *
+            */
+            Texture2D<T>& getTexture2D(int index) {
+                if (!std::holds_alternative<Texture2D<T>>(this->textures[index]))
+                    throw std::invalid_argument("Texture is not a 2D texture");
+                return std::get<Texture2D<T>>(this->textures[index]);
+            }
+
+            /**
+             * @brief Get a loaded 3D texture
+             *
+             * @return Texture3D<T> The texture
+             *
+            */
+            Texture3D<T>& getTexture3D(int index) {
+                if (!std::holds_alternative<Texture3D<T>>(this->textures[index]))
+                    throw std::invalid_argument("Texture is not a 3D texture");
+                return std::get<Texture3D<T>>(this->textures[index]);
             }
 
     };

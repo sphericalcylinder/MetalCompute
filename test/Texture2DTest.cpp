@@ -4,10 +4,10 @@
 
 
 MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
-MTLCompute::Texture2D<float> texture(gpu, 10, 10, MTLCompute::TextureType::float32);
-std::vector<std::vector<float>> data(10, std::vector<float>(10, 1.0));
-std::vector<std::vector<float>> toomuch(11, std::vector<float>(11, 1.0));
-std::vector<std::vector<float>> toolittle(9, std::vector<float>(9, 1.0));
+MTLCompute::Texture2D<float> texture(gpu, 10, 10, MTLCompute::TextureItemType::float32);
+vec2<float> data(10, vec<float>(10, 1.0));
+vec2<float> toomuch(11, vec<float>(11, 1.0));
+vec2<float> toolittle(9, vec<float>(9, 1.0));
 
 TEST_CASE("Test Constructor") {
     REQUIRE(texture.getWidth() == 10);
@@ -55,7 +55,7 @@ TEST_CASE("Test set with texture") {
 
 TEST_CASE("Test get with vector") {
     texture = data;
-    std::vector<std::vector<float>> result = texture.getData();
+    vec2<float> result = texture.getData();
     for (int i = 0; i < texture.getWidth(); i++) {
         for (int j = 0; j < texture.getHeight(); j++) {
             CHECK(result[i][j] == 1.0);
@@ -88,6 +88,6 @@ TEST_CASE("Test set with too little data") {
 }
 
 TEST_CASE("Test create texture larger than max size") {
-    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture2D<float>(gpu, 16385, 16385, MTLCompute::TextureType::float32),
+    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture2D<float>(gpu, 16385, 16385, MTLCompute::TextureItemType::float32),
         std::invalid_argument, "Texture size too large, max size is 16384");
 }

@@ -1,7 +1,4 @@
 #include "MTLCompute.hpp"
-#include <algorithm>
-#include <vector>
-#include <iostream>
 
 int main() {
 
@@ -12,27 +9,26 @@ int main() {
     MTLCompute::Kernel kernel(gpu, "default.metallib");
 
     // Select the "matrix_add" function to use
-    kernel.useFunction("matrix_add"); 
+    kernel.useFunction("matrix_add_3d"); 
 
     // Create a CommandManager
     MTLCompute::CommandManager<float> manager(gpu, &kernel);
 
     int width = 5; // width of the texture
     int height = 5; // height of the texture
+    int depth = 5; // depth of the texture
 
-    // Create the 2d textures and fill them with data
-    std::vector<std::vector<float>> texdata(height, std::vector<float>(width, 1));
+    // Create the 3d textures and fill them with data
+    vec3<float> texdata(depth, vec2<float>(height, vec<float>(width, 1.0f)));
+    
+    MTLCompute::Texture3D<float> textureA(gpu, width, height, depth, MTLCompute::TextureItemType::float32);
 
-    MTLCompute::Texture2D<float> textureA(gpu, width, height, MTLCompute::TextureType::float32);
+    MTLCompute::Texture3D<float> textureB(gpu, width, height, depth, MTLCompute::TextureItemType::float32);
+
+    MTLCompute::Texture3D<float> textureC(gpu, width, height, depth, MTLCompute::TextureItemType::float32);
+
     textureA = texdata;
-
-    MTLCompute::Texture2D<float> textureB(gpu, width, height, MTLCompute::TextureType::float32);
     textureB = texdata;
-
-    MTLCompute::Texture2D<float> textureC(gpu, width, height, MTLCompute::TextureType::float32);
-
-    // Select the "matrix_add" function to use
-    kernel.useFunction("matrix_add");   
 
     // Load the textures
     manager.loadTexture(textureA, 0);
@@ -43,10 +39,13 @@ int main() {
     manager.dispatch();
 
     // Get and print the result
-    std::vector<std::vector<float>> texresult = textureC.getData();
+    vec3<float> texresult = textureC.getData();
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            std::cout << texresult[i][j] << " ";
+            for (int k = 0; k < depth; k++) {
+                std::cout << texresult[i][j][k] << " ";
+            }
+            std::cout << std::endl;
         }
         std::cout << std::endl;
     }

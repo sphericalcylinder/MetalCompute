@@ -13,13 +13,13 @@ int main() {
     size_t texsize = 800;
 
     // Create 3 2D textures for 2 input matrices and an output matrix
-    MTLCompute::Texture2D<float> a(gpu, texsize, texsize, MTLCompute::TextureType::float32);
-    MTLCompute::Texture2D<float> b(gpu, texsize, texsize, MTLCompute::TextureType::float32);
-    MTLCompute::Texture2D<float> c(gpu, texsize, texsize, MTLCompute::TextureType::float32);
+    MTLCompute::Texture2D<float> a(gpu, texsize, texsize, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> b(gpu, texsize, texsize, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> c(gpu, texsize, texsize, MTLCompute::TextureItemType::float32);
 
     // Create 2D vectors to store the data for the input matrices
-    std::vector<std::vector<float>> adata(texsize, std::vector<float>(texsize));
-    std::vector<std::vector<float>> bdata(texsize, std::vector<float>(texsize));
+    vec2<float> adata(texsize, vec<float>(texsize));
+    vec2<float> bdata(texsize, vec<float>(texsize));
 
     // Seed the random generator
     srand(time(NULL));
@@ -59,10 +59,10 @@ int main() {
     std::cout << "Total elapsed time: " << elapsedgputime.count() << " s\n\n";
 
     // Get the data from the output texture
-    std::vector<std::vector<float>> cdata = c.getData();
+    vec2<float> cdata = c.getData();
 
     // Create a new vector for the cpu computed data
-    std::vector<std::vector<float>> finaldata(texsize, std::vector<float>(texsize));
+    vec2<float> finaldata(texsize, vec<float>(texsize));
 
     // Print status and start timer
     std::cout << "start cpu compute" << std::endl;

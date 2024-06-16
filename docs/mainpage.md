@@ -85,10 +85,48 @@ std::vector<float> bufferdata = mybuffer.getData();
 ================
 ### Textures {#textures}
 
-A MTLCompute::Texture is a 2D list that holds a predetermined number of elements. To create a MTLCompute::Texture,
-you specify a gpu, width, height, and MTLCompute::TextureType option. The TextureType is the type of data going into
-the Texture. The options are int and uint 8, 16, and 32, and float32. You can also just ignore that argument and it
-will be inferred.
+A MTLCompute::Texture can be a 1, 2, or 3d list that holds a predetermined number of elements. When creating a texture, 
+you can optionally specify a MTLCompute::TextureType. The TextureType is the type of data going into the texture. 
+The options are int and uint 8, 16, and 32, and float32. Usually, you can just ignore that argument and it will be inferred.
+You can't use the slice operator [] set a texture value.
+
+#### 1D Textures
+
+To create a MTLCompute::Texture1D, you specify a gpu, length, and MTLCompute::TextureType option.
+
+
+To create a MTLCompute::Texture1D that holds 10 floats:
+```cpp
+#include "MTLCompute.hpp"
+
+int main() {
+
+    MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
+
+    MTLCompute::Texture1D<float> mytexture(gpu, 10, MTLCompute::TextureType::float32);
+    // or MTLCompute::Texture1D<float> mytexture(gpu, 10);
+
+}
+```
+
+To put data into the texture, assign a vector to it:
+```cpp
+mytexture = std::vector<float>(10, 1.0);
+```
+
+You can't use the slice operator [] set a texture value.
+
+You can use the MTLCompute::Texture::getData() method or the slice operator to get data:
+```cpp
+float val = mytexture[3]; // 1.0
+std::vector<float> texturedata = mytexture.getData();
+```
+
+<br />
+
+#### 2D Textures
+
+To create a MTLCompute::Texture2D, you specify a gpu, width, height, and MTLCompute::TextureType option.
 
 
 To create a MTLCompute::Texture that holds 100 floats (10x10):
@@ -100,8 +138,7 @@ int main() {
     MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
 
     MTLCompute::Texture<float> mytexture(gpu, 10, 10, MTLCompute::TextureType::float32);
-
-    MTLCompute::Texture<float> secondtexture(gpu, 10, 10);
+    // or MTLCompute::Texture<float> mytexture(gpu, 10, 10);
 
 }
 ```
@@ -119,8 +156,48 @@ std::vector<float> row = mytexture[5];
 std::vector<std::vector<float>> texturedata = mytexture.getData();
 ```
 
+<br />
+
+#### 3D Textures
+
+To create a MTLCompute::Texture3D, you specify a gpu, width, height, depth, and MTLCompute::TextureType option.
+
+
+To create a MTLCompute::Texture that holds 1000 floats (10x10x10):
+```cpp
+#include "MTLCompute.hpp"
+
+int main() {
+
+    MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
+
+    MTLCompute::Texture3D<float> mytexture(gpu, 10, 10, 10, MTLCompute::TextureType::float32);
+
+   // or MTLCompute::Texture3D<float> mytexture(gpu, 10, 10, 10);
+
+}
+```
+
+To put data into the texture, assign a 3D vector to it:
+```cpp
+mytexture = std::vector<std::vector<std::vector<float>>>(10, std::vector<std::vector<float>>(10, std::vector<float>(10, 1.0)))
+```
+
+
+
+You can use the MTLCompute::Texture::getData() method or the slice operator to get data:
+```cpp
+float val = mytexture[3][7][2]; // 1.0
+std::vector<float> row = mytexture[5][3];
+std::vector<std::vector<float>> slice = mytexture[5];
+std::vector<std::vector<std::vector<float>>> texturedata = mytexture.getData();
+```
+
+<br />
 
 ================
+
+
 ### Kernel {#kernel}
 
 A MTLCompute::Kernel is how you tell the GPU what to do with the data you give it. You load a compiled Metal Shading Language file (.metallib)
@@ -155,9 +232,11 @@ If that library had a function called "add_arrays" that you wanted to use, you w
 kernel.useFunction("add_arrays");
 ```
 
+================
+
 ### CommandManager {#commandmanager}
 A MTLCompute::CommandManager is the way you really 'talk' to the gpu. You specify the kernel and then load buffers
-and textures at certain indecies that correspond to your MSL (Metal Shading Language) function
+and textures at certain indecies that correspond to your MSL (Metal Shading Language) function.
 
 
 To create a new MTLCompute::CommandManager with the previous kernel:

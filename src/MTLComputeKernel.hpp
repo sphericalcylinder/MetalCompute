@@ -82,8 +82,8 @@ namespace MTLCompute {
              * @return A vector of strings containing the names of the functions in the library
              *
             */
-            std::vector<std::string> getFunctionNames() {
-                std::vector<std::string> names;
+            vec<std::string> getFunctionNames() {
+                vec<std::string> names;
                 for (int i = 0; i < this->library->functionNames()->count(); i++) {
                     names.push_back(this->library->functionNames()->object(i)->description()->cString(NS::ASCIIStringEncoding));
                 }
