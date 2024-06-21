@@ -1,6 +1,7 @@
-#include "MTLComputeBuffer.hpp"
 #include "MTLComputeGlobals.hpp"
+#include "MTLComputeErrors.hpp"
 #include "MTLComputeKernel.hpp"
+#include "MTLComputeBuffer.hpp"
 #include "MTLComputeTexture.hpp"
 
 #pragma once
@@ -19,7 +20,7 @@ namespace MTLCompute {
             MTL::CommandBuffer *commandBuffer; ///< The Metal command buffer object
             MTL::ComputeCommandEncoder *commandEncoder; ///< The Metal compute command encoder object
 
-            using Texture = std::variant<Texture1D<T>, Texture2D<T>, Texture3D<T>>;
+            using Texture = std::variant<std::monostate, Texture1D<T>, Texture2D<T>, Texture3D<T>>;
 
             vec<Buffer<T>> buffers = vec<Buffer<T>>(MAX_BUFFERS); ///< The buffers
             vec<Texture> textures = vec<Texture>(MAX_TEXTURES); ///< The 2D textures
@@ -27,6 +28,11 @@ namespace MTLCompute {
             int texwidth = -1; ///< The width of the textures
             int texheight = -1; ///< The height of the textures
             int texdepth = -1; ///< The depth of the textures
+
+            void checkTextureIndex(int index) {
+                if (index < 0 || index >= MAX_TEXTURES)
+                    throw CommandManagerIndexError("Index out of range");
+            }
 
         public:
 
@@ -75,11 +81,11 @@ namespace MTLCompute {
              *
             */
             void loadBuffer(Buffer<T> buffer, int index) {
-                if (this->bufferlength == -1) {
-                    this->bufferlength = buffer.length;
-                } else if (this->bufferlength != buffer.length) {
-                    throw std::invalid_argument("Buffer lengths do not match");
-                }
+                if (this->bufferlength == -1) 
+                    this->bufferlength = buffer.getLength();
+
+                if (this->bufferlength != buffer.getLength()) 
+                    throw CommandManagerItemSizeError("Buffer sizes do not match");
 
                 this->buffers[index] = buffer;
             }
@@ -98,8 +104,7 @@ namespace MTLCompute {
                     this->texwidth = texture.getWidth();
                 
                 if (this->texwidth != texture.getWidth())
-                    throw std::invalid_argument("Texture sizes do not match");
-
+                    throw CommandManagerItemSizeError("Texture sizes do not match");
 
                 this->textures[index] = texture;
             }
@@ -121,7 +126,7 @@ namespace MTLCompute {
                     this->texheight = texture.getHeight();
 
                 if (this->texwidth != texture.getWidth() || this->texheight != texture.getHeight())
-                    throw std::invalid_argument("Texture sizes do not match");
+                    throw CommandManagerItemSizeError("Texture sizes do not match");
                 
 
                 this->textures[index] = texture;
@@ -147,7 +152,7 @@ namespace MTLCompute {
                     this->texdepth = texture.getDepth();
 
                 if (this->texwidth != texture.getWidth() || this->texheight != texture.getHeight() || this->texdepth != texture.getDepth())
-                    throw std::invalid_argument("Texture sizes do not match");
+                    throw CommandManagerItemSizeError("Texture sizes do not match");
 
                 this->textures[index] = texture;
             }
@@ -174,7 +179,7 @@ namespace MTLCompute {
 
                 // Load the buffers and textures into the commandEncoder
                 for (int i = 0; i < MAX_BUFFERS; i++) {
-                    if (buffers[i].length == this->bufferlength && buffers[i].getBuffer() != nullptr) {
+                    if (buffers[i].getLength() == this->bufferlength && buffers[i].getBuffer() != nullptr) {
                         this->commandEncoder->setBuffer(buffers[i].getBuffer(), 0, i);
                         usingbuffers = true;
                     }
@@ -189,8 +194,7 @@ namespace MTLCompute {
                             if (!usingtextures)
                                 usingtextures = true;
                         }
-                    }
-                    else if (std::holds_alternative<Texture2D<T>>(tex)) {
+                    } else if (std::holds_alternative<Texture2D<T>>(tex)) {
                         Texture2D<T> texture = std::get<Texture2D<T>>(tex);
 
                         if (texture.getWidth() == this->texwidth && texture.getHeight() == this->texheight
@@ -274,7 +278,7 @@ namespace MTLCompute {
                     threadsPerGrid = MTL::Size::Make(currentwidth, currentheight, currentdepth);
                     
                 } else {
-                    throw std::invalid_argument("No buffers or textures loaded");
+                    throw CommandManagerLoadError("No buffers or textures loaded");
                 }
 
 
@@ -359,8 +363,9 @@ namespace MTLCompute {
              *
             */
             Texture1D<T>& getTexture1D(int index) {
+                this->checkTextureIndex(index);
                 if (!std::holds_alternative<Texture1D<T>>(this->textures[index]))
-                    throw std::invalid_argument("Texture is not a 1D texture");
+                    throw CommandManagerIndexError("No 1D texture at index "+std::to_string(index));
                 return std::get<Texture1D<T>>(this->textures[index]);
             }
 
@@ -371,8 +376,9 @@ namespace MTLCompute {
              *
             */
             Texture2D<T>& getTexture2D(int index) {
+                this->checkTextureIndex(index);
                 if (!std::holds_alternative<Texture2D<T>>(this->textures[index]))
-                    throw std::invalid_argument("Texture is not a 2D texture");
+                    throw CommandManagerIndexError("No 2D texture at index "+std::to_string(index));
                 return std::get<Texture2D<T>>(this->textures[index]);
             }
 
@@ -383,8 +389,9 @@ namespace MTLCompute {
              *
             */
             Texture3D<T>& getTexture3D(int index) {
+                this->checkTextureIndex(index);
                 if (!std::holds_alternative<Texture3D<T>>(this->textures[index]))
-                    throw std::invalid_argument("Texture is not a 3D texture");
+                    throw CommandManagerIndexError("No 3D texture at index "+std::to_string(index));
                 return std::get<Texture3D<T>>(this->textures[index]);
             }
 

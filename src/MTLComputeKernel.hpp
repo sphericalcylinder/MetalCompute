@@ -1,4 +1,5 @@
 #include "MTLComputeGlobals.hpp"
+#include "MTLComputeErrors.hpp"
 
 #pragma once
 
@@ -30,9 +31,9 @@ namespace MTLCompute {
                 this->library = this->gpu->newLibrary(NS::URL::fileURLWithPath(NS::String::string(filename.c_str(), \
                             NS::ASCIIStringEncoding)), nullptr);
 
-                if (this->library == nullptr) {
-                    std::cerr << "Error: Could not load library " << filename << std::endl;
-                }
+                if (this->library == nullptr)
+                    throw KernelLoadError("Could not load library " + filename);
+                
 
             }
 
@@ -52,9 +53,8 @@ namespace MTLCompute {
 
                 this->library = this->gpu->newLibrary(NS::String::string(filename.c_str(), NS::ASCIIStringEncoding), nullptr);
 
-                if (this->library == nullptr) {
-                    std::cerr << "Error: Could not load library " << filename << std::endl;
-                }
+                if (this->library == nullptr)
+                    throw KernelLoadError("Could not load library " + filename);
 
                 useFunction(funcname);
 
@@ -100,9 +100,9 @@ namespace MTLCompute {
             */
             void useFunction(const std::string &funcname) {
                 this->function = this->library->newFunction(NS::String::string(funcname.c_str(), NS::ASCIIStringEncoding));
-                if (this->function == nullptr) {
-                    throw std::runtime_error("Error: Could not load function " + funcname);
-                }
+                
+                if (this->function == nullptr)
+                    throw KernelLoadError("Could not load function " + funcname);
 
                 NS::Error *error = nullptr;
                 this->pipeline = gpu->newComputePipelineState(this->function, &error);

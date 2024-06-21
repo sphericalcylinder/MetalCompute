@@ -25,29 +25,29 @@ If you enable an install flag, the build flag will be automatically enabled as w
 
 
 # This release
-- This is a big one!!
-- Globals
-  - TextureType has become TextureItemType
-  - vec, vec2, and vec3 are shorthands for std::vector
-  - Each texture dimension has its own storage size (MAX_TEXTURExD_SIZE)
+- This is a bigger one!!!
 - Textures
-  - Added documentation
-  - Tests are written and they pass
-  - Small updates
-- CommandManager
-  - Support for 1d and 3d textures
-  - use loadTexture to load them
-  - if you really need to get them, use getTexture1,2,3D
-  - lots of ugly if statements in the code
-  - no docs yet
-- GPU
-  - support for and 3d textures
-  - no 1d texture support (just use buffers/arrays)
-- Examples
-  - Seperate texture 2d and 3d examples
-  - No 1d texture examples (you can figure it out)
+  - No more pesky MTLCompute::TextureItemType
+  - Multiple components (wow!)
+  - Uses custom types like float4 and uchar2
+  - Look in MTLComputeGlobals.hpp for the definitions
+  - Cleaned up a bit internally (not too much though)
+  - OOB indexing actually works (what was i thinking)
+- Buffers
+  - Length and itemsize is finally private
+  - (why it wasn't originally i have no idea)
+  - Put checks in functions similar to textures
+  - Constructor without MTLCompute::ResourceStorageMode (defaults to Shared)
+- Custom exceptions
+  - MTLComputeErrors.hpp
+  - For Texture1-3D, Buffer, CommandManager, and Kernel
+  - Updated tests to check for this
+- Mostly written docs
 
-I wrote the texure docs, but still need to write the new CommandManager and GPU docs.
+
+Sorry this took so long. I really didn't feel like writing the tests and docs so I
+put it off. The next release should have buffer component support as well as buffer
+to Texture1D conversion (or possibly a new TextureBuffer type).
 
 
 # Overview
@@ -60,7 +60,7 @@ on them so I hope they're good.
 - [x] 1d and 3d textures
 - [x] Command Manager 1d and 3d texture support
 - [ ] Convert buffers to textures
-- [ ] More texture components (RGBA)
+- [x] More texture components (RGBA)
 
 # About
 I not so recently created a C++ application and wanted to use Apple's metal-cpp library to add gpu

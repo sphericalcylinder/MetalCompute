@@ -1,4 +1,5 @@
 #include "MTLComputeGlobals.hpp"
+#include "MTLComputeErrors.hpp"
 #include "MTLComputeBuffer.hpp"
 #include "MTLComputeKernel.hpp"
 #include "MTLComputeCommandManager.hpp"
@@ -11,9 +12,3 @@
 #endif
 
 #define USING_MULTIPLE_CLASSES
-
-/**
- * @file MTLCompute.hpp
- * @brief The main header file for the MTLCompute library
- *
-*/

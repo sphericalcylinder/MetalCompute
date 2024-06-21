@@ -8,13 +8,6 @@ kernel void add_arrays(const device float* a [[buffer(0)]],
   c[i] = a[i] + b[i];
 }
 
-kernel void sub_arrays(const device float* a [[buffer(0)]],
-                       const device float* b [[buffer(1)]],
-                       device float* c [[buffer(2)]],
-                       uint i [[thread_position_in_grid]]) {
-  c[i] = a[i] - b[i];
-}
-
 kernel void matrix_add(texture2d<float, access::read> a [[texture(0)]],
                        texture2d<float, access::read> b [[texture(1)]],
                        texture2d<float, access::write> c [[texture(2)]],
@@ -54,4 +47,22 @@ kernel void matrix_add_3d(texture3d<float, access::read> a [[texture(0)]],
   float sum = a.read(gid).r + b.read(gid).r;
   c.write(sum, gid);
 
+}
+
+kernel void vector_add_1d(texture1d<float, access::read> a [[texture(0)]],
+                       texture1d<float, access::read> b [[texture(1)]],
+                      texture1d<float, access::write> c [[texture(2)]],
+                       uint gid [[thread_position_in_grid]]) {
+  
+  float4 sum = a.read(gid) + b.read(gid);
+  c.write(sum, gid);
+}
+
+kernel void vector_add_2d(texture2d<float, access::read> a [[texture(0)]],
+                       texture2d<float, access::read> b [[texture(1)]],
+                      texture2d<float, access::write> c [[texture(2)]],
+                       uint2 gid [[thread_position_in_grid]]) {
+  
+  float4 sum = a.read(gid) + b.read(gid);
+  c.write(sum, gid);
 }

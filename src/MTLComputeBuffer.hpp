@@ -1,4 +1,5 @@
 #include "MTLComputeGlobals.hpp"
+#include "MTLComputeErrors.hpp"
 
 #pragma once
 
@@ -9,8 +10,10 @@ namespace MTLCompute {
         private:
             MTL::Device *gpu; ///< The Metal device object
             MTL::Buffer *buffer; ///< The Metal buffer object
-            bool freed = false; ///< Whether the buffer has been freed
             MTLCompute::ResourceStorage storageMode; ///< The storage mode of the buffer
+            bool freed = false; ///< Whether the buffer has been freed
+            size_t length; ///< The length of the buffer
+            size_t itemsize; ///< The size of each item in the buffer
 
             void swap(Buffer &buffer) noexcept {
                 using std::swap;
@@ -19,6 +22,31 @@ namespace MTLCompute {
                 swap(this->length, buffer.length);
                 swap(this->itemsize, buffer.itemsize);
                 swap(this->storageMode, buffer.storageMode);
+            }
+
+            void checkComponents() const {
+                if (numComponents<T>() != 1)
+                    throw BufferComponentError("More than one component in a buffer");
+            }
+
+            void checkFreed() const {
+                if (this->freed)
+                    throw BufferFreeError("Buffer already freed");
+            }
+
+            void checkIndex(size_t index) const {
+                if (index >= this->length)
+                    throw BufferIndexError("Index out of bounds");
+            }
+
+            void checkSize(size_t size) const {
+                if (size != this->length)
+                    throw BufferSizeError("Data size does not match buffer size");
+            }
+
+            void checkInit() const {
+                if (this->length == -1)
+                    throw BufferInitError("Buffer not initialized");
             }
             
         public:
@@ -34,10 +62,22 @@ namespace MTLCompute {
              *
             */
             Buffer(MTL::Device *gpu, size_t length, ResourceStorage storageMode) {
+                this->checkComponents();
                 this->gpu = gpu;
                 this->length = length;
                 this->itemsize = sizeof(T);
                 this->storageMode = storageMode;
+                this->buffer = gpu->newBuffer(length*itemsize, static_cast<MTL::ResourceOptions>(storageMode));
+                this->buffer->retain();
+            }
+
+
+            Buffer(MTL::Device *gpu, size_t length) {
+                this->checkComponents();
+                this->gpu = gpu;
+                this->length = length;
+                this->itemsize = sizeof(T);
+                this->storageMode = MTLCompute::ResourceStorage::Shared;
                 this->buffer = gpu->newBuffer(length*itemsize, static_cast<MTL::ResourceOptions>(storageMode));
                 this->buffer->retain();
             }
@@ -52,6 +92,7 @@ namespace MTLCompute {
              *
             */
             Buffer(const Buffer &other) {
+                this->checkComponents();
                 this->gpu = other.gpu;
                 this->length = other.length;
                 this->itemsize = other.itemsize;
@@ -67,6 +108,7 @@ namespace MTLCompute {
              *
             */
             Buffer() {
+                this->checkComponents();
                 this->gpu = nullptr;
                 this->length = -1;
                 this->itemsize = -1;
@@ -95,9 +137,8 @@ namespace MTLCompute {
              *
             */
             T *contents() {
-                if (this->freed) {
-                    throw std::runtime_error("Buffer already freed");
-                }
+                this->checkFreed();
+                
                 return (T *)this->buffer->contents();
             }
 
@@ -109,12 +150,8 @@ namespace MTLCompute {
              *
             */
             T operator[](size_t index) const {
-                if (this->freed) {
-                    throw std::runtime_error("Buffer already freed");
-                }
-                if (index >= this->length) {
-                    throw std::out_of_range("Index out of bounds");
-                }
+                this->checkFreed();
+                this->checkIndex(index);
                 return ((T *)this->buffer->contents())[index];
             }
 
@@ -126,12 +163,8 @@ namespace MTLCompute {
              *
             */
             T& operator[](size_t index) {
-                if (this->freed) {
-                    throw std::runtime_error("Buffer already freed");
-                }
-                if (index >= this->length) {
-                    throw std::out_of_range("Index out of bounds");
-                }
+                this->checkFreed();
+                this->checkIndex(index);
                 return ((T *)this->buffer->contents())[index];
             }
 
@@ -142,12 +175,8 @@ namespace MTLCompute {
              *
             */
             void operator=(vec<T> data) {
-                if (this->freed) {
-                    throw std::runtime_error("Buffer already freed");
-                }
-                if (data.size() != this->length) {
-                    throw std::invalid_argument("Data size does not match buffer size");
-                }
+                this->checkFreed();
+                this->checkSize(data.size());
                 memcpy(this->buffer->contents(), data.data(), this->length*this->itemsize);
 
                 if (this->storageMode == MTLCompute::ResourceStorage::Managed) {
@@ -177,12 +206,8 @@ namespace MTLCompute {
              *
             */
             vec<T> getData() {
-                if (this->freed) {
-                    throw std::runtime_error("Buffer already freed");
-                }
-                if (this->length == -1) {
-                    throw std::runtime_error("Buffer not initialized");
-                }
+                this->checkFreed();
+                this->checkInit();
                 vec<T> data(this->length);
                 memcpy(data.data(), this->buffer->contents(), this->length*this->itemsize);
                 return data;
@@ -228,8 +253,26 @@ namespace MTLCompute {
                 return this->storageMode;
             }
 
-            size_t length; ///< The length of the buffer
-            size_t itemsize; ///< The size of each item in the buffer
+            /**
+             * @brief Get the length of the buffer
+             *
+             * @return size_t The length of the buffer
+             *
+            */
+            size_t getLength() {
+                return this->length;
+            }
+
+            /**
+             * @brief Get the size of each item in the buffer
+             *
+             * @return size_t The size of each item in the buffer
+             *
+            */
+            size_t getItemSize() {
+                return this->itemsize;
+            }
+
     };
 
 }

@@ -13,9 +13,9 @@ int main() {
     size_t texsize = 800;
 
     // Create 3 2D textures for 2 input matrices and an output matrix
-    MTLCompute::Texture2D<float> a(gpu, texsize, texsize, MTLCompute::TextureItemType::float32);
-    MTLCompute::Texture2D<float> b(gpu, texsize, texsize, MTLCompute::TextureItemType::float32);
-    MTLCompute::Texture2D<float> c(gpu, texsize, texsize, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> a(gpu, texsize, texsize);
+    MTLCompute::Texture2D<float> b(gpu, texsize, texsize);
+    MTLCompute::Texture2D<float> c(gpu, texsize, texsize);
 
     // Create 2D vectors to store the data for the input matrices
     vec2<float> adata(texsize, vec<float>(texsize));

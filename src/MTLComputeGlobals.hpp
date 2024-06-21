@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <typeinfo>
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
 #include "Metal.hpp"
@@ -19,6 +20,7 @@ using vec2 = std::vector<std::vector<T>>;
 template< typename T >
 using vec3 = std::vector<std::vector<std::vector<T>>>;
 
+
 namespace MTLCompute {
 
     constexpr int MAX_BUFFERS = 31;
@@ -29,31 +31,53 @@ namespace MTLCompute {
     // i cant find the max buffer size
 
     enum class ResourceStorage {
-        Shared = 0, // MTL::ResourceStorageModeShared
+        Shared = 0,   // MTL::ResourceStorageModeShared
         Managed = 16, // MTL::ResourceStorageModeManaged
         Private = 32, // MTL::ResourceStorageModePrivate
     };
 
-    enum class TextureItemType {
-        uint8 = MTL::PixelFormatR8Uint,     // 13
-        uint16 = MTL::PixelFormatR16Uint,   // 23
-        uint32 = MTL::PixelFormatR32Uint,   // 53
+    typedef unsigned char uchar;
+    typedef unsigned short ushort;
+    typedef unsigned int uint;
 
-        int8 = MTL::PixelFormatR8Sint,      // 14
-        int16 = MTL::PixelFormatR16Sint,    // 24
-        int32 = MTL::PixelFormatR32Sint,    // 54
+    typedef std::pair<uchar, uchar> uchar2;
+    typedef std::pair<ushort, ushort> ushort2;
+    typedef std::pair<uint, uint> uint2;
+    typedef std::pair<char, char> char2;
+    typedef std::pair<short, short> short2;
+    typedef std::pair<int, int> int2;
+    typedef std::pair<float, float> float2;
 
-        float32 = MTL::PixelFormatR32Float, // 55
-    };
+    // Metal does not support 3 component types
+    
+    typedef std::tuple<uchar, uchar, uchar, uchar> uchar4;
+    typedef std::tuple<ushort, ushort, ushort, ushort> ushort4;
+    typedef std::tuple<uint, uint, uint, uint> uint4;
+    typedef std::tuple<char, char, char, char> char4;
+    typedef std::tuple<short, short, short, short> short4;
+    typedef std::tuple<int, int, int, int> int4;
+    typedef std::tuple<float, float, float, float> float4;
 
-    inline std::map<TextureItemType, size_t> TextureTypeSizes = {
-        {TextureItemType::uint8, sizeof(uint8_t)},
-        {TextureItemType::uint16, sizeof(uint16_t)},
-        {TextureItemType::uint32, sizeof(uint32_t)},
-        {TextureItemType::int8, sizeof(int8_t)},
-        {TextureItemType::int16, sizeof(int16_t)},
-        {TextureItemType::int32, sizeof(int32_t)},
-        {TextureItemType::float32, sizeof(float_t)}
-    };
+    template<typename T>
+    inline int numComponents() {
+        
+        if (typeid(T) == typeid(uchar2)) return 2;
+        if (typeid(T) == typeid(ushort2)) return 2;
+        if (typeid(T) == typeid(uint2)) return 2;
+        if (typeid(T) == typeid(char2)) return 2;
+        if (typeid(T) == typeid(short2)) return 2;
+        if (typeid(T) == typeid(int2)) return 2;
+        if (typeid(T) == typeid(float2)) return 2;
+
+        if (typeid(T) == typeid(uchar4)) return 4;
+        if (typeid(T) == typeid(ushort4)) return 4;
+        if (typeid(T) == typeid(uint4)) return 4;
+        if (typeid(T) == typeid(char4)) return 4;
+        if (typeid(T) == typeid(short4)) return 4;
+        if (typeid(T) == typeid(int4)) return 4;
+        if (typeid(T) == typeid(float4)) return 4;
+
+        return 1;
+    }
 
 }

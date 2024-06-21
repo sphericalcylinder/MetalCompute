@@ -21,11 +21,11 @@ int main() {
     // Create the 3d textures and fill them with data
     vec3<float> texdata(depth, vec2<float>(height, vec<float>(width, 1.0f)));
     
-    MTLCompute::Texture3D<float> textureA(gpu, width, height, depth, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture3D<float> textureA(gpu, width, height, depth);
 
-    MTLCompute::Texture3D<float> textureB(gpu, width, height, depth, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture3D<float> textureB(gpu, width, height, depth);
 
-    MTLCompute::Texture3D<float> textureC(gpu, width, height, depth, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture3D<float> textureC(gpu, width, height, depth);
 
     textureA = texdata;
     textureB = texdata;

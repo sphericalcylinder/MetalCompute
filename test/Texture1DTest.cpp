@@ -4,7 +4,7 @@
 
 
 MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
-MTLCompute::Texture1D<float> texture(gpu, 10, MTLCompute::TextureItemType::float32);
+MTLCompute::Texture1D<float> texture(gpu, 10);
 vec<float> data(10, 1.0);
 vec<float> toomuch(11, 1.0);
 vec<float> toolittle(9, 1.0);
@@ -64,14 +64,33 @@ TEST_CASE("Test get item with [] operator") {
     }
 }
 
+TEST_CASE("Test create texture larger than max size") {
+    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture1D<float>(gpu, 16385),
+        MTLCompute::TextureSizeError, "Texture size exceeds maximum size");
+}
+
 TEST_CASE("Test set with too much data") {
-    REQUIRE_THROWS(texture = toomuch);
+    REQUIRE_THROWS_AS_MESSAGE(texture = toomuch, MTLCompute::TextureSizeError,
+        "Data size does not match texture size");
 }
 
 TEST_CASE("Test set with too little data") {
-    REQUIRE_THROWS(texture = toolittle);
+    REQUIRE_THROWS_AS_MESSAGE(texture = toolittle, MTLCompute::TextureSizeError,
+        "Data size does not match texture size");
 }
 
-TEST_CASE("Test create texture larger than max size") {
-    REQUIRE_THROWS(MTLCompute::Texture1D<float>(gpu, 16385, MTLCompute::TextureItemType::float32));
+TEST_CASE("Test OOB get with [] operator") {
+    texture = data;
+    REQUIRE_THROWS_AS_MESSAGE(texture[10], MTLCompute::TextureIndexError,
+        "Texture index out of bounds");
+    REQUIRE_THROWS_AS_MESSAGE(texture[-1], MTLCompute::TextureIndexError,
+        "Texture index out of bounds");
+}
+
+TEST_CASE("Test uninitialized get") {
+    MTLCompute::Texture1D<float> other;
+    REQUIRE_THROWS_AS_MESSAGE(other.getData(), MTLCompute::TextureInitError,
+        "Texture not initialized");
+    REQUIRE_THROWS_AS_MESSAGE(other[0], MTLCompute::TextureInitError,
+        "Texture not initialized");
 }

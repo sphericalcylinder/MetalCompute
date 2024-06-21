@@ -20,13 +20,13 @@ int main() {
     // Create the 2d textures and fill them with data
     vec2<float> texdata(height, vec<float>(width, 1));
     
-    MTLCompute::Texture2D<float> textureA(gpu, width, height, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> textureA(gpu, width, height);
     textureA = texdata;
 
-    MTLCompute::Texture2D<float> textureB(gpu, width, height, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> textureB(gpu, width, height);
     textureB = texdata;
 
-    MTLCompute::Texture2D<float> textureC(gpu, width, height, MTLCompute::TextureItemType::float32);
+    MTLCompute::Texture2D<float> textureC(gpu, width, height);
 
     // Load the textures
     manager.loadTexture(textureA, 0);

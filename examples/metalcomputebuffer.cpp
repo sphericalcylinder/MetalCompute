@@ -41,7 +41,7 @@ int main() {
 
     // Get and print the result
     vec<float> result = bufferc.getData();
-    for (int i = 0; i < bufferc.length; i++) {
+    for (int i = 0; i < bufferc.getLength(); i++) {
         std::cout << result[i] << " ";
     }
     std::cout << std::endl;

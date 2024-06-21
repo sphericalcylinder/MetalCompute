@@ -13,7 +13,7 @@ project.
 ================
 
 # Compilation {#compilation}
-This is a header only API, you just need to include the directory where MTLCompute.hpp is located after cmake install.
+This is a header only API, you just need to include the directory where `MTLCompute.hpp` is located after cmake install.
 You also have to add the
 `-framework Foundation -framework Metal -framework MetalKit` flags or there will be problems.
 
@@ -85,14 +85,47 @@ std::vector<float> bufferdata = mybuffer.getData();
 ================
 ### Textures {#textures}
 
-A MTLCompute::Texture can be a 1, 2, or 3d list that holds a predetermined number of elements. When creating a texture, 
-you can optionally specify a MTLCompute::TextureType. The TextureType is the type of data going into the texture. 
-The options are int and uint 8, 16, and 32, and float32. Usually, you can just ignore that argument and it will be inferred.
-You can't use the slice operator [] set a texture value.
+A MTLCompute::Texture can be a 1, 2, or 3d list that holds a predetermined number of elements.
+Unfortunately, you can't use the slice operator [] set a texture value.
+
+
+#### Components
+
+Textures can hold most types of data that you would need.
+Some types are:
+- floats
+- integers
+  - 8 bit (char)
+  - 16 bit (short)
+  - 32 bit (int)
+  - signed and unsigned
+
+For unsigned integers, there's easy types like MTLCompute::uint and MTLCompute::uchar that you can use instead
+of writing out `unsigned int` or `unsigned char`. These options are for textures that hold individual values,
+or single components.
+
+Textures can also have multiple components. Valid numbers of components are only 2 and 4. Textures with multiple
+components almost act like textures one dimension up.
+
+A 1D texture with 2 float components would look like:
+```cpp
+MTLCompute::Texture1D<MTLCompute::float2> my2texture(gpu, 10);
+```
+
+In MTLComputeGlobal.hpp, there's a bunch of typedefs that define the multiple component types. For 2 components it's
+std::pairs and for for it's std::tuples. You could just write out `MTLCompute::Texture1D<std::pair<float, float>> my2texture(gpu, 10);`,
+but it looks nicer using the predefined types. It's pretty straightforward from there. It's the same as the regular
+supported types, but with a 2 or 4 after the name. A std::pair of unsigned chars is a `MTLCompute::uchar2` and a std::tuple
+of floats is a `MTLCompute::float4` When you slice a componented(?) texture, you get back a pair or tuple instead of a single value.
+
+
+
+
+<br />
 
 #### 1D Textures
 
-To create a MTLCompute::Texture1D, you specify a gpu, length, and MTLCompute::TextureType option.
+To create a MTLCompute::Texture1D, you specify a gpu and length.
 
 
 To create a MTLCompute::Texture1D that holds 10 floats:
@@ -103,8 +136,7 @@ int main() {
 
     MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
 
-    MTLCompute::Texture1D<float> mytexture(gpu, 10, MTLCompute::TextureType::float32);
-    // or MTLCompute::Texture1D<float> mytexture(gpu, 10);
+    MTLCompute::Texture1D<float> mytexture(gpu, 10);
 
 }
 ```
@@ -114,19 +146,20 @@ To put data into the texture, assign a vector to it:
 mytexture = std::vector<float>(10, 1.0);
 ```
 
-You can't use the slice operator [] set a texture value.
-
 You can use the MTLCompute::Texture::getData() method or the slice operator to get data:
 ```cpp
 float val = mytexture[3]; // 1.0
 std::vector<float> texturedata = mytexture.getData();
 ```
 
+
+
+
 <br />
 
 #### 2D Textures
 
-To create a MTLCompute::Texture2D, you specify a gpu, width, height, and MTLCompute::TextureType option.
+To create a MTLCompute::Texture2D, you specify a gpu, width, and height.
 
 
 To create a MTLCompute::Texture that holds 100 floats (10x10):
@@ -137,8 +170,7 @@ int main() {
 
     MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
 
-    MTLCompute::Texture<float> mytexture(gpu, 10, 10, MTLCompute::TextureType::float32);
-    // or MTLCompute::Texture<float> mytexture(gpu, 10, 10);
+    MTLCompute::Texture<float> mytexture(gpu, 10, 10);
 
 }
 ```
@@ -147,7 +179,6 @@ To put data into the texture, assign a 2D vector to it:
 ```cpp
 mytexture = std::vector<std::vector<float>>(10, std::vector<float>(10, 1.0))
 ```
-You can't use the slice operator [] set a texture value.
 
 You can use the MTLCompute::Texture::getData() method or the slice operator to get data:
 ```cpp
@@ -156,11 +187,14 @@ std::vector<float> row = mytexture[5];
 std::vector<std::vector<float>> texturedata = mytexture.getData();
 ```
 
+
+
+
 <br />
 
 #### 3D Textures
 
-To create a MTLCompute::Texture3D, you specify a gpu, width, height, depth, and MTLCompute::TextureType option.
+To create a MTLCompute::Texture3D, you specify a gpu, width, height, and depth.
 
 
 To create a MTLCompute::Texture that holds 1000 floats (10x10x10):
@@ -171,9 +205,7 @@ int main() {
 
     MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
 
-    MTLCompute::Texture3D<float> mytexture(gpu, 10, 10, 10, MTLCompute::TextureType::float32);
-
-   // or MTLCompute::Texture3D<float> mytexture(gpu, 10, 10, 10);
+    MTLCompute::Texture3D<float> mytexture(gpu, 10, 10, 10);
 
 }
 ```
@@ -182,7 +214,6 @@ To put data into the texture, assign a 3D vector to it:
 ```cpp
 mytexture = std::vector<std::vector<std::vector<float>>>(10, std::vector<std::vector<float>>(10, std::vector<float>(10, 1.0)))
 ```
-
 
 
 You can use the MTLCompute::Texture::getData() method or the slice operator to get data:
@@ -249,13 +280,17 @@ int main() {
 
     MTLCompute::Kernel kernel(gpu, "default.metallib");
 
-    MTLCompute::CommandManager manager(gpu, kernel);
+    MTLCompute::CommandManager<float> manager(gpu, kernel);
 
 }
 ```
 
+For textures with multiple components, you'll want to have the same  CommandManager template argument. This means
+that for now you can't use textures with multiple components along with buffers, but it will be fixed in an upcoming
+release.
+
 The index lists for buffers and textures are seperate. This means that you can load a buffer at index 0 and a
-texture at index 0 as well. These indecies should correspond to the indecies in your MSL function.
+texture at index 0 as well (under the previous condition). These indecies should correspond to the indecies in your MSL function.
 
 
 Then to load a buffer at index 0 and a texture at index 0:
