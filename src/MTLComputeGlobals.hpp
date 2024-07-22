@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <typeinfo>
+#include <tuple>
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
 #include "Metal.hpp"
@@ -28,6 +29,7 @@ namespace MTLCompute {
     constexpr long MAX_TEXTURE1D_SIZE = 16384;
     constexpr long MAX_TEXTURE2D_SIZE = 16384;
     constexpr long MAX_TEXTURE3D_SIZE = 2048;
+    constexpr long MAX_TEXTUREBUFFER_SIZE = 256'000'000;
     // i cant find the max buffer size
 
     enum class ResourceStorage {
@@ -48,7 +50,7 @@ namespace MTLCompute {
     typedef std::pair<int, int> int2;
     typedef std::pair<float, float> float2;
 
-    // Metal does not support 3 component types
+    // Metal does not support 3 component types (from what i can tell)
     
     typedef std::tuple<uchar, uchar, uchar, uchar> uchar4;
     typedef std::tuple<ushort, ushort, ushort, ushort> ushort4;

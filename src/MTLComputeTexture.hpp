@@ -57,8 +57,6 @@ namespace MTLCompute {
                 throw TextureTypeError("Texture type not supported");
             }
 
-            // Functions that should be overridden
-
             /**
              * @brief Set the texture's dimension
              *
@@ -85,9 +83,9 @@ namespace MTLCompute {
              * @param width The width of the texture
              *
             */
-            void checkMaxSize(int width) const {
+            virtual void checkMaxSize(int width) const {
                 if (width > MAX_TEXTURE1D_SIZE) 
-                    throw TextureSizeError("Texture size too large, max size is 16384");
+                    throw TextureSizeError("Texture size too large, max size is " + std::to_string(MAX_TEXTURE1D_SIZE));
                 
             }
 
@@ -399,7 +397,7 @@ namespace MTLCompute {
             */
             void checkMaxSize(int width, int height) const {
                 if (width > MAX_TEXTURE2D_SIZE || height > MAX_TEXTURE2D_SIZE) 
-                    throw TextureSizeError("Texture size too large, max size is 16384");
+                    throw TextureSizeError("Texture size too large, max size is " + std::to_string(MAX_TEXTURE2D_SIZE));
                 
             }
 
@@ -631,7 +629,7 @@ namespace MTLCompute {
             */
             void checkMaxSize(int width, int height, int depth) const {
                 if (width > MAX_TEXTURE3D_SIZE || height > MAX_TEXTURE3D_SIZE || depth > MAX_TEXTURE3D_SIZE) {
-                    throw TextureSizeError("Texture size too large, max size is 16384");
+                    throw TextureSizeError("Texture size too large, max size is " + std::to_string(MAX_TEXTURE3D_SIZE));
                 }
             }
 
@@ -758,6 +756,86 @@ namespace MTLCompute {
             int getDepth() const {
                 return this->depth;
             }
+    };
+
+
+
+    // Just a MTLCompute::Texture1D with a larger max size
+    template<typename T>
+    class TextureBuffer : public Texture1D<T> {
+
+        protected:
+
+            void checkMaxSize(int width) const override {
+                if (width > MAX_TEXTUREBUFFER_SIZE) 
+                    throw TextureSizeError("Texture size too large, max size is " + std::to_string(MAX_TEXTUREBUFFER_SIZE));
+                
+            }
+
+
+        public:
+
+            /**
+             * @brief Constructor for the TextureBuffer class
+             *
+             * Constructs a new texture buffer object
+             *
+             * @param gpu The Metal device object
+             * @param width The width of the texture
+             * @param tt The texture type
+             *
+            */
+            TextureBuffer(MTL::Device *gpu, int width) : Texture1D<T>(gpu, width) {
+                this->descriptor->setTextureType();
+                this->texture = this->gpu->newTexture(this->descriptor);
+            }
+
+            /**
+             * @brief Copy constructor for the TextureBuffer class
+             *
+             * Constructs a new texture from an existing texture
+             *
+             * @param other The texture to copy
+             *
+            */
+            TextureBuffer(const TextureBuffer &other) : Texture1D<T>(other) {}
+
+            /**
+             * @brief Default constructor for the TextureBuffer class
+             *
+             * Creates a new empty texture object
+             *
+            */
+            TextureBuffer() : Texture1D<T>() {}
+
+
+            /**
+             * @brief Overload the = operator to set 1D texture contents from a vector
+             *
+             * @param data The data to set the texture contents to
+             *
+            */
+            void operator=(vec<T> data) {
+                this->checkFreed();
+                this->checkDataSize(data);
+                this->texture->replaceRegion(this->textureReigon(), 0, data.data(), this->width*sizeof(T));
+            }
+
+
+            /**
+             * @brief Overload the = operator to set 1D texture contents from another texture
+             *
+             * @param other The 1D texture to set the contents from
+             *
+            */
+            TextureBuffer & operator=(const TextureBuffer &other) {
+
+                Texture1D temp(other);
+                swap(temp);
+
+                return *this;
+            }
+
     };
 
 }

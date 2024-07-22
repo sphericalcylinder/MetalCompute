@@ -4,14 +4,13 @@
 
 
 MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
-MTLCompute::Texture2D<float> texture(gpu, 10, 10);
-vec2<float> data(10, vec<float>(10, 1.0));
-vec2<float> toomuch(11, vec<float>(11, 1.0));
-vec2<float> toolittle(9, vec<float>(9, 1.0));
+MTLCompute::TextureBuffer<float> texture(gpu, 10);
+vec<float> data(10, 1.0);
+vec<float> toomuch(11, 1.0);
+vec<float> toolittle(9, 1.0);
 
 TEST_CASE("Test Constructor") {
     REQUIRE(texture.getWidth() == 10);
-    REQUIRE(texture.getHeight() == 10);
     REQUIRE(texture.getGPU() == gpu);
     REQUIRE(texture.getTexture() != nullptr);
     REQUIRE(texture.getDescriptor() != nullptr);
@@ -19,9 +18,8 @@ TEST_CASE("Test Constructor") {
 }
 
 TEST_CASE("Test copy constructor") {
-    MTLCompute::Texture2D<float> other(texture);
+    MTLCompute::TextureBuffer<float> other(texture);
     REQUIRE(other.getWidth() == texture.getWidth());
-    REQUIRE(other.getHeight() == texture.getHeight());
     REQUIRE(other.getGPU() == texture.getGPU());
     REQUIRE(other.getTexture() == texture.getTexture());
     REQUIRE(other.getDescriptor() == texture.getDescriptor());
@@ -29,9 +27,8 @@ TEST_CASE("Test copy constructor") {
 }
 
 TEST_CASE("Test default constructor") {
-    MTLCompute::Texture2D<float> other;
+    MTLCompute::TextureBuffer<float> other;
     REQUIRE(other.getWidth() == -1);
-    REQUIRE(other.getHeight() == -1);
     REQUIRE(other.getGPU() == nullptr);
     REQUIRE(other.getTexture() == nullptr);
     REQUIRE(other.getDescriptor() == nullptr);
@@ -41,14 +38,12 @@ TEST_CASE("Test default constructor") {
 TEST_CASE("Test set with vector") {
     REQUIRE_NOTHROW(texture = data);
     REQUIRE(texture.getWidth() == 10);
-    REQUIRE(texture.getHeight() == 10);
     REQUIRE(texture.getData() == data);
 }
 
 TEST_CASE("Test set with texture") {
-    MTLCompute::Texture2D<float> other = texture;
+    MTLCompute::TextureBuffer<float> other = texture;
     REQUIRE(other.getWidth() == texture.getWidth());
-    REQUIRE(other.getHeight() == texture.getHeight());
     REQUIRE(other.getGPU() == texture.getGPU());
     REQUIRE(other.getTexture() == texture.getTexture());
     REQUIRE(other.getDescriptor() == texture.getDescriptor());
@@ -56,33 +51,22 @@ TEST_CASE("Test set with texture") {
 
 TEST_CASE("Test get with vector") {
     texture = data;
-    vec2<float> result = texture.getData();
+    vec<float> result = texture.getData();
     for (int i = 0; i < texture.getWidth(); i++) {
-        for (int j = 0; j < texture.getHeight(); j++) {
-            CHECK(result[i][j] == 1.0);
-        }
-    }
-}
-
-TEST_CASE("Test get row with [] operator") {
-    texture = data;
-    for (int i = 0; i < texture.getHeight(); i++) {
-        CHECK(texture[i] == data[i]);
+        CHECK(result[i] == 1.0);
     }
 }
 
 TEST_CASE("Test get item with [] operator") {
     texture = data;
-    for (int i = 0; i < texture.getHeight(); i++) {
-        for (int j = 0; j < texture.getWidth(); j++) {
-            CHECK(texture[i][j] == data[i][j]);
-        }
+    for (int i = 0; i < texture.getWidth(); i++) {
+        CHECK(texture[i] == data[i]);
     }
 }
 
 TEST_CASE("Test create texture larger than max size") {
-    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture2D<float>(gpu, MTLCompute::MAX_TEXTURE2D_SIZE + 1, MTLCompute::MAX_TEXTURE2D_SIZE + 1),
-        MTLCompute::TextureSizeError, ("Texture size too large, max size is " + std::to_string(MTLCompute::MAX_TEXTURE2D_SIZE)));
+    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::TextureBuffer<float>(gpu, MTLCompute::MAX_TEXTUREBUFFER_SIZE + 1),
+        MTLCompute::TextureSizeError, ("Texture size too large, max size is " + std::to_string(MTLCompute::MAX_TEXTUREBUFFER_SIZE)));
 }
 
 TEST_CASE("Test set with too much data") {
@@ -91,7 +75,7 @@ TEST_CASE("Test set with too much data") {
 }
 
 TEST_CASE("Test set with too little data") {
-    REQUIRE_THROWS_AS_MESSAGE(texture = toolittle, MTLCompute::TextureSizeError, 
+    REQUIRE_THROWS_AS_MESSAGE(texture = toolittle, MTLCompute::TextureSizeError,
         "Data size does not match texture size");
 }
 
@@ -104,7 +88,7 @@ TEST_CASE("Test OOB get with [] operator") {
 }
 
 TEST_CASE("Test uninitialized get") {
-    MTLCompute::Texture2D<float> other;
+    MTLCompute::Texture1D<float> other;
     REQUIRE_THROWS_AS_MESSAGE(other.getData(), MTLCompute::TextureInitError,
         "Texture not initialized");
     REQUIRE_THROWS_AS_MESSAGE(other[0], MTLCompute::TextureInitError,

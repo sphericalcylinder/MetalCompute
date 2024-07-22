@@ -25,29 +25,20 @@ If you enable an install flag, the build flag will be automatically enabled as w
 
 
 # This release
-- This is a bigger one!!!
-- Textures
-  - No more pesky MTLCompute::TextureItemType
-  - Multiple components (wow!)
-  - Uses custom types like float4 and uchar2
-  - Look in MTLComputeGlobals.hpp for the definitions
-  - Cleaned up a bit internally (not too much though)
-  - OOB indexing actually works (what was i thinking)
-- Buffers
-  - Length and itemsize is finally private
-  - (why it wasn't originally i have no idea)
-  - Put checks in functions similar to textures
-  - Constructor without MTLCompute::ResourceStorageMode (defaults to Shared)
-- Custom exceptions
-  - MTLComputeErrors.hpp
-  - For Texture1-3D, Buffer, CommandManager, and Kernel
-  - Updated tests to check for this
-- Mostly written docs
+I went on vacation but I'm back now
+
+- TextureBuffer
+  - Just a Texture1D that can hold more than 16384
+  - Literally so easy
+  - Wrote the tests but not the docs
+- Buffers support components
+  - Wrote an example but not the tests or docs
+  - 
 
 
-Sorry this took so long. I really didn't feel like writing the tests and docs so I
-put it off. The next release should have buffer component support as well as buffer
-to Texture1D conversion (or possibly a new TextureBuffer type).
+The next release might be more docs and tests or The Conversion Update
+(that's what i'm calling it), it's a 50/50 chance. It also might be both
+because this was a relatively small update for the time that I took off.
 
 
 # Overview
@@ -61,6 +52,7 @@ on them so I hope they're good.
 - [x] Command Manager 1d and 3d texture support
 - [ ] Convert buffers to textures
 - [x] More texture components (RGBA)
+- [x] Buffer component support
 
 # About
 I not so recently created a C++ application and wanted to use Apple's metal-cpp library to add gpu

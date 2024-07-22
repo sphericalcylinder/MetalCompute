@@ -24,11 +24,6 @@ namespace MTLCompute {
                 swap(this->storageMode, buffer.storageMode);
             }
 
-            void checkComponents() const {
-                if (numComponents<T>() != 1)
-                    throw BufferComponentError("More than one component in a buffer");
-            }
-
             void checkFreed() const {
                 if (this->freed)
                     throw BufferFreeError("Buffer already freed");
@@ -62,7 +57,6 @@ namespace MTLCompute {
              *
             */
             Buffer(MTL::Device *gpu, size_t length, ResourceStorage storageMode) {
-                this->checkComponents();
                 this->gpu = gpu;
                 this->length = length;
                 this->itemsize = sizeof(T);
@@ -73,7 +67,6 @@ namespace MTLCompute {
 
 
             Buffer(MTL::Device *gpu, size_t length) {
-                this->checkComponents();
                 this->gpu = gpu;
                 this->length = length;
                 this->itemsize = sizeof(T);
@@ -92,7 +85,6 @@ namespace MTLCompute {
              *
             */
             Buffer(const Buffer &other) {
-                this->checkComponents();
                 this->gpu = other.gpu;
                 this->length = other.length;
                 this->itemsize = other.itemsize;
@@ -108,7 +100,6 @@ namespace MTLCompute {
              *
             */
             Buffer() {
-                this->checkComponents();
                 this->gpu = nullptr;
                 this->length = -1;
                 this->itemsize = -1;

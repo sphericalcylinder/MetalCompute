@@ -65,8 +65,8 @@ TEST_CASE("Test get item with [] operator") {
 }
 
 TEST_CASE("Test create texture larger than max size") {
-    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture1D<float>(gpu, 16385),
-        MTLCompute::TextureSizeError, "Texture size exceeds maximum size");
+    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture1D<float>(gpu, MTLCompute::MAX_TEXTURE1D_SIZE + 1),
+        MTLCompute::TextureSizeError, ("Texture size too large, max size is " + std::to_string(MTLCompute::MAX_TEXTURE1D_SIZE)));
 }
 
 TEST_CASE("Test set with too much data") {
