@@ -25,20 +25,14 @@ If you enable an install flag, the build flag will be automatically enabled as w
 
 
 # This release
-I went on vacation but I'm back now
-
-- TextureBuffer
-  - Just a Texture1D that can hold more than 16384
-  - Literally so easy
-  - Wrote the tests but not the docs
-- Buffers support components
-  - Wrote an example but not the tests or docs
-  - 
+Good lord I'm out of practice. I forgot to run the tests before committing
+and so there were a bunch of problems. It should be all fixed now but these
+days you never know.
 
 
-The next release might be more docs and tests or The Conversion Update
-(that's what i'm calling it), it's a 50/50 chance. It also might be both
-because this was a relatively small update for the time that I took off.
+The next release (unless it's another stupid bugfix) might be more docs and
+tests or The Conversion Update (that's what i'm calling it), it's a 50/50 
+chance. It also might be both.
 
 
 # Overview

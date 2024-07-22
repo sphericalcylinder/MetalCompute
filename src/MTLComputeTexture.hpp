@@ -142,10 +142,9 @@ namespace MTLCompute {
              *
              * @param gpu The Metal device object
              * @param width The width of the texture
-             * @param tt The texture type
              *
             */
-            Texture1D(MTL::Device *gpu, int width) : gpu(gpu), width(width) {
+            Texture1D(MTL::Device *gpu, int width) {
                 this->gpu = gpu;
                 this->checkMaxSize(width);
                 this->width = width;
@@ -766,6 +765,23 @@ namespace MTLCompute {
 
         protected:
 
+
+            /**
+             * @brief Set the texture's dimension
+             *
+             * Sets the texture's dimension to TextureBuffer
+             *
+            */
+            void setTextureDimension() const override {
+                this->descriptor->setTextureType(MTL::TextureTypeTextureBuffer);
+            }
+
+            /**
+             * @brief Check the maximum texture size
+             *
+             * @param width The width of the texture
+             *
+            */
             void checkMaxSize(int width) const override {
                 if (width > MAX_TEXTUREBUFFER_SIZE) 
                     throw TextureSizeError("Texture size too large, max size is " + std::to_string(MAX_TEXTUREBUFFER_SIZE));
@@ -782,10 +798,17 @@ namespace MTLCompute {
              *
              * @param gpu The Metal device object
              * @param width The width of the texture
-             * @param tt The texture type
              *
             */
-            TextureBuffer(MTL::Device *gpu, int width) : Texture1D<T>(gpu, width) {
+            TextureBuffer(MTL::Device *gpu, int width) {
+                this->gpu = gpu;
+                this->checkMaxSize(width);
+                this->width = width;
+                this->descriptor = MTL::TextureDescriptor::alloc()->init();
+                this->setTextureDimension();
+                this->descriptor->setPixelFormat(this->guessFormat());
+                
+                this->descriptor->setWidth(width);
                 this->texture = this->gpu->newTexture(this->descriptor);
             }
 

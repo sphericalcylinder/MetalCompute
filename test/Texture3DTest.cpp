@@ -95,6 +95,11 @@ TEST_CASE("Test create texture larger than max size") {
         MTLCompute::TextureSizeError, ("Texture size too large, max size is " + std::to_string(MTLCompute::MAX_TEXTURE3D_SIZE)));
 }
 
+TEST_CASE("Test create texture with max size") {
+    int maxsize = MTLCompute::MAX_TEXTURE3D_SIZE;
+    REQUIRE_NOTHROW(MTLCompute::Texture3D<float>(gpu, maxsize, maxsize, maxsize));
+}
+
 TEST_CASE("Test set with too much data") {
     REQUIRE_THROWS_AS_MESSAGE(texture = toomuch, MTLCompute::TextureSizeError,
         "Data size does not match texture size");
