@@ -786,7 +786,6 @@ namespace MTLCompute {
              *
             */
             TextureBuffer(MTL::Device *gpu, int width) : Texture1D<T>(gpu, width) {
-                this->descriptor->setTextureType();
                 this->texture = this->gpu->newTexture(this->descriptor);
             }
 
