@@ -12,22 +12,22 @@ project.
 
 ================
 
-# Compilation {#compilation}
+# Usage {#usg}
+[TOC]
+
 This is a header only API, you just need to include the directory where `MTLCompute.hpp` is located after cmake install.
 You also have to add the
 `-framework Foundation -framework Metal -framework MetalKit` flags or there will be problems.
 
-================
+==============
 
-# Usage
-[TOC]
 ## Regular Usage {#reguse}
 
 ### Starting {#starting}
 To use the API regularly, like in the buffer and texture
-examples, include the `MTLCompute.hpp` header and add the [other flags](#compilation).
+examples, include the `MTLCompute.hpp` header and add the [other flags](#usg) during compilation.
 
-Currently, you still have to access the raw MTL::Device object because I haven't really made a good wrapper for that yet. There is
+Currently, you still have to access the raw MTL::Device object because I haven't made a good wrapper for that. There is
 a MTLCompute::GPU class, but it's not for wrapping the MTL::Device. The start of your file should look like this:
 ```cpp
 #include "MTLCompute.hpp"
@@ -71,8 +71,8 @@ mybuffer[0] = 3.1;
 mybuffer = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 ```
 
-If you try to assign a vector that doesn't match the length of the buffer, it will throw an invalid argument error. The same
-happens when you try to assign an index that's out of range.
+If you try to assign a vector that doesn't match the length of the buffer, it will throw a BufferSizeError. Similarly, 
+when you try to assign an index that's out of range, it will throw a BufferIndexError.
 
 
 To get data from the buffer, you can use MTLCompute::Buffer::getData() method or the slice operator:
@@ -89,41 +89,15 @@ A MTLCompute::Texture can be a 1, 2, or 3d list that holds a predetermined numbe
 Unfortunately, you can't use the slice operator [] set a texture value.
 
 
-#### Components
-
-Textures can hold most types of data that you would need.
-Some types are:
-- floats
-- integers
-  - 8 bit (char)
-  - 16 bit (short)
-  - 32 bit (int)
-  - signed and unsigned
-
-For unsigned integers, there's easy types like MTLCompute::uint and MTLCompute::uchar that you can use instead
-of writing out `unsigned int` or `unsigned char`. These options are for textures that hold individual values,
-or single components.
-
-Textures can also have multiple components. Valid numbers of components are only 2 and 4. Textures with multiple
-components almost act like textures one dimension up.
-
-A 1D texture with 2 float components would look like:
-```cpp
-MTLCompute::Texture1D<MTLCompute::float2> my2texture(gpu, 10);
-```
-
-In MTLComputeGlobal.hpp, there's a bunch of typedefs that define the multiple component types. For 2 components it's
-std::pairs and for for it's std::tuples. You could just write out `MTLCompute::Texture1D<std::pair<float, float>> my2texture(gpu, 10);`,
-but it looks nicer using the predefined types. It's pretty straightforward from there. It's the same as the regular
-supported types, but with a 2 or 4 after the name. A std::pair of unsigned chars is a `MTLCompute::uchar2` and a std::tuple
-of floats is a `MTLCompute::float4` When you slice a componented(?) texture, you get back a pair or tuple instead of a single value.
-
-
-
-
 <br />
 
 #### 1D Textures
+
+> [!TIP]
+> There is absolutely no reason that I can think of to use
+> a 1D Texture instead of a Buffer.
+>
+> I just added this for consistency. Use a buffer.
 
 To create a MTLCompute::Texture1D, you specify a gpu and length.
 
@@ -154,7 +128,6 @@ std::vector<float> texturedata = mytexture.getData();
 
 
 
-
 <br />
 
 #### 2D Textures
@@ -162,7 +135,7 @@ std::vector<float> texturedata = mytexture.getData();
 To create a MTLCompute::Texture2D, you specify a gpu, width, and height.
 
 
-To create a MTLCompute::Texture that holds 100 floats (10x10):
+To create a MTLCompute::Texture that holds 100 floats total (10x10):
 ```cpp
 #include "MTLCompute.hpp"
 
@@ -189,7 +162,6 @@ std::vector<std::vector<float>> texturedata = mytexture.getData();
 
 
 
-
 <br />
 
 #### 3D Textures
@@ -197,7 +169,7 @@ std::vector<std::vector<float>> texturedata = mytexture.getData();
 To create a MTLCompute::Texture3D, you specify a gpu, width, height, and depth.
 
 
-To create a MTLCompute::Texture that holds 1000 floats (10x10x10):
+To create a MTLCompute::Texture that holds 1,000 floats total (10x10x10):
 ```cpp
 #include "MTLCompute.hpp"
 
@@ -224,9 +196,87 @@ std::vector<std::vector<float>> slice = mytexture[5];
 std::vector<std::vector<std::vector<float>>> texturedata = mytexture.getData();
 ```
 
+
+<br />
+
+#### TextureBuffers
+
+> [!TIP]
+> TextureBuffers are identical to Texture1Ds but have a larger
+> max size (250,000,000)
+>
+> Just use a buffer.
+
+To create a MTLCompute::TextureBuffer, you specify a gpu and length.
+
+
+To create a MTLCompute::TextureBuffer that holds 500,000 floats:
+```cpp
+#include "MTLCompute.hpp"
+
+int main() {
+
+    MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
+
+    MTLCompute::TextureBuffer<float> mytexture(gpu, 500'000);
+
+}
+```
+
+To put data into the texture, assign a vector to it:
+```cpp
+mytexture = std::vector<float>(500'000, 1.0);
+```
+
+You can use the MTLCompute::TextureBuffer::getData() method or the slice operator to get data:
+```cpp
+float val = mytexture[300'000]; // 1.0
+std::vector<float> texturedata = mytexture.getData();
+```
+
+
+
+
 <br />
 
 ================
+
+### Components
+
+Combined, textures and buffers can hold most types of data that you would need.
+These types are:
+- floats
+- integers
+  - 8 bit (char)
+  - 16 bit (short)
+  - 32 bit (int)
+  - signed and unsigned
+
+And buffers support user-defined types as well.
+
+For unsigned values, there's easy types like MTLCompute::uint and MTLCompute::uchar that you can use instead
+of writing out `unsigned int` or `unsigned char`. These types are for textures and buffers that hold individual values,
+or single components.
+
+Textures and buffers can also have multiple components. Metal (as far as I know) only supports 2 components and 4 components.
+
+A 2D texture with 2 float components would look like:
+```cpp
+MTLCompute::Texture2D<MTLCompute::float2> my2texture(gpu, 10, 10);
+```
+
+A buffer with 4 unsigned int components would look like:
+```cpp
+MTLCompute::Buffer<MTLCompute::uint4> my4buffer(gpu, 10, MTLCompute::ResourceStorage::Shared);
+```
+
+In MTLComputeGlobal.hpp, there's a bunch of typedefs that define the multiple component types. For 2 components it's
+std::pairs and for 4 it's std::tuples. You could just write out `MTLCompute::Texture1D<std::pair<float, float>> my2texture(gpu, 10);`,
+but it looks nicer using the predefined types. It's pretty straightforward from there. It's the same as the regular
+supported types, but with a 2 or 4 after the name. A std::pair of unsigned chars is a `MTLCompute::uchar2` and a std::tuple
+of floats is a `MTLCompute::float4` When you slice a componented(?) texture, you get back a pair or tuple instead of a single value.
+
+============
 
 
 ### Kernel {#kernel}

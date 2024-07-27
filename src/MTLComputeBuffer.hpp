@@ -24,21 +24,41 @@ namespace MTLCompute {
                 swap(this->storageMode, buffer.storageMode);
             }
 
+            /**
+             * @brief Check if the buffer has been freed
+             *
+            */
             void checkFreed() const {
                 if (this->freed)
                     throw BufferFreeError("Buffer already freed");
             }
 
+            /**
+             * @brief Check if the index is in bounds (0 to this->length)
+             *
+             * @param index The index to check
+             *
+            */
             void checkIndex(size_t index) const {
                 if (index >= this->length)
                     throw BufferIndexError("Index out of bounds");
             }
 
-            void checkSize(size_t size) const {
+            /**
+             * @brief Check if the size of the data matches the buffer size
+             *
+             * @param size The size of the data
+             *
+            */
+            void checkDataSize(size_t size) const {
                 if (size != this->length)
                     throw BufferSizeError("Data size does not match buffer size");
             }
 
+            /**
+             * @brief Check if the buffer has been initialized
+             *
+            */
             void checkInit() const {
                 if (this->length == -1)
                     throw BufferInitError("Buffer not initialized");
@@ -65,7 +85,16 @@ namespace MTLCompute {
                 this->buffer->retain();
             }
 
-
+            /**
+             * @brief Constructor for the Buffer class
+             *
+             * Takes in the length of the buffer and the GPU device
+             * and creates a new buffer with the default storage mode
+             *
+             * @param length The length of the buffer
+             * @param gpu The GPU device
+             *
+            */
             Buffer(MTL::Device *gpu, size_t length) {
                 this->gpu = gpu;
                 this->length = length;
@@ -167,7 +196,7 @@ namespace MTLCompute {
             */
             void operator=(vec<T> data) {
                 this->checkFreed();
-                this->checkSize(data.size());
+                this->checkDataSize(data.size());
                 memcpy(this->buffer->contents(), data.data(), this->length*this->itemsize);
 
                 if (this->storageMode == MTLCompute::ResourceStorage::Managed) {

@@ -29,6 +29,13 @@ namespace MTLCompute {
                 swap(this->freed, tex.freed);
             }
 
+
+            /**
+             * @brief Guess the pixel format of the texture
+             *
+             * @return MTL::PixelFormat The pixel format of the texture
+             *
+            */
             MTL::PixelFormat guessFormat() const {
                 if (typeid(T) == typeid(uchar)) return MTL::PixelFormatR8Uint;
                 if (typeid(T) == typeid(ushort)) return MTL::PixelFormatR16Uint;
@@ -90,7 +97,7 @@ namespace MTLCompute {
             }
 
             /**
-             * @brief Check the data size
+             * @brief Check if the size of the data matches the texture size
              *
              * @param data The data to check
              *

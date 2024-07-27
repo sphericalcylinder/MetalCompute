@@ -25,14 +25,9 @@ If you enable an install flag, the build flag will be automatically enabled as w
 
 
 # This release
-Good lord I'm out of practice. I forgot to run the tests before committing
-and so there were a bunch of problems. It should be all fixed now but these
-days you never know.
-
-
-The next release (unless it's another stupid bugfix) might be more docs and
-tests or The Conversion Update (that's what i'm calling it), it's a 50/50 
-chance. It also might be both.
+Here's the documentation update I promised (i didn't do the tests). The next release 
+will (hopefully) be The Conversion Update!! I'm only excited for it because I created
+some funny promotional material that I'll include in the README at release time.
 
 
 # Overview
