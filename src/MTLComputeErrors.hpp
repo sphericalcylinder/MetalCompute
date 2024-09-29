@@ -4,155 +4,171 @@
 
 namespace MTLCompute {
 
-    class TextureError : public std::runtime_error {
+class TextureError : public std::runtime_error {
 
-        public:
-            TextureError() : std::runtime_error("Texture Error") {}
+  public:
+    TextureError() : std::runtime_error("Texture Error") {}
 
-            TextureError(const std::string& message) : std::runtime_error(message) {}
+    TextureError(const std::string &message) : std::runtime_error(message) {}
+};
 
-    };
+class TextureSizeError : public TextureError {
+  public:
+    TextureSizeError() : TextureError("Texture Size Error") {}
 
-    class TextureSizeError : public TextureError {
-        public:
-            TextureSizeError() : TextureError("Texture Size Error") {}
+    TextureSizeError(const std::string &message) : TextureError(message) {}
+};
 
-            TextureSizeError(const std::string& message) : TextureError(message) {}
-    };
+class TextureTypeError : public TextureError {
+  public:
+    TextureTypeError() : TextureError("Texture Item Type Error") {}
 
-    class TextureTypeError : public TextureError {
-        public:
-            TextureTypeError() : TextureError("Texture Item Type Error") {}
+    TextureTypeError(const std::string &message) : TextureError(message) {}
+};
 
-            TextureTypeError(const std::string& message) : TextureError(message) {}
-    };
+class TextureIndexError : public TextureError {
+  public:
+    TextureIndexError() : TextureError("Texture Index Error") {}
 
-    class TextureIndexError : public TextureError {
-        public:
-            TextureIndexError() : TextureError("Texture Index Error") {}
+    TextureIndexError(const std::string &message) : TextureError(message) {}
+};
 
-            TextureIndexError(const std::string& message) : TextureError(message) {}
-    };
+class TextureInitError : public TextureError {
+  public:
+    TextureInitError() : TextureError("Texture Initialization Error") {}
 
-    class TextureInitError : public TextureError {
-        public:
-            TextureInitError() : TextureError("Texture Initialization Error") {}
+    TextureInitError(const std::string &message) : TextureError(message) {}
+};
 
-            TextureInitError(const std::string& message) : TextureError(message) {}
-    };
+class TextureComponentError : public TextureError {
+  public:
+    TextureComponentError() : TextureError("Texture Component Error") {}
 
-    class TextureComponentError : public TextureError {
-        public:
-            TextureComponentError() : TextureError("Texture Component Error") {}
+    TextureComponentError(const std::string &message) : TextureError(message) {}
+};
 
-            TextureComponentError(const std::string& message) : TextureError(message) {}
-    };
+class TextureFreeError : public TextureError {
+  public:
+    TextureFreeError() : TextureError("Texture Free Error") {}
 
-    class TextureFreeError : public TextureError {
-        public:
-            TextureFreeError() : TextureError("Texture Free Error") {}
+    TextureFreeError(const std::string &message) : TextureError(message) {}
+};
 
-            TextureFreeError(const std::string& message) : TextureError(message) {}
-    };
+class BufferError : public std::runtime_error {
 
+  public:
+    BufferError() : std::runtime_error("Buffer Error") {}
 
+    BufferError(const std::string &message) : std::runtime_error(message) {}
+};
 
+class BufferSizeError : public BufferError {
+  public:
+    BufferSizeError() : BufferError("Buffer Size Error") {}
 
-    class BufferError : public std::runtime_error {
+    BufferSizeError(const std::string &message) : BufferError(message) {}
+};
 
-        public:
-            BufferError() : std::runtime_error("Buffer Error") {}
+class BufferIndexError : public BufferError {
+  public:
+    BufferIndexError() : BufferError("Buffer Index Error") {}
 
-            BufferError(const std::string& message) : std::runtime_error(message) {}
+    BufferIndexError(const std::string &message) : BufferError(message) {}
+};
 
-    };
+class BufferInitError : public BufferError {
+  public:
+    BufferInitError() : BufferError("Buffer Initialization Error") {}
 
-    class BufferSizeError : public BufferError {
-        public:
-            BufferSizeError() : BufferError("Buffer Size Error") {}
+    BufferInitError(const std::string &message) : BufferError(message) {}
+};
 
-            BufferSizeError(const std::string& message) : BufferError(message) {}
-    };
+class BufferFreeError : public BufferError {
+  public:
+    BufferFreeError() : BufferError("Buffer Free Error") {}
 
-    class BufferIndexError : public BufferError {
-        public:
-            BufferIndexError() : BufferError("Buffer Index Error") {}
+    BufferFreeError(const std::string &message) : BufferError(message) {}
+};
 
-            BufferIndexError(const std::string& message) : BufferError(message) {}
-    };
+class BufferComponentError : public BufferError {
+  public:
+    BufferComponentError() : BufferError("Buffer Component Error") {}
 
-    class BufferInitError : public BufferError {
-        public:
-            BufferInitError() : BufferError("Buffer Initialization Error") {}
+    BufferComponentError(const std::string &message) : BufferError(message) {}
+};
 
-            BufferInitError(const std::string& message) : BufferError(message) {}
-    };
+class CommandManagerError : public std::runtime_error {
 
-    class BufferFreeError : public BufferError {
-        public:
-            BufferFreeError() : BufferError("Buffer Free Error") {}
+  public:
+    CommandManagerError() : std::runtime_error("Command Manager Error") {}
 
-            BufferFreeError(const std::string& message) : BufferError(message) {}
-    };
+    CommandManagerError(const std::string &message)
+        : std::runtime_error(message) {}
+};
 
-    class BufferComponentError : public BufferError {
-        public:
-            BufferComponentError() : BufferError("Buffer Component Error") {}
+class CommandManagerItemSizeError : public CommandManagerError {
+  public:
+    CommandManagerItemSizeError()
+        : CommandManagerError("Command Manager Item Size Error") {}
 
-            BufferComponentError(const std::string& message) : BufferError(message) {}
-    };
+    CommandManagerItemSizeError(const std::string &message)
+        : CommandManagerError(message) {}
+};
 
+class CommandManagerLoadError : public CommandManagerError {
+  public:
+    CommandManagerLoadError()
+        : CommandManagerError("Command Manager Load Error") {}
 
+    CommandManagerLoadError(const std::string &message)
+        : CommandManagerError(message) {}
+};
 
+class CommandManagerIndexError : public CommandManagerError {
+  public:
+    CommandManagerIndexError()
+        : CommandManagerError("Command Manager Index Error") {}
 
-    class CommandManagerError : public std::runtime_error {
+    CommandManagerIndexError(const std::string &message)
+        : CommandManagerError(message) {}
+};
 
-        public:
-            CommandManagerError() : std::runtime_error("Command Manager Error") {}
+class KernelError : public std::runtime_error {
 
-            CommandManagerError(const std::string& message) : std::runtime_error(message) {}
+  public:
+    KernelError() : std::runtime_error("Kernel Error") {}
 
-    };
+    KernelError(const std::string &message) : std::runtime_error(message) {}
+};
 
-    class CommandManagerItemSizeError : public CommandManagerError {
-        public:
-            CommandManagerItemSizeError() : CommandManagerError("Command Manager Item Size Error") {}
+class KernelLoadError : public KernelError {
+  public:
+    KernelLoadError() : KernelError("Kernel Load Error") {}
 
-            CommandManagerItemSizeError(const std::string& message) : CommandManagerError(message) {}
-    };
+    KernelLoadError(const std::string &message) : KernelError(message) {}
+};
 
-    class CommandManagerLoadError : public CommandManagerError {
-        public:
-            CommandManagerLoadError() : CommandManagerError("Command Manager Load Error") {}
+class ConversionError : public std::runtime_error {
 
-            CommandManagerLoadError(const std::string& message) : CommandManagerError(message) {}
-    };
+  public:
+    ConversionError() : std::runtime_error("Conversion Error") {}
 
-    class CommandManagerIndexError : public CommandManagerError {
-        public:
-            CommandManagerIndexError() : CommandManagerError("Command Manager Index Error") {}
+    ConversionError(const std::string &message) : std::runtime_error(message) {}
+};
 
-            CommandManagerIndexError(const std::string& message) : CommandManagerError(message) {}
-    };
+class ConversionTypeError : public ConversionError {
+  public:
+    ConversionTypeError() : ConversionError("Conversion Component Error") {}
 
+    ConversionTypeError(const std::string &message)
+        : ConversionError(message) {}
+};
 
+class ConversionSizeError : public ConversionError {
+  public:
+    ConversionSizeError() : ConversionError("Conversion Size Error") {}
 
-
-    class KernelError : public std::runtime_error {
-
-        public:
-            KernelError() : std::runtime_error("Kernel Error") {}
-
-            KernelError(const std::string& message) : std::runtime_error(message) {}
-
-    };
-
-    class KernelLoadError : public KernelError {
-        public:
-            KernelLoadError() : KernelError("Kernel Load Error") {}
-
-            KernelLoadError(const std::string& message) : KernelError(message) {}
-    };
-
-
-}
+    ConversionSizeError(const std::string &message)
+        : ConversionError(message) {}
+};
+} // namespace MTLCompute

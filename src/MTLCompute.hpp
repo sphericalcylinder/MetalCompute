@@ -1,8 +1,8 @@
-#include "MTLComputeGlobals.hpp"
-#include "MTLComputeErrors.hpp"
 #include "MTLComputeBuffer.hpp"
-#include "MTLComputeKernel.hpp"
 #include "MTLComputeCommandManager.hpp"
+#include "MTLComputeErrors.hpp"
+#include "MTLComputeGlobals.hpp"
+#include "MTLComputeKernel.hpp"
 #include "MTLComputeTexture.hpp"
 
 #pragma once

@@ -25,9 +25,25 @@ If you enable an install flag, the build flag will be automatically enabled as w
 
 
 # This release
-Here's the documentation update I promised (i didn't do the tests). The next release 
-will (hopefully) be The Conversion Update!! I'm only excited for it because I created
-some funny promotional material that I'll include in the README at release time.
+![Conversion Update Image](conversion_update.png)
+Whoops! It's been two months! I got distracted by other things and then school started, which left
+me with not a lot of spare time. This lovely update is absolutely useless in every sense of the word.
+It adds functions and operator overloads that allow you to convert between Buffers, Texture1Ds, and
+TextureBuffers. I'm pretty sure it's in the docs but I'll say it again. There is absolutely NO reason
+(that I can think of) where a Texture1D or TextureBuffer would be a better option than a Buffer. I put
+them in for continuity because they exist in the metal-cpp library. There's probably a better use for
+them if you use that library instead of this because of reasons but whatever. Look at this cool 'Minecraft-esque'
+photo with the release name. It probably won't become a regular thing, maybe just once in a while.
+There's no timeline for the next update, maybe tomorrow, maybe in two months, who knows? This update
+also includes refactoring all the files in src/ to LLVM 4-space standards. Yay! I am very tired.
+
+
+- Still haven't written Buffer component tests
+- AAAAAAAAAAAAA
+- Why did I spend so much time on this update
+  - It's useless
+- These docs are going to suck
+- If and when I write them
 
 
 # Overview
@@ -37,11 +53,10 @@ on them so I hope they're good.
 
 ### Want to do:
 
-- [x] 1d and 3d textures
+- [ ] Command Manager different type support
 - [x] Command Manager 1d and 3d texture support
-- [ ] Convert buffers to textures
+- [x] Convert buffers to textures
 - [x] More texture components (RGBA)
-- [x] Buffer component support
 
 # About
 I not so recently created a C++ application and wanted to use Apple's metal-cpp library to add gpu
