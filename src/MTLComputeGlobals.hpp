@@ -54,7 +54,8 @@ typedef std::tuple<short, short, short, short> short4;
 typedef std::tuple<int, int, int, int> int4;
 typedef std::tuple<float, float, float, float> float4;
 
-template <typename T> inline int numComponents() {
+template <typename T>
+constexpr inline int numComponents() {
 
     if (typeid(T) == typeid(uchar2))
         return 2;

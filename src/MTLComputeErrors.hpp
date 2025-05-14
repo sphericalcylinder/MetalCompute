@@ -3,7 +3,7 @@
 #include <MTLComputeGlobals.hpp>
 
 namespace MTLCompute {
-inline namespace Error {
+namespace Error {
 
 /**
  * @brief The base class for all Texture errors.

@@ -137,17 +137,27 @@ template <typename T> class Buffer {
     }
 
     /**
-     * @brief Destructor for the Buffer class
+     * @brief Free the buffer object
      *
-     * Calls autorelease on the buffer object
-     * and sets the freed flag to true
+     * Calls autorelease on the buffer object and
+     * sets the freed flag to true
      *
      */
-    ~Buffer() {
+    constexpr void free() {
         if (!this->freed) {
             this->buffer->autorelease();
             this->freed = true;
         }
+    }
+
+    /**
+     * @brief Destructor for the Buffer class
+     *
+     * Calls the free function to release the buffer object
+     *
+     */
+    ~Buffer() {
+        free();
     }
 
     /**

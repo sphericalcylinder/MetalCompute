@@ -41,6 +41,13 @@ TEST_CASE("Test default constructor") {
     REQUIRE(other.getFreed() == false);
 }
 
+TEST_CASE("Test OOB access") {
+    MTLCompute::Texture3D<float> freedtexture(gpu, 10, 10, 10);
+    freedtexture.free();
+    REQUIRE_THROWS_AS_MESSAGE(freedtexture.getData(), MTLCompute::Error::TextureFreeError, "Texture already freed");
+    REQUIRE(freedtexture.getFreed() == true);
+}
+
 TEST_CASE("Test set with vector") {
     REQUIRE_NOTHROW(texture = data);
     REQUIRE(texture.getWidth() == 10);

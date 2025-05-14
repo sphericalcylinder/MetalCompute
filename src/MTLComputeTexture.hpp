@@ -202,19 +202,32 @@ template <typename T> class Texture1D {
     Texture1D()
         : gpu(nullptr), width(-1), descriptor(nullptr), texture(nullptr) {}
 
+
     /**
-     * @brief Destructor for the Texture1D class
+     * @brief Free the texture and descriptor objects
      *
      * Calls autorelease on the texture and descriptor objects
      * and sets the freed flag to true
      *
+     *
+     * 
      */
-    virtual ~Texture1D() {
+    constexpr void free() {
         if (!this->freed) {
             this->texture->autorelease();
             this->descriptor->autorelease();
             this->freed = true;
         }
+    }
+
+    /**
+     * @brief Destructor for the Texture1D class
+     *
+     * Calls the free function to release the texture and descriptor objects
+     *
+     */
+    virtual ~Texture1D() {
+        free();
     }
 
     /**

@@ -36,6 +36,13 @@ TEST_CASE("Test default constructor") {
     REQUIRE(other.getStorageMode() == MTLCompute::ResourceStorage::Shared);
 }
 
+TEST_CASE("Test OOB access") {
+    MTLCompute::Buffer<int> freedbuffer(gpu, 10, MTLCompute::ResourceStorage::Shared);
+    freedbuffer.free();
+    REQUIRE_THROWS_AS_MESSAGE(freedbuffer.getData(), MTLCompute::Error::BufferFreeError, "Buffer already freed");
+    REQUIRE(freedbuffer.getFreed() == true);
+}
+
 TEST_CASE("Test set with vector") {
     REQUIRE_NOTHROW(buffer = data);
 }

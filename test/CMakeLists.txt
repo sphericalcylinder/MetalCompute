@@ -43,7 +43,11 @@ foreach(TESTFILE ${TESTFILES})
 endforeach()
 
 # add all tests to a custom target
-add_custom_target(alltests DEPENDS ${TESTLIST})
+add_custom_target(
+    alltests DEPENDS ${TESTLIST}
+    # remove generated gcda files
+    COMMAND find . -name "*.gcda" -print0 | xargs -0 rm
+)
 
 if (MTLCOMPUTE_INSTALL_TESTS)
 
