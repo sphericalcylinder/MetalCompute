@@ -1,0 +1,33 @@
+name: Code Coverage Reporting
+# Upload to Codecov
+
+on:
+  push:
+    branches: [ "dev", "main" ]
+  pull_request:
+    branches: [ "dev", "main" ]
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install lcov
+      run: brew install lcov
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DMTLCOMPUTE_BUILD_TESTS=ON -DCOVERAGE=ON -G"Unix Makefiles"
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      run: cmake --build ${{github.workspace}}/build --target coverage
+
+    - name: Upload Report
+      uses: codecov/codecov-action@v5
+      with:
+        files: ${{github.workspace}}/build/coverage.info
+        fail_ci_if_error: true
