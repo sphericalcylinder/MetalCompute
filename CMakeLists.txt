@@ -1,7 +1,10 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.20)
 
 option(MTLCOMPUTE_BUILD_TESTS "Build the tests")
 option(MTLCOMPUTE_INSTALL_TESTS "Install the tests")
+
+# Option to enable coverage
+option(COVERAGE "Enable coverage reporting with lcov" OFF)
 
 option(MTLCOMPUTE_BUILD_DOCS "Build the documentation")
 option(MTLCOMPUTE_INSTALL_DOCS "Install the documentation")
@@ -9,7 +12,8 @@ option(MTLCOMPUTE_INSTALL_DOCS "Install the documentation")
 option(MTLCOMPUTE_BUILD_EXAMPLES "Build the example source files")
 option(MTLCOMPUTE_INSTALL_EXAMPLES "Install the example source files")
 
-if (MTLCOMPUTE_INSTALL_TESTS MATCHES ON OR MTLCOMPUTE_INSTALL_TESTS MATCHES TRUE)
+if (MTLCOMPUTE_INSTALL_TESTS MATCHES ON OR MTLCOMPUTE_INSTALL_TESTS MATCHES TRUE OR
+    COVERAGE MATCHES ON OR COVERAGE MATCHES TRUE)
     set(MTLCOMPUTE_BUILD_TESTS ON)
 endif()
 
@@ -26,7 +30,6 @@ project(MetalCompute VERSION 1.0
                      LANGUAGES CXX)
 
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -39,6 +42,35 @@ include(FetchContent)
 # https://stackoverflow.com/questions/23960835/cmake-not-generating-compile-commands-json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
+if(COVERAGE)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+        message(FATAL_ERROR "Coverage only supported with Clang or GCC.")
+    endif()
+    message(STATUS "Enabling code coverage flags")
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+
+    # Add custom target to generate lcov report
+    find_program(LCOV_PATH lcov)
+    find_program(GENHTML_PATH genhtml)
+    if(NOT LCOV_PATH)
+        message(FATAL_ERROR "lcov not found!")
+    endif()
+    if(NOT GENHTML_PATH)
+        message(FATAL_ERROR "genhtml not found!")
+    endif()
+
+    add_custom_target(coverage
+        DEPENDS alltests
+        COMMAND ctest --test-dir ${CMAKE_BINARY_DIR} -j 10 -Q --output-on-failure # run tests to generate .gcda files
+        COMMAND ${LCOV_PATH} --quiet --directory . --capture --output-file coverage.info --ignore-errors inconsistent,inconsistent,format,format,unsupported,unsupported,count,count
+        COMMAND ${LCOV_PATH} --quiet --remove coverage.info '/usr/*' '/opt/*' '*/_deps/*' --output-file coverage.info.cleaned --ignore-errors inconsistent,inconsistent,format,format,unsupported,unsupported,count,count
+        COMMAND ${GENHTML_PATH} --quiet -o coverage_html coverage.info.cleaned --ignore-errors inconsistent,inconsistent,corrupt,corrupt,unsupported,unsupported,category,category
+        COMMENT "Generating lcov coverage report in coverage_html/"
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+
+endif()
 
 if (MTLCOMPUTE_BUILD_DOCS MATCHES ON OR MTLCOMPUTE_BUILD_DOCS MATCHES TRUE)
     find_package(Doxygen REQUIRED doxygen)
@@ -65,6 +97,7 @@ if (NOT EXISTS "${MTLCPPDIR}")
     FetchContent_MakeAvailable(METALCPP)
 endif()
 set(metalcpp_SOURCE_DIR "${MTLCPPDIR}")
+include_directories(${metalcpp_SOURCE_DIR} ${metalcpp_SOURCE_DIR}/SingleHeader)
 
 get_filename_component(SINGLEHEADER "${metalcpp_SOURCE_DIR}/SingleHeader/Metal.hpp" REALPATH)
 if (NOT EXISTS "${SINGLEHEADER}")

@@ -1,6 +1,6 @@
 # require old policy to allow for source files containing the name "test"
-set(CMAKE_WARN_DEPRECATED FALSE)
-cmake_policy(SET CMP0037 OLD)
+#set(CMAKE_WARN_DEPRECATED FALSE)
+#cmake_policy(SET CMP0037 OLD)
 
 project(Tests VERSION 1.0
         DESCRIPTION "All the tests"
@@ -11,11 +11,6 @@ project(Tests VERSION 1.0
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-# get frameworks
-include(FindMetal)
-include(FindMetalKit)
-include(FindFoundation)
 
 add_custom_target(testingmetal
     COMMAND xcrun -sdk macosx metal -c ${CMAKE_CURRENT_SOURCE_DIR}/default.metal -o ${CMAKE_CURRENT_BINARY_DIR}/default.air
@@ -36,7 +31,7 @@ foreach(TESTFILE ${TESTFILES})
     list(APPEND TESTLIST ${TESTNAME})
 
     target_include_directories(${TESTNAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${metalcpp_SOURCE_DIR}/SingleHeader ${DOCTEST_INCLUDE_DIR})
-    target_link_libraries(${TESTNAME} PRIVATE ${METAL} ${METALKIT} ${FOUNDATION})
+    target_link_libraries(${TESTNAME} PRIVATE "-framework Foundation" "-framework Metal" "-framework MetalKit")
     target_link_libraries(${TESTNAME} PRIVATE doctest::doctest)
     add_dependencies(${TESTNAME} testingmetal)
 
@@ -48,7 +43,11 @@ foreach(TESTFILE ${TESTFILES})
 endforeach()
 
 # add all tests to a custom target
-add_custom_target(alltests DEPENDS ${TESTLIST})
+add_custom_target(
+    alltests DEPENDS ${TESTLIST}
+    # remove generated gcda files
+    COMMAND find . -name "*.gcda" -print0 | xargs -0 rm
+)
 
 if (MTLCOMPUTE_INSTALL_TESTS)
 

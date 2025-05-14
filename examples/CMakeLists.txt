@@ -4,7 +4,7 @@ add_custom_target(metal
     COMMAND xcrun -sdk macosx metallib ${CMAKE_CURRENT_BINARY_DIR}/default.air -o ${CMAKE_CURRENT_BINARY_DIR}/default.metallib
     DEPENDS default.metal
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Compiling Metal shader"
+    COMMENT "Compiling example Metal shader"
     VERBATIM
 )
 
@@ -23,7 +23,7 @@ foreach(EXAMPLE ${EXAMPLES})
     list(APPEND EXAMPLE_TARGETS ${EXENAME})
     
     add_dependencies(${EXENAME} metal)
-    target_link_libraries(${EXENAME} PRIVATE mtlcompute)
+    target_link_libraries(${EXENAME} PRIVATE "-framework Foundation" "-framework Metal" "-framework MetalKit")
     target_include_directories(${EXENAME} PUBLIC ${CMAKE_SOURCE_DIR}/src ${metalcpp_SOURCE_DIR})
 
 endforeach()

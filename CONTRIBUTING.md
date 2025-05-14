@@ -42,8 +42,7 @@ char a = 'a';
  *
  * always one extra line before the end of the comment
  * 
-*/
-// The star of the ending bit should not have a space before it
+ */
 ```
 - Reasonable line length (most cases under 100 characters long)
 - Reasonable spacing between code sections

@@ -9,7 +9,7 @@ MTLCompute::Kernel kernel(gpu, name);
 
 
 TEST_CASE("Test getFunctionNames") {
-    std::vector<std::string> names = kernel.getFunctionNames();
+    vec<std::string> names = kernel.getFunctionNames();
     CHECK(names.size() > 0);
 }
 
@@ -18,5 +18,6 @@ TEST_CASE("Test useFunction") {
 }
 
 TEST_CASE("Test faulty useFunction") {
-    CHECK_THROWS(kernel.useFunction("doesn't exist"));
+    CHECK_THROWS_AS_MESSAGE(kernel.useFunction("doesn't exist"), MTLCompute::Error::KernelLoadError,
+        "Could not find function doesn't exist");
 }
