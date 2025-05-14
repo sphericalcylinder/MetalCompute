@@ -66,7 +66,7 @@ TEST_CASE("Test get item with [] operator") {
 
 TEST_CASE("Test create texture larger than max size") {
     REQUIRE_THROWS_AS_MESSAGE(MTLCompute::TextureBuffer<float>(gpu, MTLCompute::MAX_TEXTUREBUFFER_SIZE + 1),
-        MTLCompute::TextureSizeError, ("Texture size too large, max size is " + std::to_string(MTLCompute::MAX_TEXTUREBUFFER_SIZE)));
+        MTLCompute::Error::TextureSizeError, ("Texture size too large, max size is " + std::to_string(MTLCompute::MAX_TEXTUREBUFFER_SIZE)));
 }
 
 TEST_CASE("Test create texture with max size") {
@@ -74,27 +74,27 @@ TEST_CASE("Test create texture with max size") {
 }
 
 TEST_CASE("Test set with too much data") {
-    REQUIRE_THROWS_AS_MESSAGE(texture = toomuch, MTLCompute::TextureSizeError,
+    REQUIRE_THROWS_AS_MESSAGE(texture = toomuch, MTLCompute::Error::TextureSizeError,
         "Data size does not match texture size");
 }
 
 TEST_CASE("Test set with too little data") {
-    REQUIRE_THROWS_AS_MESSAGE(texture = toolittle, MTLCompute::TextureSizeError,
+    REQUIRE_THROWS_AS_MESSAGE(texture = toolittle, MTLCompute::Error::TextureSizeError,
         "Data size does not match texture size");
 }
 
 TEST_CASE("Test OOB get with [] operator") {
     texture = data;
-    REQUIRE_THROWS_AS_MESSAGE(texture[10], MTLCompute::TextureIndexError,
+    REQUIRE_THROWS_AS_MESSAGE(texture[10], MTLCompute::Error::TextureIndexError,
         "Texture index out of bounds");
-    REQUIRE_THROWS_AS_MESSAGE(texture[-1], MTLCompute::TextureIndexError,
+    REQUIRE_THROWS_AS_MESSAGE(texture[-1], MTLCompute::Error::TextureIndexError,
         "Texture index out of bounds");
 }
 
 TEST_CASE("Test uninitialized get") {
     MTLCompute::Texture1D<float> other;
-    REQUIRE_THROWS_AS_MESSAGE(other.getData(), MTLCompute::TextureInitError,
+    REQUIRE_THROWS_AS_MESSAGE(other.getData(), MTLCompute::Error::TextureInitError,
         "Texture not initialized");
-    REQUIRE_THROWS_AS_MESSAGE(other[0], MTLCompute::TextureInitError,
+    REQUIRE_THROWS_AS_MESSAGE(other[0], MTLCompute::Error::TextureInitError,
         "Texture not initialized");
 }

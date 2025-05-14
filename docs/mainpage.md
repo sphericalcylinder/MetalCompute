@@ -5,10 +5,10 @@ MetalCompute Documentation  {#mainpage}
 MetalCompute is an API to make GPU compute calls easier. Usually, on a mac, you would have to use
 Objective-C or Swift to use the Metal API. I don't know either and don't really want to put the effort 
 into learning them. Thankfully, Apple released [metal-cpp](https://github.com/bkaradzic/metal-cpp), a C++ API that
-calls Objective-C Metal functions. It's really useful, but if you want to do some GPU calculations for a simple project,
-it's just too much. That's why I'm making this, a API on top of another API to use Metal for compute. If you have
+calls Objective-C Metal functions. It's extremely useful, but if you want to do some GPU calculations for a simple project,
+it's too much boilerplate. That's why I'm making this, a API on top of another API to use Metal for GPU compute. If you have
 suggestions or find a bug, file an issue on the [repo](https://github.com/sphericalcylinder/MetalCompute) for this
-project.
+project. Thank you so much!
 
 ================
 
@@ -17,18 +17,13 @@ project.
 
 This is a header only API, you just need to include the directory where `MTLCompute.hpp` is located after cmake install.
 You also have to add the
-`-framework Foundation -framework Metal -framework MetalKit` flags or there will be problems.
+`-framework Foundation -framework Metal -framework MetalKit` compilation flags or there will be problems.
 
-==============
-
-## Regular Usage {#reguse}
-
-### Starting {#starting}
-To use the API regularly, like in the buffer and texture
+To use the API regularly, like in the [buffer](examples/metalcomputebuffer.cpp) and [texture](examples/metalcompute2dtexture.cpp)
 examples, include the `MTLCompute.hpp` header and add the [other flags](#usg) during compilation.
 
-Currently, you still have to access the raw MTL::Device object because I haven't made a good wrapper for that. There is
-a MTLCompute::GPU class, but it's not for wrapping the MTL::Device. The start of your file should look like this:
+Currently, you still have to access the raw MTL::Device object because I haven't made a wrapper for that and probably never will. There is
+a MTLCompute::GPU class, but it's used differently, dissused in the [Special GPU Class](#special-gpu-class) section. The start of your file should look like this:
 ```cpp
 #include "MTLCompute.hpp"
 
@@ -39,18 +34,24 @@ int main() {
 }
 ```
 
-That's really the only work you have to do with the metal-cpp API directly. Now, you can use MTLCompute in place of metal-cpp. Mostly.
+That's the only work you have to do with the metal-cpp API directly. Now, you can use MTLCompute in place of metal-cpp for simple GPU
+compute tasks.
 
 
 ================
-### Buffers {#buffers}
+
+# Data Structures
+
+<br />
+
+## Buffers
 
 A MTLCompute::Buffer is a 1D list that holds a predetermined number of elements. It's really simple. To create
-a MTLCompute::Buffer, you specify a gpu, length, and a MTLCompute::ResourceStorage option. When choosing your
+a MTLCompute::Buffer, you specify a gpu, length, and a MTLCompute::ResourceStorage option (optional). When choosing your
 MTLCompute::ResourceStorage value, refer to the 
 [Metal Best Practices](https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/ResourceOptions.html#//apple_ref/doc/uid/TP40016642-CH17-SW1)
 site under "Choose an Appropriate Resource Storage Mode (macOS)". Most commonly, you'll use MTLCompute::ResourceStorage::Shared.
-
+If you don't want to type out that long thing, just leave that argument out and the Buffer will use shared storage by default.
 
 To create a MTLCompute::Buffer that holds 10 floats:
 ```cpp
@@ -61,7 +62,8 @@ int main() {
     MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
 
     MTLCompute::Buffer<float> mybuffer(gpu, 10, MTLCompute::ResourceStorage::Shared);
-
+    // without resourcestorage parameter:
+    MTLCompute::Buffer<float> myidenticalbuffer(gpu, 10);
 }
 ```
 
@@ -72,7 +74,7 @@ mybuffer = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 ```
 
 If you try to assign a vector that doesn't match the length of the buffer, it will throw a BufferSizeError. Similarly, 
-when you try to assign an index that's out of range, it will throw a BufferIndexError.
+when you try to assign an index that's out of range, it will throw a BufferIndexError. For more on errors, visit the [error documentation](errors.md)
 
 
 To get data from the buffer, you can use MTLCompute::Buffer::getData() method or the slice operator:
@@ -83,7 +85,7 @@ std::vector<float> bufferdata = mybuffer.getData();
 
 
 ================
-### Textures {#textures}
+## Textures
 
 A MTLCompute::Texture can be a 1, 2, or 3d list that holds a predetermined number of elements.
 Unfortunately, you can't use the slice operator [] set a texture value.
@@ -91,7 +93,7 @@ Unfortunately, you can't use the slice operator [] set a texture value.
 
 <br />
 
-#### 1D Textures
+### 1D Textures
 
 > [!TIP]
 > There is absolutely no reason that I can think of to use
@@ -130,7 +132,7 @@ std::vector<float> texturedata = mytexture.getData();
 
 <br />
 
-#### 2D Textures
+### 2D Textures
 
 To create a MTLCompute::Texture2D, you specify a gpu, width, and height.
 
@@ -164,7 +166,7 @@ std::vector<std::vector<float>> texturedata = mytexture.getData();
 
 <br />
 
-#### 3D Textures
+### 3D Textures
 
 To create a MTLCompute::Texture3D, you specify a gpu, width, height, and depth.
 
@@ -199,11 +201,11 @@ std::vector<std::vector<std::vector<float>>> texturedata = mytexture.getData();
 
 <br />
 
-#### TextureBuffers
+### TextureBuffers
 
 > [!TIP]
 > TextureBuffers are identical to Texture1Ds but have a larger
-> max size (250,000,000)
+> max size (250,000,000). Again, they've only been added for consistency.
 >
 > Just use a buffer.
 
@@ -241,7 +243,9 @@ std::vector<float> texturedata = mytexture.getData();
 
 ================
 
-### Components
+# Fun extras for an easier life
+
+## Components
 
 Combined, textures and buffers can hold most types of data that you would need.
 These types are:
@@ -252,13 +256,13 @@ These types are:
   - 32 bit (int)
   - signed and unsigned
 
-And buffers support user-defined types as well.
+Buffers support user-defined types as well, as long as their size is known at compile time.
 
 For unsigned values, there's easy types like MTLCompute::uint and MTLCompute::uchar that you can use instead
 of writing out `unsigned int` or `unsigned char`. These types are for textures and buffers that hold individual values,
 or single components.
 
-Textures and buffers can also have multiple components. Metal (as far as I know) only supports 2 components and 4 components.
+Textures and buffers can also have multiple components. Metal only supports 2 components and 4 components (as far as I know).
 
 A 2D texture with 2 float components would look like:
 ```cpp
@@ -270,16 +274,69 @@ A buffer with 4 unsigned int components would look like:
 MTLCompute::Buffer<MTLCompute::uint4> my4buffer(gpu, 10, MTLCompute::ResourceStorage::Shared);
 ```
 
-In MTLComputeGlobal.hpp, there's a bunch of typedefs that define the multiple component types. For 2 components it's
-std::pairs and for 4 it's std::tuples. You could just write out `MTLCompute::Texture1D<std::pair<float, float>> my2texture(gpu, 10);`,
-but it looks nicer using the predefined types. It's pretty straightforward from there. It's the same as the regular
+In MTLComputeGlobal.hpp, there's a bunch of typedef statements that define the multiple component types for your convenience. 
+2 component types are just a `std::pair` and 4 component types are `std::tuple`. You could just write out 
+`MTLCompute::Texture1D<std::pair<float, float>> my2texture(gpu, 10);`, but it looks nicer using the predefined types. 
+It's pretty straightforward from there. It's the same as the regular
 supported types, but with a 2 or 4 after the name. A std::pair of unsigned chars is a `MTLCompute::uchar2` and a std::tuple
-of floats is a `MTLCompute::float4` When you slice a componented(?) texture, you get back a pair or tuple instead of a single value.
+of four floats is a `MTLCompute::float4`. When you slice a componented(?) texture, you get back a pair or tuple instead of a single value.
 
 ============
 
+<br />
 
-### Kernel {#kernel}
+## Conversions
+
+Luckily for you, dearest reader, I spent a ridiculous amount of time to allow smooth and easy conversions
+between types. If you think of all three main list-like types (Buffers, 1D Textures, horrid TextureBuffers) as a
+big triangle, you can now go from any point on the triangle to any other point, provided the sizes aren't too
+large.
+
+There are two ways to do the conversions: with the equals assignment operator and a regular function.
+The function is the most readable and understandable way, in my opinion. Use the functions
+`.toBuffer()`, `.toTexture1D()`, and `.toTextureBuffer()`. Probably the easiest thing to remember. Just 
+'to' and then what you want to convert to.
+Examples:
+
+
+The next way is even easier, just assign what you want to convert from to an instance of what
+you want to convert to. You couldn't possibly mess this up (not a challenge). `thing_to_convert_to = thing_to_convert_from`
+So easy!
+
+I was smart with this and made sure to add in size checks because each of the classes
+has a different limit on their maximum size. If you try to cram a 2,000,000 long buffer
+into a Texture1D (which can only handle 16,384), it will throw an error. The maximum sizes
+for all of the classes can be found in the `MTLComputeGlobals.hpp` file, except for the buffer max size. Buffers have no max size. At least, I can't find
+anything that says they do.
+
+
+Examples
+```cpp
+int main() {
+    
+    MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
+
+    MTLCompute::Buffer<int> buffer(gpu, 10);
+
+    // i want to turn this into a 1d texture for some stupid irrelevant reason!
+    // create the texture
+    MTLCompute::Texture1D<int> texture(gpu, 10);
+    // use '.toTexture1D()'
+    texture = buffer.toTexture1D(); // wow
+
+
+    // golly gee whiz i want that in a texturebuffer now!!
+    // create the texturebuffer
+    MTLCompute::TextureBuffer<int> texturebuffer(gpu, 10):
+    // assign
+    texturebuffer = texture // literally so easy
+}
+```
+================
+
+# Sending to the GPU
+
+## Kernel
 
 A MTLCompute::Kernel is how you tell the GPU what to do with the data you give it. You load a compiled Metal Shading Language file (.metallib)
 and select a function to use. It's probably the simplest class in this whole project.
@@ -315,7 +372,7 @@ kernel.useFunction("add_arrays");
 
 ================
 
-### CommandManager {#commandmanager}
+## CommandManager
 A MTLCompute::CommandManager is the way you really 'talk' to the gpu. You specify the kernel and then load buffers
 and textures at certain indecies that correspond to your MSL (Metal Shading Language) function.
 
@@ -335,9 +392,7 @@ int main() {
 }
 ```
 
-For textures with multiple components, you'll want to have the same  CommandManager template argument. This means
-that for now you can't use textures with multiple components along with buffers, but it will be fixed in an upcoming
-release.
+
 
 The index lists for buffers and textures are seperate. This means that you can load a buffer at index 0 and a
 texture at index 0 as well (under the previous condition). These indecies should correspond to the indecies in your MSL function.
@@ -349,10 +404,35 @@ manager.loadBuffer(mybuffer, 0);
 manager.loadTexture(mytexture, 0);
 ```
 
+BREAKING NEWS!! I summoned all of my brainpower and used variadic templates to allow the CommandManager
+to have multiple types! You can now put a buffer of floats and a 2d texture of int4s into the same CommandManager! :o
+This is revolutionary because I'm stupid and variadic templates are hard.
+
+```cpp
+#include "MTLCompute.hpp"
+
+int main() {
+
+    MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
+
+    MTLCompute::Kernel kernel(gpu, "default.metallib");
+
+    MTLCompute::CommandManager<float, int4, uchar2> manager(gpu, kernel);
+
+    MTLCompute::Buffer<float> mybuffer(gpu, 10);
+    MTLCompute::Texture2D<int4> mytexture(gpu, 10, 10);
+    MTLCompute::TextureBuffer<uchar4> uglytexturebuffer(gpu, 10); // i hate texturebuffers >:(
 
 
+    manager.loadBuffer(mybuffer, 0);
+    manager.loadTexture(mytexture, 0);
+    manager.loadTexture(uglytexturebuffer, 1);
 
-## Special Usage {#specuse}
+    // this is crazyyyyyy!!!!!
+}
+```
+
+# Special GPU Class {#special-gpu-class}
 
 There's a second way to use the API for people who want to do even less. The MTLCompute::GPU class is the simplest
 possible way to use the API. It's not flexible at all, but it's really easy to use.
@@ -392,5 +472,9 @@ And finally, get the data back:
 std::vector<float> result = gpu.getArray(0);
 std::vector<std::vector<float>> resultmatrix = gpu.getMatrix(0);
 ```
+
+If you really don't want to do any work and are fine with maybe crashing your program because
+I didn't really pay attention to pointers and lifetimes when making this one, this is for you!
+Enjoy <3
 
 The end!

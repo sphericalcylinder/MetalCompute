@@ -17,13 +17,13 @@ TEST_CASE("Test resetBuffers") {
     MTLCompute::Buffer<float> buffer(gpu, 10, MTLCompute::ResourceStorage::Shared);
     REQUIRE_NOTHROW(manager.loadBuffer(buffer, 0));
     manager.resetBuffers();
-    REQUIRE_THROWS_AS_MESSAGE(manager.getBuffers()[0].getData(), std::runtime_error, "Buffer not initialized");
+    REQUIRE_THROWS_AS_MESSAGE(manager.getBuffers<float>()[0].getData(), std::runtime_error, "Buffer not initialized");
 }
 
 TEST_CASE("Test loadBuffer") {
     MTLCompute::Buffer<float> buffer(gpu, 10, MTLCompute::ResourceStorage::Shared);
     CHECK_NOTHROW(manager.loadBuffer(buffer, 0));
-    CHECK(manager.getBuffers()[0].getData() == buffer.getData());
+    CHECK(manager.getBuffers<float>()[0].getData() == buffer.getData());
     manager.resetBuffers();
 }
 
@@ -31,27 +31,27 @@ TEST_CASE("Test resetTextures") {
     MTLCompute::Texture2D<float> texture(gpu, 10, 10);
     REQUIRE_NOTHROW(manager.loadTexture(texture, 0));
     manager.resetTextures();
-    REQUIRE_THROWS(manager.getTexture2D(0).getData());
+    REQUIRE_THROWS(manager.getTexture2D<float>(0).getData());
 }
 
 TEST_CASE("Test 1D loadTexture") {
     MTLCompute::Texture1D<float> texture(gpu, 10);
     CHECK_NOTHROW(manager.loadTexture(texture, 0));
-    CHECK(manager.getTexture1D(0).getData() == texture.getData());
+    CHECK(manager.getTexture1D<float>(0).getData() == texture.getData());
     manager.resetTextures();
 }
 
 TEST_CASE("Test 2D loadTexture") {
     MTLCompute::Texture2D<float> texture(gpu, 10, 10);
     CHECK_NOTHROW(manager.loadTexture(texture, 0));
-    CHECK(manager.getTexture2D(0).getData() == texture.getData());
+    CHECK(manager.getTexture2D<float>(0).getData() == texture.getData());
     manager.resetTextures();
 }
 
 TEST_CASE("Test 3D loadTexture") {
     MTLCompute::Texture3D<float> texture(gpu, 10, 10, 10);
     CHECK_NOTHROW(manager.loadTexture(texture, 0));
-    CHECK(manager.getTexture3D(0).getData() == texture.getData());
+    CHECK(manager.getTexture3D<float>(0).getData() == texture.getData());
     manager.resetTextures();
 }
 
@@ -155,16 +155,16 @@ TEST_CASE("Test correct getTexture") {
     manager.loadTexture(textureone, 0);
     manager.loadTexture(texturetwo, 1);
     manager.loadTexture(texturethree, 2);
-    CHECK(manager.getTexture1D(0).getData() == textureone.getData());
-    CHECK(manager.getTexture2D(1).getData() == texturetwo.getData());
-    CHECK(manager.getTexture3D(2).getData() == texturethree.getData());
+    CHECK(manager.getTexture1D<float>(0).getData() == textureone.getData());
+    CHECK(manager.getTexture2D<float>(1).getData() == texturetwo.getData());
+    CHECK(manager.getTexture3D<float>(2).getData() == texturethree.getData());
     manager.resetTextures();
 
 }
 
 TEST_CASE("Test incorrect getTexture") {
     manager.resetTextures();
-    CHECK_THROWS_AS_MESSAGE(manager.getTexture1D(0).getData(), MTLCompute::CommandManagerIndexError, "No 1D texture at index 0");
-    CHECK_THROWS_AS_MESSAGE(manager.getTexture2D(0).getData(), MTLCompute::CommandManagerIndexError, "No 2D texture at index 0");
-    CHECK_THROWS_AS_MESSAGE(manager.getTexture3D(0).getData(), MTLCompute::CommandManagerIndexError, "No 3D texture at index 0");
+    CHECK_THROWS_AS_MESSAGE(manager.getTexture1D<float>(0).getData(), MTLCompute::Error::CommandManagerIndexError, "No 1D texture at index 0");
+    CHECK_THROWS_AS_MESSAGE(manager.getTexture2D<float>(0).getData(), MTLCompute::Error::CommandManagerIndexError, "No 2D texture at index 0");
+    CHECK_THROWS_AS_MESSAGE(manager.getTexture3D<float>(0).getData(), MTLCompute::Error::CommandManagerIndexError, "No 3D texture at index 0");
 }

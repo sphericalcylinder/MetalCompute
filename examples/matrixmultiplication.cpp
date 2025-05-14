@@ -1,4 +1,5 @@
 #include "MTLCompute.hpp"
+#include <iostream>
 
 int main() {
 
@@ -11,6 +12,9 @@ int main() {
 
     // set the matrix size to 800x800
     size_t texsize = 800;
+    // if this is set too high and you get bored of waiting and
+    // control+c the program, the GPU will still be working on the
+    // job at 100% usage and you will have to restart your computer!
 
     // Create 3 2D textures for 2 input matrices and an output matrix
     MTLCompute::Texture2D<float> a(gpu, texsize, texsize);

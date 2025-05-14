@@ -1,10 +1,10 @@
+#pragma once
+ 
 #include "MTLComputeBuffer.hpp"
 #include "MTLComputeCommandManager.hpp"
-#include "MTLComputeGlobals.hpp"
 #include "MTLComputeKernel.hpp"
 #include "MTLComputeTexture.hpp"
-
-#pragma once
+#include "Metal.hpp"
 
 #ifdef USING_MULTIPLE_CLASSES
 #error "Cannot include both MTLCompute.hpp and MTLComputeGPU.hpp"
@@ -171,7 +171,7 @@ template <typename T> class GPU {
      */
     vec<T> getArray(int index) {
         this->checkloaded();
-        MTLCompute::Buffer<T> buffer = commandManager.getBuffers()[index];
+        MTLCompute::Buffer<T> buffer = commandManager.template getBuffers<T>()[index];
         return buffer.getData();
     }
 
@@ -187,7 +187,7 @@ template <typename T> class GPU {
      */
     vec2<T> get2DMatrix(int index) {
         this->checkloaded();
-        MTLCompute::Texture2D<T> texture = commandManager.getTexture2D(index);
+        MTLCompute::Texture2D<T> texture = commandManager.template getTexture2D<T>(index);
         return texture.getData();
     }
 
@@ -203,7 +203,7 @@ template <typename T> class GPU {
      */
     vec3<T> get3DMatrix(int index) {
         this->checkloaded();
-        MTLCompute::Texture3D<T> texture = commandManager.getTexture3D(index);
+        MTLCompute::Texture3D<T> texture = commandManager.template getTexture3D<T>(index);
         return texture.getData();
     }
 

@@ -1,13 +1,11 @@
-#include <iostream>
-#include <map>
+#pragma once
+
 #include <tuple>
 #include <typeinfo>
 #include <vector>
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
-#include "Metal.hpp"
-
-#pragma once
+#include "Metal.hpp" // IWYU pragma: keep
 
 // alias for std::vector<T>
 template <typename T> using vec = std::vector<T>;

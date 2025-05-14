@@ -1,7 +1,7 @@
-#include "MTLComputeErrors.hpp"
-#include "MTLComputeGlobals.hpp"
-
 #pragma once
+
+#include "MTLComputeErrors.hpp"
+#include "Metal.hpp"
 
 namespace MTLCompute {
 
@@ -34,7 +34,7 @@ class Kernel {
             nullptr);
 
         if (this->library == nullptr)
-            throw KernelLoadError("Could not load library " + filename);
+            throw Error::KernelLoadError("Could not load library " + filename);
     }
 
     /**
@@ -58,7 +58,7 @@ class Kernel {
             nullptr);
 
         if (this->library == nullptr)
-            throw KernelLoadError("Could not load library " + filename);
+            throw Error::KernelLoadError("Could not load library " + filename);
 
         useFunction(funcname);
     }
@@ -109,7 +109,7 @@ class Kernel {
             NS::String::string(funcname.c_str(), NS::ASCIIStringEncoding));
 
         if (this->function == nullptr)
-            throw KernelLoadError("Could not load function " + funcname);
+            throw Error::KernelLoadError("Could not load function " + funcname);
 
         NS::Error *error = nullptr;
         this->pipeline = gpu->newComputePipelineState(this->function, &error);

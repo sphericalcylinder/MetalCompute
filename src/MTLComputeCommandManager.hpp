@@ -1,14 +1,15 @@
+#pragma once
+
 #include "MTLComputeBuffer.hpp"
 #include "MTLComputeErrors.hpp"
 #include "MTLComputeGlobals.hpp"
 #include "MTLComputeKernel.hpp"
 #include "MTLComputeTexture.hpp"
 
-#pragma once
-
 namespace MTLCompute {
 
-template <typename T> class CommandManager {
+
+template <typename... Types> class CommandManager {
 
   private:
     MTL::Device *gpu; ///< The Metal device object
@@ -20,11 +21,13 @@ template <typename T> class CommandManager {
     MTL::ComputeCommandEncoder
         *commandEncoder; ///< The Metal compute command encoder object
 
+    template<typename T>
     using Texture =
         std::variant<std::monostate, Texture1D<T>, Texture2D<T>, Texture3D<T>>;
 
-    vec<Buffer<T>> buffers = vec<Buffer<T>>(MAX_BUFFERS); ///< The buffers
-    vec<Texture> textures = vec<Texture>(MAX_TEXTURES);   ///< The 2D textures
+    std::tuple<vec<Buffer<Types>>...> buffers; ///< The buffers
+    std::tuple<vec<Texture<Types>>...> textures; ///< The textures
+
     int bufferlength = -1; ///< The length of the buffers
     int texwidth = -1;     ///< The width of the textures
     int texheight = -1;    ///< The height of the textures
@@ -32,7 +35,7 @@ template <typename T> class CommandManager {
 
     void checkTextureIndex(int index) {
         if (index < 0 || index >= MAX_TEXTURES)
-            throw CommandManagerIndexError("Index out of range");
+            throw Error::CommandManagerIndexError("Index out of range");
     }
 
   public:
@@ -53,6 +56,8 @@ template <typename T> class CommandManager {
         this->pipeline = this->kernel->getPLS();
 
         this->commandQueue = this->gpu->newCommandQueue();
+        ((std::get<vec<Buffer<Types>>>(buffers) = vec<Buffer<Types>>(MAX_BUFFERS)), ...);
+        ((std::get<vec<Texture<Types>>>(textures) = vec<Texture<Types>>(MAX_TEXTURES)), ...);
     }
 
     /**
@@ -78,14 +83,18 @@ template <typename T> class CommandManager {
      * @param index The index to load the buffer into
      *
      */
+    template <typename T>
     void loadBuffer(Buffer<T> buffer, int index) {
+        static_assert((std::is_same_v<T, Types> || ...), "Type T must be one of the template parameters");
+        
         if (this->bufferlength == -1)
             this->bufferlength = buffer.getLength();
 
         if (this->bufferlength != buffer.getLength())
-            throw CommandManagerItemSizeError("Buffer sizes do not match");
+            throw Error::CommandManagerItemSizeError("Buffer sizes do not match");
 
-        this->buffers[index] = buffer;
+        //this->buffers[index] = buffer;
+        std::get<vec<Buffer<T>>>(buffers)[index] = buffer;
     }
 
     /**
@@ -98,14 +107,16 @@ template <typename T> class CommandManager {
      * @param index The index to load the texture into
      *
      */
+    template <typename T>
     void loadTexture(Texture1D<T> texture, int index) {
+        static_assert((std::is_same_v<T, Types> || ...), "Type T must be one of the template parameters");
         if (this->texwidth == -1)
             this->texwidth = texture.getWidth();
 
         if (this->texwidth != texture.getWidth())
-            throw CommandManagerItemSizeError("Texture sizes do not match");
+            throw Error::CommandManagerItemSizeError("Texture sizes do not match");
 
-        this->textures[index] = texture;
+        std::get<vec<Texture<T>>>(textures)[index] = texture;
     }
 
     /**
@@ -118,7 +129,9 @@ template <typename T> class CommandManager {
      * @param index The index to load the texture into
      *
      */
+    template <typename T>
     void loadTexture(Texture2D<T> texture, int index) {
+        static_assert((std::is_same_v<T, Types> || ...), "Type T must be one of the template parameters");
         if (this->texwidth == -1)
             this->texwidth = texture.getWidth();
 
@@ -127,9 +140,9 @@ template <typename T> class CommandManager {
 
         if (this->texwidth != texture.getWidth() ||
             this->texheight != texture.getHeight())
-            throw CommandManagerItemSizeError("Texture sizes do not match");
+            throw Error::CommandManagerItemSizeError("Texture sizes do not match");
 
-        this->textures[index] = texture;
+        std::get<vec<Texture<T>>>(textures)[index] = texture;
     }
 
     /**
@@ -142,7 +155,9 @@ template <typename T> class CommandManager {
      * @param index The index to load the texture into
      *
      */
+    template <typename T>
     void loadTexture(Texture3D<T> texture, int index) {
+        static_assert((std::is_same_v<T, Types> || ...), "Type T must be one of the template parameters");
         if (this->texwidth == -1)
             this->texwidth = texture.getWidth();
 
@@ -155,9 +170,9 @@ template <typename T> class CommandManager {
         if (this->texwidth != texture.getWidth() ||
             this->texheight != texture.getHeight() ||
             this->texdepth != texture.getDepth())
-            throw CommandManagerItemSizeError("Texture sizes do not match");
+            throw Error::CommandManagerItemSizeError("Texture sizes do not match");
 
-        this->textures[index] = texture;
+        std::get<vec<Texture<T>>>(textures)[index] = texture;
     }
 
     /**
@@ -181,8 +196,56 @@ template <typename T> class CommandManager {
         bool usingbuffers = false;
         bool usingtextures = false;
 
+
+        // Set buffers for each type  (lambda function)
+        auto setBuffers = [&]<typename T>(std::vector<Buffer<T>>& typeBuffers) {
+            for (size_t i = 0; i < typeBuffers.size(); i++) {
+                if (typeBuffers[i].getBuffer() != nullptr) {
+                    if (typeBuffers[i].getBuffer() != nullptr && typeBuffers[i].getLength() == this->bufferlength) {
+                        commandEncoder->setBuffer(typeBuffers[i].getBuffer(), 0, i);
+                    }
+                    usingbuffers = true;
+                }
+            }
+        };
+
+        // Set textures for each type (lambda function)
+        auto setTextures = [&]<typename T>(std::vector<Texture<T>>& typeTextures) {
+            for (size_t i = 0; i < typeTextures.size(); i++) {
+                if (!std::holds_alternative<std::monostate>(typeTextures[i])) {
+                    auto t = typeTextures[i];
+                    if (std::holds_alternative<Texture1D<T>>(t)) {
+                        const auto& texture = std::get<Texture1D<T>>(t);
+                        if (texture.getWidth() == texwidth && texture.getTexture() != nullptr) {
+                            commandEncoder->setTexture(texture.getTexture(), i);
+                        }
+                    }
+                    else if (std::holds_alternative<Texture2D<T>>(t)) {
+                        const auto& texture = std::get<Texture2D<T>>(t);
+                        if (texture.getWidth() == texwidth && texture.getHeight() == texheight && 
+                            texture.getTexture() != nullptr) {
+                            commandEncoder->setTexture(texture.getTexture(), i);
+                        }
+                    }
+                    else if (std::holds_alternative<Texture3D<T>>(t)) {
+                        const auto& texture = std::get<Texture3D<T>>(t);
+                        if (texture.getWidth() == texwidth && texture.getHeight() == texheight && 
+                            texture.getDepth() == texdepth && texture.getTexture() != nullptr) {
+                            commandEncoder->setTexture(texture.getTexture(), i);
+                        }
+                    }
+                    
+                    usingtextures = true;
+                }
+            }
+        };
+
+        // Apply to all types
+        std::apply([&](auto&... args) { (setBuffers(args), ...); }, buffers);
+        std::apply([&](auto&... args) { (setTextures(args), ...); }, textures);
+
         // Load the buffers and textures into the commandEncoder
-        for (int i = 0; i < MAX_BUFFERS; i++) {
+        /*for (int i = 0; i < MAX_BUFFERS; i++) {
             if (buffers[i].getLength() == this->bufferlength &&
                 buffers[i].getBuffer() != nullptr) {
                 this->commandEncoder->setBuffer(buffers[i].getBuffer(), 0, i);
@@ -262,7 +325,7 @@ template <typename T> class CommandManager {
                         usingtextures = true;
                 }
             }
-        }
+        }*/
 
         // Calculate the grid size and thread group size
         MTL::Size threadsPerThreadgroup;
@@ -294,7 +357,7 @@ template <typename T> class CommandManager {
                 MTL::Size::Make(currentwidth, currentheight, currentdepth);
 
         } else {
-            throw CommandManagerLoadError("No buffers or textures loaded");
+            throw Error::CommandManagerLoadError("No buffers or textures loaded");
         }
 
         // Use dispatchThreads NOT dispatchThreadgroups
@@ -314,8 +377,7 @@ template <typename T> class CommandManager {
      *
      */
     void resetBuffers() {
-        this->buffers.clear();
-        this->buffers = vec<Buffer<T>>(MAX_BUFFERS);
+        ((std::get<vec<Buffer<Types>>>(buffers) = vec<Buffer<Types>>(MAX_BUFFERS)), ...);
         this->bufferlength = -1;
     }
 
@@ -324,8 +386,7 @@ template <typename T> class CommandManager {
      *
      */
     void resetTextures() {
-        this->textures.clear();
-        this->textures = vec<Texture>(MAX_TEXTURES);
+        ((std::get<vec<Texture<Types>>>(textures) = vec<Texture<Types>>(MAX_TEXTURES)), ...);
         this->texwidth = -1;
         this->texheight = -1;
         this->texdepth = -1;
@@ -364,7 +425,11 @@ template <typename T> class CommandManager {
      * @return std::vector<Buffer<T>> The buffers
      *
      */
-    vec<Buffer<T>> &getBuffers() { return this->buffers; }
+    template <typename T>
+    vec<Buffer<T>> &getBuffers() { 
+        static_assert((std::is_same_v<T, Types> || ...), "Type T must be one of the template parameters");
+        return std::get<vec<Buffer<T>>>(buffers);
+    }
 
     /**
      * @brief Get a loaded 1D texture
@@ -372,12 +437,15 @@ template <typename T> class CommandManager {
      * @return Texture1D<T> The texture
      *
      */
+    template <typename T>
     Texture1D<T> &getTexture1D(int index) {
+        static_assert((std::is_same_v<T, Types> || ...), "Type T must be one of the template parameters");
         this->checkTextureIndex(index);
-        if (!std::holds_alternative<Texture1D<T>>(this->textures[index]))
-            throw CommandManagerIndexError("No 1D texture at index " +
+        auto &tex = std::get<vec<Texture<T>>>(textures)[index];
+        if (!std::holds_alternative<Texture1D<T>>(tex))
+            throw Error::CommandManagerIndexError("No 1D texture at index " +
                                            std::to_string(index));
-        return std::get<Texture1D<T>>(this->textures[index]);
+        return std::get<Texture1D<T>>(tex);
     }
 
     /**
@@ -386,12 +454,15 @@ template <typename T> class CommandManager {
      * @return Texture2D<T> The texture
      *
      */
+    template <typename T>
     Texture2D<T> &getTexture2D(int index) {
+        static_assert((std::is_same_v<T, Types> || ...), "Type T must be one of the template parameters");
         this->checkTextureIndex(index);
-        if (!std::holds_alternative<Texture2D<T>>(this->textures[index]))
-            throw CommandManagerIndexError("No 2D texture at index " +
+        auto &tex = std::get<vec<Texture<T>>>(textures)[index];
+        if (!std::holds_alternative<Texture2D<T>>(tex))
+            throw Error::CommandManagerIndexError("No 2D texture at index " +
                                            std::to_string(index));
-        return std::get<Texture2D<T>>(this->textures[index]);
+        return std::get<Texture2D<T>>(tex);
     }
 
     /**
@@ -400,12 +471,15 @@ template <typename T> class CommandManager {
      * @return Texture3D<T> The texture
      *
      */
+    template <typename T>
     Texture3D<T> &getTexture3D(int index) {
+        static_assert((std::is_same_v<T, Types> || ...), "Type T must be one of the template parameters");
         this->checkTextureIndex(index);
-        if (!std::holds_alternative<Texture3D<T>>(this->textures[index]))
-            throw CommandManagerIndexError("No 3D texture at index " +
+        auto &tex = std::get<vec<Texture<T>>>(textures)[index];
+        if (!std::holds_alternative<Texture3D<T>>(tex))
+            throw Error::CommandManagerIndexError("No 3D texture at index " +
                                            std::to_string(index));
-        return std::get<Texture3D<T>>(this->textures[index]);
+        return std::get<Texture3D<T>>(tex);
     }
 };
 

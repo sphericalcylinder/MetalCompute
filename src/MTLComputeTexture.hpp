@@ -1,7 +1,7 @@
+#pragma once
+
 #include "MTLComputeErrors.hpp"
 #include "MTLComputeGlobals.hpp"
-
-#pragma once
 
 namespace MTLCompute {
 
@@ -21,7 +21,7 @@ template <typename T> class Texture1D {
     /**
      * @brief Swap the contents of two 1D Textures
      *
-     * @param buf The 1D texture to swap with
+     * @param tex The 1D texture to swap with
      *
      */
     void swap(Texture1D &tex) noexcept {
@@ -84,7 +84,7 @@ template <typename T> class Texture1D {
         if (typeid(T) == typeid(float4))
             return MTL::PixelFormatRGBA32Float;
 
-        throw TextureTypeError("Texture type not supported");
+        throw Error::TextureTypeError("Texture type not supported");
     }
 
     /**
@@ -115,7 +115,7 @@ template <typename T> class Texture1D {
      */
     virtual void checkMaxSize(int width) const {
         if (width > MAX_TEXTURE1D_SIZE)
-            throw TextureSizeError("Texture size too large, max size is " +
+            throw Error::TextureSizeError("Texture size too large, max size is " +
                                    std::to_string(MAX_TEXTURE1D_SIZE));
     }
 
@@ -127,7 +127,7 @@ template <typename T> class Texture1D {
      */
     void checkDataSize(vec<T> data) const {
         if (data.size() != this->width)
-            throw TextureSizeError("Data size does not match texture size");
+            throw Error::TextureSizeError("Data size does not match texture size");
     }
 
     /**
@@ -136,7 +136,7 @@ template <typename T> class Texture1D {
      */
     virtual void checkInit() const {
         if (this->width == -1)
-            throw TextureInitError("Texture not initialized");
+            throw Error::TextureInitError("Texture not initialized");
     }
 
     /**
@@ -147,7 +147,7 @@ template <typename T> class Texture1D {
      */
     void checkIndex(size_t index) const {
         if (index >= (long)this->width || index < 0)
-            throw TextureIndexError("Texture index out of bounds");
+            throw Error::TextureIndexError("Texture index out of bounds");
     }
 
     /**
@@ -156,7 +156,7 @@ template <typename T> class Texture1D {
      */
     void checkFreed() const {
         if (this->freed)
-            throw TextureFreeError("Texture already freed");
+            throw Error::TextureFreeError("Texture already freed");
     }
 
   public:
@@ -234,9 +234,10 @@ template <typename T> class Texture1D {
         this->checkFreed();
         try {
             this->checkDataSize(buffer.getData());
-        } catch (const TextureSizeError &e) {
-            throw ConversionSizeError("Invalid size for conversion to "
-                                      "Texture1D (ust be less than + 16384)");
+        } catch (const Error::TextureSizeError &e) {
+            throw Error::ConversionSizeError("Invalid size for conversion to "
+                                        "Texture1D (must be less than + " +
+                                        std::to_string(MAX_TEXTURE1D_SIZE) + ")");
         }
         this->texture->replaceRegion(this->textureReigon(), 0,
                                      buffer.getData().data(),
@@ -369,7 +370,7 @@ template <typename T> class Texture2D : public Texture1D<T> {
     /**
      * @brief Swap the contents of two 2D textures
      *
-     * @param buf The texture to swap with
+     * @param tex The texture to swap with
      *
      */
     void swap(Texture2D &tex) noexcept {
@@ -445,7 +446,7 @@ template <typename T> class Texture2D : public Texture1D<T> {
      */
     void checkMaxSize(int width, int height) const {
         if (width > MAX_TEXTURE2D_SIZE || height > MAX_TEXTURE2D_SIZE)
-            throw TextureSizeError("Texture size too large, max size is " +
+            throw Error::TextureSizeError("Texture size too large, max size is " +
                                    std::to_string(MAX_TEXTURE2D_SIZE));
     }
 
@@ -457,7 +458,7 @@ template <typename T> class Texture2D : public Texture1D<T> {
      */
     void checkDataSize(vec2<T> data) const {
         if (data.size() != this->height || data[0].size() != this->width)
-            throw TextureSizeError("Data size does not match texture size");
+            throw Error::TextureSizeError("Data size does not match texture size");
     }
 
     /**
@@ -466,7 +467,7 @@ template <typename T> class Texture2D : public Texture1D<T> {
      */
     virtual void checkInit() const override {
         if (this->width == -1 || this->height == -1)
-            throw TextureInitError("Texture not initialized");
+            throw Error::TextureInitError("Texture not initialized");
     }
 
   public:
@@ -478,7 +479,6 @@ template <typename T> class Texture2D : public Texture1D<T> {
      * @param gpu The Metal device object
      * @param width The width of the texture
      * @param height The height of the texture
-     * @param tt The texture type
      *
      */
     Texture2D(MTL::Device *gpu, int width, int height)
@@ -591,7 +591,7 @@ template <typename T> class Texture3D : public Texture2D<T> {
     /**
      * @brief Swap the contents of two 3D extures
      *
-     * @param buf The texture to swap with
+     * @param tex The texture to swap with
      *
      */
     void swap(Texture3D &tex) noexcept {
@@ -673,7 +673,7 @@ template <typename T> class Texture3D : public Texture2D<T> {
     void checkMaxSize(int width, int height, int depth) const {
         if (width > MAX_TEXTURE3D_SIZE || height > MAX_TEXTURE3D_SIZE ||
             depth > MAX_TEXTURE3D_SIZE) {
-            throw TextureSizeError("Texture size too large, max size is " +
+            throw Error::TextureSizeError("Texture size too large, max size is " +
                                    std::to_string(MAX_TEXTURE3D_SIZE));
         }
     }
@@ -687,7 +687,7 @@ template <typename T> class Texture3D : public Texture2D<T> {
     void checkDataSize(vec3<T> data) const {
         if (data.size() != this->depth || data[0].size() != this->height ||
             data[0][0].size() != this->width) {
-            throw TextureSizeError("Data size does not match texture size");
+            throw Error::TextureSizeError("Data size does not match texture size");
         }
     }
 
@@ -697,7 +697,7 @@ template <typename T> class Texture3D : public Texture2D<T> {
      */
     void checkInit() const override {
         if (this->width == -1 || this->height == -1 || this->depth == -1)
-            throw TextureInitError("Texture not initialized");
+            throw Error::TextureInitError("Texture not initialized");
     }
 
   public:
@@ -710,7 +710,6 @@ template <typename T> class Texture3D : public Texture2D<T> {
      * @param width The width of the texture
      * @param height The height of the texture
      * @param depth The depth of the texture
-     * @param tt The texture type
      *
      */
     Texture3D(MTL::Device *gpu, int width, int height, int depth)
@@ -758,10 +757,10 @@ template <typename T> class Texture3D : public Texture2D<T> {
     }
 
     /**
-     * @brief Overload the = operator to set 3D texture contents from a 3D
+     * @brief Overload the slice operator to get a 2D texture slice from a 3D
      * texture
      *
-     * @param other The texture to set the contents from
+     * @param index The index of the slice to get
      *
      * @return std::vector<std::vector<T>> The data from the texture
      *
@@ -825,7 +824,7 @@ template <typename T> class TextureBuffer : public Texture1D<T> {
      */
     void checkMaxSize(int width) const override {
         if (width > MAX_TEXTUREBUFFER_SIZE)
-            throw TextureSizeError("Texture size too large, max size is " +
+            throw Error::TextureSizeError("Texture size too large, max size is " +
                                    std::to_string(MAX_TEXTUREBUFFER_SIZE));
     }
 
@@ -924,12 +923,12 @@ template <typename T> class TextureBuffer : public Texture1D<T> {
             Texture1D<T> texture(this->gpu, this->width);
             texture = this->getData();
             return texture;
-        } catch (const TextureSizeError &e) {
-            throw ConversionSizeError("Invalid size for conversion to "
+        } catch (const Error::TextureSizeError &e) {
+            throw Error::ConversionSizeError("Invalid size for conversion to "
                                       "Texture1D (must be less than + " +
                                       std::to_string(MAX_TEXTURE1D_SIZE) + ")");
-        } catch (const TextureError &e) {
-            throw ConversionError("Error creating Texture1D from Buffer data");
+        } catch (const Error::TextureError &e) {
+            throw Error::ConversionError("Error creating Texture1D from Buffer data");
         }
     }
 };

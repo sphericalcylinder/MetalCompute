@@ -31,13 +31,13 @@ TEST_CASE("Test oversize Buffer to Texture1D") {
     MTLCompute::Buffer<int> buffer(gpu, MTLCompute::MAX_TEXTURE1D_SIZE + 1);
     buffer = vec<int>(MTLCompute::MAX_TEXTURE1D_SIZE + 1, 1);
 
-    REQUIRE_THROWS_AS_MESSAGE(buffer.toTexture1D(), MTLCompute::ConversionSizeError, (
+    REQUIRE_THROWS_AS_MESSAGE(buffer.toTexture1D(), MTLCompute::Error::ConversionSizeError, (
         "Invalid size for conversion to Texture1D (must be less than + " + std::to_string(MTLCompute::MAX_TEXTURE1D_SIZE) + ")"
     ));
 
     MTLCompute::Texture1D<int> texture(gpu, MTLCompute::MAX_TEXTURE1D_SIZE);
 
-    REQUIRE_THROWS_AS_MESSAGE(texture = buffer, MTLCompute::ConversionSizeError, (
+    REQUIRE_THROWS_AS_MESSAGE(texture = buffer, MTLCompute::Error::ConversionSizeError, (
         "Invalid size for conversion to Texture1D (ust be less than + " + std::to_string(MTLCompute::MAX_TEXTURE1D_SIZE) + ")"
     ));
 }
@@ -48,7 +48,7 @@ TEST_CASE("Test wrong type Buffer to Texture1D") {
     buffer = vec<imaginary_type>(10, imaginary_type());
 
     MTLCompute::Texture1D<int> texture;
-    REQUIRE_THROWS_AS_MESSAGE(buffer.toTexture1D(), MTLCompute::ConversionTypeError, (
+    REQUIRE_THROWS_AS_MESSAGE(buffer.toTexture1D(), MTLCompute::Error::ConversionTypeError, (
         "Invalid type for conversion to Texture1D"
     ));
 }
@@ -121,7 +121,7 @@ TEST_CASE("Test oversize Buffer to TextureBuffer") {
     MTLCompute::Buffer<int> buffer(gpu, MTLCompute::MAX_TEXTUREBUFFER_SIZE + 1);
     buffer = vec<int>(MTLCompute::MAX_TEXTUREBUFFER_SIZE + 1, 1);
 
-    REQUIRE_THROWS_AS_MESSAGE(buffer.toTextureBuffer(), MTLCompute::ConversionSizeError, (
+    REQUIRE_THROWS_AS_MESSAGE(buffer.toTextureBuffer(), MTLCompute::Error::ConversionSizeError, (
         "Invalid size for conversion to TextureBuffer (must be less than + " + std::to_string(MTLCompute::MAX_TEXTUREBUFFER_SIZE) + ")"
     ));
 }
@@ -132,7 +132,7 @@ TEST_CASE("Test wrong type Buffer to TextureBuffer") {
     buffer = vec<imaginary_type>(10, imaginary_type());
 
     MTLCompute::TextureBuffer<int> texture;
-    REQUIRE_THROWS_AS_MESSAGE(buffer.toTextureBuffer(), MTLCompute::ConversionTypeError, (
+    REQUIRE_THROWS_AS_MESSAGE(buffer.toTextureBuffer(), MTLCompute::Error::ConversionTypeError, (
         "Invalid type for conversion to TextureBuffer"
     ));
 }
@@ -186,7 +186,7 @@ TEST_CASE("Test oversize TextureBuffer to Texture1D") {
     MTLCompute::TextureBuffer<int> texturebuffer(gpu, MTLCompute::MAX_TEXTURE1D_SIZE + 1);
     texturebuffer = vec<int>(MTLCompute::MAX_TEXTURE1D_SIZE + 1, 1);
 
-    REQUIRE_THROWS_AS_MESSAGE(texturebuffer.toTexture1D(), MTLCompute::ConversionSizeError, (
+    REQUIRE_THROWS_AS_MESSAGE(texturebuffer.toTexture1D(), MTLCompute::Error::ConversionSizeError, (
         "Invalid size for conversion to Texture1D (must be less than + " + std::to_string(MTLCompute::MAX_TEXTURE1D_SIZE) + ")"
     ));
 }

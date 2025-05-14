@@ -18,6 +18,6 @@ TEST_CASE("Test useFunction") {
 }
 
 TEST_CASE("Test faulty useFunction") {
-    CHECK_THROWS_AS_MESSAGE(kernel.useFunction("doesn't exist"), MTLCompute::KernelLoadError,
+    CHECK_THROWS_AS_MESSAGE(kernel.useFunction("doesn't exist"), MTLCompute::Error::KernelLoadError,
         "Could not find function doesn't exist");
 }

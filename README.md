@@ -25,26 +25,18 @@ If you enable an install flag, the build flag will be automatically enabled as w
 
 
 # This release
-![Conversion Update Image](conversion_update.png)
-Whoops! It's been two months! I got distracted by other things and then school started, which left
-me with not a lot of spare time. This lovely update is absolutely useless in every sense of the word.
-It adds functions and operator overloads that allow you to convert between Buffers, Texture1Ds, and
-TextureBuffers. I'm pretty sure it's in the docs but I'll say it again. There is absolutely NO reason
-(that I can think of) where a Texture1D or TextureBuffer would be a better option than a Buffer. I put
-them in for continuity because they exist in the metal-cpp library. There's probably a better use for
-them if you use that library instead of this because of reasons but whatever. Look at this cool 'Minecraft-esque'
-photo with the release name. It probably won't become a regular thing, maybe just once in a while.
-There's no timeline for the next update, maybe tomorrow, maybe in two months, who knows? This update
-also includes refactoring all the files in src/ to LLVM 4-space standards. Yay! I am very tired.
+Whoops! It's been ~~two~~ FOUR months! School tried to murder me. The last update was so
+absolutely useless that I'm surprised I did it. This update is actually more useful than the last update. Now, 
+the CommandManager can take different
+types of the same storage structure thing. So if you have a buffer of float2s and a 2d texture of regular floats, you can
+use variadic templates on the CommandManager to have it accept both. The only drawback is that a bunch of the
+functions are templated, so you have to add the <> thingies. I don't like it because it's just more to type and
+it looks better without them, but that's just my opinion. I am NOT changing the GPU class to support
+this. I don't know why I created that and I sure am not going to wrestle with variadic templates and fold(??) statements
+again just for that stupid thing. PSA - please don't use that just use the normal code I'm begging you. The end.
 
-
-- Still haven't written Buffer component tests
-- AAAAAAAAAAAAA
-- Why did I spend so much time on this update
-  - It's useless
-- These docs are going to suck
-- If and when I write them
-
+Extra: I wrote this and then didn't commit anything but I've still been making changes so I really don't know
+the state of the project at all. All the tests pass though so I'm sure it's fine.
 
 # Overview
 Read the docs [here](https://sphericalcylinder.github.io/MetalCompute/). I spent a lot of time
@@ -53,7 +45,7 @@ on them so I hope they're good.
 
 ### Want to do:
 
-- [ ] Command Manager different type support
+- [x] Command Manager different type support
 - [x] Command Manager 1d and 3d texture support
 - [x] Convert buffers to textures
 - [x] More texture components (RGBA)

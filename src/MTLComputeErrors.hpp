@@ -1,17 +1,27 @@
-#include "MTLComputeGlobals.hpp"
-
 #pragma once
 
-namespace MTLCompute {
+#include <MTLComputeGlobals.hpp>
 
+namespace MTLCompute {
+inline namespace Error {
+
+/**
+ * @brief The base class for all Texture errors.
+ *
+ */
 class TextureError : public std::runtime_error {
 
   public:
     TextureError() : std::runtime_error("Texture Error") {}
 
     TextureError(const std::string &message) : std::runtime_error(message) {}
+
 };
 
+/**
+ * @brief An error that occurs when the texture size is invalid.
+ *
+ */
 class TextureSizeError : public TextureError {
   public:
     TextureSizeError() : TextureError("Texture Size Error") {}
@@ -19,6 +29,10 @@ class TextureSizeError : public TextureError {
     TextureSizeError(const std::string &message) : TextureError(message) {}
 };
 
+/**
+ * @brief An error that occurs when the texture item type is invalid.
+ *
+ */
 class TextureTypeError : public TextureError {
   public:
     TextureTypeError() : TextureError("Texture Item Type Error") {}
@@ -26,6 +40,10 @@ class TextureTypeError : public TextureError {
     TextureTypeError(const std::string &message) : TextureError(message) {}
 };
 
+/**
+ * @brief An error that occurs when the texture index is invalid.
+ *
+ */
 class TextureIndexError : public TextureError {
   public:
     TextureIndexError() : TextureError("Texture Index Error") {}
@@ -33,6 +51,10 @@ class TextureIndexError : public TextureError {
     TextureIndexError(const std::string &message) : TextureError(message) {}
 };
 
+/**
+ * @brief An error that occurs if the texture has not been initialized.
+ *
+ */
 class TextureInitError : public TextureError {
   public:
     TextureInitError() : TextureError("Texture Initialization Error") {}
@@ -40,6 +62,10 @@ class TextureInitError : public TextureError {
     TextureInitError(const std::string &message) : TextureError(message) {}
 };
 
+/**
+ * @brief actually not sure what this is for; it's not used in the code
+ *
+ */
 class TextureComponentError : public TextureError {
   public:
     TextureComponentError() : TextureError("Texture Component Error") {}
@@ -47,6 +73,10 @@ class TextureComponentError : public TextureError {
     TextureComponentError(const std::string &message) : TextureError(message) {}
 };
 
+/**
+ * @brief An error that occurs when the texture has already been freed.
+ *
+ */
 class TextureFreeError : public TextureError {
   public:
     TextureFreeError() : TextureError("Texture Free Error") {}
@@ -54,6 +84,10 @@ class TextureFreeError : public TextureError {
     TextureFreeError(const std::string &message) : TextureError(message) {}
 };
 
+/**
+ * @brief The base class for all Buffer errors.
+ *
+ */
 class BufferError : public std::runtime_error {
 
   public:
@@ -62,6 +96,10 @@ class BufferError : public std::runtime_error {
     BufferError(const std::string &message) : std::runtime_error(message) {}
 };
 
+/**
+ * @brief An error that occurs if the size of the data does not match the size of the buffer.
+ *
+ */
 class BufferSizeError : public BufferError {
   public:
     BufferSizeError() : BufferError("Buffer Size Error") {}
@@ -69,6 +107,10 @@ class BufferSizeError : public BufferError {
     BufferSizeError(const std::string &message) : BufferError(message) {}
 };
 
+/**
+ * @brief An error that occurs if an index is out of bounds.
+ *
+ */
 class BufferIndexError : public BufferError {
   public:
     BufferIndexError() : BufferError("Buffer Index Error") {}
@@ -76,6 +118,10 @@ class BufferIndexError : public BufferError {
     BufferIndexError(const std::string &message) : BufferError(message) {}
 };
 
+/**
+ * @brief An error that occurs if the buffer has not been initialized.
+ *
+ */
 class BufferInitError : public BufferError {
   public:
     BufferInitError() : BufferError("Buffer Initialization Error") {}
@@ -83,6 +129,10 @@ class BufferInitError : public BufferError {
     BufferInitError(const std::string &message) : BufferError(message) {}
 };
 
+/**
+ * @brief An error that occurs if the buffer has already been freed.
+ *
+ */
 class BufferFreeError : public BufferError {
   public:
     BufferFreeError() : BufferError("Buffer Free Error") {}
@@ -90,6 +140,10 @@ class BufferFreeError : public BufferError {
     BufferFreeError(const std::string &message) : BufferError(message) {}
 };
 
+/**
+ * @brief Why is there another one of these? They're useless
+ *
+ */
 class BufferComponentError : public BufferError {
   public:
     BufferComponentError() : BufferError("Buffer Component Error") {}
@@ -97,6 +151,10 @@ class BufferComponentError : public BufferError {
     BufferComponentError(const std::string &message) : BufferError(message) {}
 };
 
+/**
+ * @brief The base class for all CommandManager errors.
+ *
+ */
 class CommandManagerError : public std::runtime_error {
 
   public:
@@ -106,6 +164,10 @@ class CommandManagerError : public std::runtime_error {
         : std::runtime_error(message) {}
 };
 
+/**
+ * @brief An error that occurs if the size of the data put in is inconsistent.
+ *
+ */
 class CommandManagerItemSizeError : public CommandManagerError {
   public:
     CommandManagerItemSizeError()
@@ -115,6 +177,10 @@ class CommandManagerItemSizeError : public CommandManagerError {
         : CommandManagerError(message) {}
 };
 
+/**
+ * @brief An error that occurs if there is no data loaded into the CommandManager.
+ *
+ */
 class CommandManagerLoadError : public CommandManagerError {
   public:
     CommandManagerLoadError()
@@ -124,6 +190,10 @@ class CommandManagerLoadError : public CommandManagerError {
         : CommandManagerError(message) {}
 };
 
+/**
+ * @brief An error that occurs if the index to access data in the CommandManager is out of bounds.
+ *
+ */
 class CommandManagerIndexError : public CommandManagerError {
   public:
     CommandManagerIndexError()
@@ -133,6 +203,10 @@ class CommandManagerIndexError : public CommandManagerError {
         : CommandManagerError(message) {}
 };
 
+/**
+ * @brief The base class for all Kernel errors.
+ *
+ */
 class KernelError : public std::runtime_error {
 
   public:
@@ -141,6 +215,10 @@ class KernelError : public std::runtime_error {
     KernelError(const std::string &message) : std::runtime_error(message) {}
 };
 
+/**
+ * @brief An error that occurs if the kernel cannot load a library or function.
+ *
+ */
 class KernelLoadError : public KernelError {
   public:
     KernelLoadError() : KernelError("Kernel Load Error") {}
@@ -148,6 +226,10 @@ class KernelLoadError : public KernelError {
     KernelLoadError(const std::string &message) : KernelError(message) {}
 };
 
+/**
+ * @brief The base class for all conversion errors.
+ *
+ */
 class ConversionError : public std::runtime_error {
 
   public:
@@ -156,6 +238,10 @@ class ConversionError : public std::runtime_error {
     ConversionError(const std::string &message) : std::runtime_error(message) {}
 };
 
+/**
+ * @brief An error that occurs if the type being converted to is invalid.
+ *
+ */
 class ConversionTypeError : public ConversionError {
   public:
     ConversionTypeError() : ConversionError("Conversion Component Error") {}
@@ -164,6 +250,10 @@ class ConversionTypeError : public ConversionError {
         : ConversionError(message) {}
 };
 
+/**
+ * @brief An error that occurs if the size of the data being converted is too large.
+ *
+ */
 class ConversionSizeError : public ConversionError {
   public:
     ConversionSizeError() : ConversionError("Conversion Size Error") {}
@@ -171,4 +261,6 @@ class ConversionSizeError : public ConversionError {
     ConversionSizeError(const std::string &message)
         : ConversionError(message) {}
 };
+
+} // namespace Error
 } // namespace MTLCompute

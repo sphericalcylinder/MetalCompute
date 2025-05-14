@@ -1,6 +1,6 @@
 # require old policy to allow for source files containing the name "test"
-set(CMAKE_WARN_DEPRECATED FALSE)
-cmake_policy(SET CMP0037 OLD)
+#set(CMAKE_WARN_DEPRECATED FALSE)
+#cmake_policy(SET CMP0037 OLD)
 
 project(Tests VERSION 1.0
         DESCRIPTION "All the tests"

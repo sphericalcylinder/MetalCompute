@@ -73,3 +73,14 @@ kernel void add_arrays_2(const device int4* a [[buffer(0)]],
                          uint i [[thread_position_in_grid]]) {
   c[i] = a[i] + b[i];
 }
+
+kernel void different_types(const device float2* a [[buffer(0)]],
+                            const device int4* b [[buffer(1)]],
+                            texture2d<int, access::write> c [[texture(0)]],
+                            uint2 gid [[thread_position_in_grid]]) {
+  float result1 = a[gid.y].x * (b[gid.x].x + b[gid.x].y);
+  float result2 = a[gid.y].y * (b[gid.x].z + b[gid.x].w);
+
+  c.write(int(result1 + result2), gid);
+  // this is crazyyyy!
+}

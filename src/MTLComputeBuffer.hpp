@@ -1,8 +1,8 @@
+#pragma once
+
 #include "MTLComputeErrors.hpp"
 #include "MTLComputeGlobals.hpp"
 #include "MTLComputeTexture.hpp"
-
-#pragma once
 
 namespace MTLCompute {
 
@@ -30,7 +30,7 @@ template <typename T> class Buffer {
      */
     void checkFreed() const {
         if (this->freed)
-            throw BufferFreeError("Buffer already freed");
+            throw Error::BufferFreeError("Buffer already freed");
     }
 
     /**
@@ -41,7 +41,7 @@ template <typename T> class Buffer {
      */
     void checkIndex(size_t index) const {
         if (index >= this->length)
-            throw BufferIndexError("Index out of bounds");
+            throw Error::BufferIndexError("Index out of bounds");
     }
 
     /**
@@ -52,7 +52,7 @@ template <typename T> class Buffer {
      */
     void checkDataSize(size_t size) const {
         if (size != this->length)
-            throw BufferSizeError("Data size does not match buffer size");
+            throw Error::BufferSizeError("Data size does not match buffer size");
     }
 
     /**
@@ -61,7 +61,7 @@ template <typename T> class Buffer {
      */
     void checkInit() const {
         if (this->length == -1)
-            throw BufferInitError("Buffer not initialized");
+            throw Error::BufferInitError("Buffer not initialized");
     }
 
   public:
@@ -291,15 +291,15 @@ template <typename T> class Buffer {
             vec<T> data = this->getData();
             texture = data;
             return texture;
-        } catch (const TextureTypeError &e) {
-            throw ConversionTypeError(
+        } catch (const Error::TextureTypeError &e) {
+            throw Error::ConversionTypeError(
                 "Invalid type for conversion to Texture1D");
-        } catch (const TextureSizeError &e) {
-            throw ConversionSizeError("Invalid size for conversion to "
+        } catch (const Error::TextureSizeError &e) {
+            throw Error::ConversionSizeError("Invalid size for conversion to "
                                       "Texture1D (must be less than + " +
                                       std::to_string(MAX_TEXTURE1D_SIZE) + ")");
-        } catch (const TextureError &e) {
-            throw ConversionError("Error creating Texture1D from Buffer data");
+        } catch (const Error::TextureError &e) {
+            throw Error::ConversionError("Error creating Texture1D from Buffer data");
         }
     }
 
@@ -309,15 +309,15 @@ template <typename T> class Buffer {
             vec<T> data = this->getData();
             texture = data;
             return texture;
-        } catch (const TextureTypeError &e) {
-            throw ConversionTypeError(
+        } catch (const Error::TextureTypeError &e) {
+            throw Error::ConversionTypeError(
                 "Invalid type for conversion to TextureBuffer");
-        } catch (const TextureSizeError &e) {
-            throw ConversionSizeError("Invalid size for conversion to "
+        } catch (const Error::TextureSizeError &e) {
+            throw Error::ConversionSizeError("Invalid size for conversion to "
                                       "TextureBuffer (must be less than + " +
                                       std::to_string(MAX_TEXTUREBUFFER_SIZE) + ")");
-        } catch (const TextureError &e) {
-            throw ConversionError("Error creating TextureBuffer from Buffer data");
+        } catch (const Error::TextureError &e) {
+            throw Error::ConversionError("Error creating TextureBuffer from Buffer data");
         }
     }
 
