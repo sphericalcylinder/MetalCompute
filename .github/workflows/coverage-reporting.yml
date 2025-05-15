@@ -31,6 +31,7 @@ jobs:
       with:
         files: ${{github.workspace}}/build/coverage.info
         fail_ci_if_error: true
+        disable_search: true
     
     - name: Upload Test Report
       if: ${{ !cancelled()}}
@@ -38,3 +39,4 @@ jobs:
       with:
         files: ${{github.workspace}}/build/junit.xml
         fail_ci_if_error: true
+        
