@@ -64,9 +64,9 @@ if(COVERAGE)
         OUTPUT coverage.info
         DEPENDS alltests
         DEPENDS ${CMAKE_BINARY_DIR}/test/
-        COMMAND ctest --test-dir ${CMAKE_BINARY_DIR} -j 10 --output-on-failure # run tests to generate .gcda files
-        COMMAND ${LCOV_PATH} --quiet --directory . --capture --output-file coverage.info --ignore-errors inconsistent,inconsistent,format,format,unsupported,unsupported,count,count,range
-        COMMAND ${LCOV_PATH} --quiet --remove coverage.info '/usr/*' '/opt/*' '*/_deps/*' '*/test/*' --output-file coverage.info --ignore-errors inconsistent,inconsistent,format,format,unsupported,unsupported,count,count,unused,range
+        COMMAND ctest --test-dir ${CMAKE_BINARY_DIR} -j 10 -Q --output-on-failure # run tests to generate .gcda files
+        COMMAND ${LCOV_PATH} --quiet --directory . --capture --output-file coverage.info.intermediate --ignore-errors inconsistent,inconsistent,format,format,unsupported,unsupported,count,count,range
+        COMMAND ${LCOV_PATH} --quiet --remove coverage.info.intermediate '/usr/*' '/opt/*' '*/_deps/*' '*/test/*' --output-file coverage.info --ignore-errors inconsistent,inconsistent,format,format,unsupported,unsupported,count,count,unused,range
         COMMAND ${GENHTML_PATH} --quiet -o coverage_html coverage.info --ignore-errors inconsistent,inconsistent,corrupt,corrupt,unsupported,unsupported,category,category,range
         COMMENT "Generating lcov coverage report in coverage_html/"
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
