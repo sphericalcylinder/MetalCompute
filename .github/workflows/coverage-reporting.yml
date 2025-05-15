@@ -24,10 +24,17 @@ jobs:
 
     - name: Build
       working-directory: ${{github.workspace}}
-      run: cmake --build ${{github.workspace}}/build --target coverage
+      run: cmake --build ${{github.workspace}}/build --target coverage -j 4
 
-    - name: Upload Report
+    - name: Upload Coverage Report
       uses: codecov/codecov-action@v5
       with:
         files: ${{github.workspace}}/build/coverage.info
+        fail_ci_if_error: true
+    
+    - name: Upload Test Report
+      if: ${{ !cancelled()}}
+      uses: codecov/test-results-action@v1
+      with:
+        files: ${{github.workspace}}/build/junit.xml
         fail_ci_if_error: true
