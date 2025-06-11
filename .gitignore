@@ -48,3 +48,6 @@ build/
 
 # DS_Store files
 .DS_Store
+
+# Temp folder
+temp/

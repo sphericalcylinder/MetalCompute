@@ -60,9 +60,9 @@ if(COVERAGE)
         message(FATAL_ERROR "genhtml not found!")
     endif()
 
-    set(LCOV_IGNORE_ERRORS inconsistent,inconsistent,format,format,unsupported,unsupported,count,count,range)
-    set(LCOV_REMOVE '/usr/*' '/opt/*' '*/_deps/*' '*/test/*' '*Test.cpp')
-    set(GENHTML_IGNORE_ERRORS inconsistent,inconsistent,corrupt,corrupt,unsupported,unsupported,category,category,range)
+    set(LCOV_IGNORE_ERRORS inconsistent,inconsistent,format,format,unsupported,unsupported,count,count,range,unused)
+    set(LCOV_REMOVE '/usr/*' '/opt/*' '*/_deps/*' '*/test/*')
+    set(GENHTML_IGNORE_ERRORS inconsistent,inconsistent,corrupt,corrupt,unsupported,unsupported,category,category,range,unused)
 
     add_custom_command(
         OUTPUT coverage.info
@@ -71,7 +71,7 @@ if(COVERAGE)
         COMMAND ctest --test-dir ${CMAKE_BINARY_DIR} -j 10 -Q --output-on-failure --output-junit junit.xml # run tests to generate .gcda files
         COMMAND ${LCOV_PATH} --quiet --directory . --capture --output-file coverage.info.intermediate --ignore-errors ${LCOV_IGNORE_ERRORS}
         COMMAND ${LCOV_PATH} --remove coverage.info.intermediate ${LCOV_REMOVE} --output-file coverage.info --ignore-errors ${LCOV_IGNORE_ERRORS}
-        COMMAND ${GENHTML_PATH} --quiet -o coverage_html coverage.info --ignore-errors ${GENHTML_IGNORE_ERRORS}
+        COMMAND ${GENHTML_PATH} -o coverage_html coverage.info --ignore-errors ${GENHTML_IGNORE_ERRORS}
         COMMENT "Generating lcov coverage report in coverage_html/"
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
