@@ -47,6 +47,6 @@ char a = 'a';
 - Reasonable line length (most cases under 100 characters long)
 - Reasonable spacing between code sections
 - Spaces before and after = (assignment) `int x = 3` not `int x=3`
-- Spaces after the comma in explicitly defined arrays and vectors `int a[3] = [1, 2, 3];` (some cases not doing this is ok)
+- Spaces after the comma in explicitly defined arrays and vectors `int a[3] = {1, 2, 3};` (some cases not doing this is ok)
 - Use the std namespace (it's ok if you don't do this one i'll fix it later)
 - i'll think of more

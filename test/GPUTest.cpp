@@ -7,9 +7,7 @@ vec2<float> matrix2d(10, vec<float>(10, 1.0));
 vec3<float> matrix3d(5, vec2<float>(10, vec<float>(10, 1.0)));
 vec<float> array(10, 1.0);
 
-TEST_CASE("Test constructor") {
-    REQUIRE(gpu.getGPU() != nullptr);
-}
+TEST_CASE("Test constructor") { REQUIRE(gpu.getGPU() != nullptr); }
 
 TEST_CASE("Test loadKernel") {
     REQUIRE_NOTHROW(gpu.loadKernel("default", "both"));

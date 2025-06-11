@@ -8,11 +8,10 @@ namespace MTLCompute {
 class Kernel {
 
   private:
-    MTL::Device *gpu;        ///< The Metal device object
-    MTL::Library *library;   ///< The Metal library object
-    MTL::Function *function; ///< The Metal function object
-    MTL::ComputePipelineState
-        *pipeline; ///< The Metal compute pipeline state object
+    MTL::Device *gpu;                    ///< The Metal device object
+    MTL::Library *library;               ///< The Metal library object
+    MTL::Function *function;             ///< The Metal function object
+    MTL::ComputePipelineState *pipeline; ///< The Metal compute pipeline state object
 
   public:
     /**
@@ -30,8 +29,10 @@ class Kernel {
 
         this->library = this->gpu->newLibrary(
             NS::URL::fileURLWithPath(
-                NS::String::string(filename.c_str(), NS::ASCIIStringEncoding)),
-            nullptr);
+                NS::String::string(filename.c_str(), NS::ASCIIStringEncoding)
+            ),
+            nullptr
+        );
 
         if (this->library == nullptr)
             throw Error::KernelLoadError("Could not load library " + filename);
@@ -49,16 +50,8 @@ class Kernel {
      * @param funcname The name of the function
      *
      */
-    Kernel(MTL::Device *gpu, const std::string &filename,
-           const std::string &funcname) {
-        this->gpu = gpu;
-
-        this->library = this->gpu->newLibrary(
-            NS::String::string(filename.c_str(), NS::ASCIIStringEncoding),
-            nullptr);
-
-        if (this->library == nullptr)
-            throw Error::KernelLoadError("Could not load library " + filename);
+    Kernel(MTL::Device *gpu, const std::string &filename, const std::string &funcname)
+        : Kernel(gpu, filename) {
 
         useFunction(funcname);
     }
@@ -87,10 +80,11 @@ class Kernel {
     vec<std::string> getFunctionNames() {
         vec<std::string> names;
         for (int i = 0; i < this->library->functionNames()->count(); i++) {
-            names.push_back(this->library->functionNames()
-                                ->object(i)
-                                ->description()
-                                ->cString(NS::ASCIIStringEncoding));
+            names.push_back(
+                this->library->functionNames()->object(i)->description()->cString(
+                    NS::ASCIIStringEncoding
+                )
+            );
         }
         return names;
     }
@@ -106,7 +100,8 @@ class Kernel {
      */
     void useFunction(const std::string &funcname) {
         this->function = this->library->newFunction(
-            NS::String::string(funcname.c_str(), NS::ASCIIStringEncoding));
+            NS::String::string(funcname.c_str(), NS::ASCIIStringEncoding)
+        );
 
         if (this->function == nullptr)
             throw Error::KernelLoadError("Could not load function " + funcname);

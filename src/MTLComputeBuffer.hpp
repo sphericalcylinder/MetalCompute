@@ -11,9 +11,9 @@ template <typename T> class Buffer {
     MTL::Device *gpu;                        ///< The Metal device object
     MTL::Buffer *buffer;                     ///< The Metal buffer object
     MTLCompute::ResourceStorage storageMode; ///< The storage mode of the buffer
-    bool freed = false; ///< Whether the buffer has been freed
-    size_t length;      ///< The length of the buffer
-    size_t itemsize;    ///< The size of each item in the buffer
+    bool freed = false;                      ///< Whether the buffer has been freed
+    size_t length;                           ///< The length of the buffer
+    size_t itemsize;                         ///< The size of each item in the buffer
 
     void swap(Buffer &buffer) noexcept {
         using std::swap;
@@ -81,8 +81,8 @@ template <typename T> class Buffer {
         this->length = length;
         this->itemsize = sizeof(T);
         this->storageMode = storageMode;
-        this->buffer = gpu->newBuffer(
-            length * itemsize, static_cast<MTL::ResourceOptions>(storageMode));
+        this->buffer = gpu->newBuffer(length * itemsize,
+                                      static_cast<MTL::ResourceOptions>(storageMode));
         this->buffer->retain();
     }
 
@@ -101,8 +101,8 @@ template <typename T> class Buffer {
         this->length = length;
         this->itemsize = sizeof(T);
         this->storageMode = MTLCompute::ResourceStorage::Shared;
-        this->buffer = gpu->newBuffer(
-            length * itemsize, static_cast<MTL::ResourceOptions>(storageMode));
+        this->buffer = gpu->newBuffer(length * itemsize,
+                                      static_cast<MTL::ResourceOptions>(storageMode));
         this->buffer->retain();
     }
 
@@ -156,9 +156,7 @@ template <typename T> class Buffer {
      * Calls the free function to release the buffer object
      *
      */
-    ~Buffer() {
-        free();
-    }
+    ~Buffer() { free(); }
 
     /**
      * @brief Get the contents of the buffer
@@ -207,14 +205,12 @@ template <typename T> class Buffer {
     void operator=(vec<T> data) {
         this->checkFreed();
         this->checkDataSize(data.size());
-        
+
         // flawfinder: ignore
-        memcpy(this->buffer->contents(), data.data(),
-               this->length * this->itemsize);
+        memcpy(this->buffer->contents(), data.data(), this->length * this->itemsize);
 
         if (this->storageMode == MTLCompute::ResourceStorage::Managed) {
-            this->buffer->didModifyRange(
-                NS::Range(0, this->length * this->itemsize));
+            this->buffer->didModifyRange(NS::Range(0, this->length * this->itemsize));
         }
     }
 
@@ -231,12 +227,10 @@ template <typename T> class Buffer {
         vec<T> data = texture.getData();
 
         // flawfinder: ignore
-        memcpy(this->buffer->contents(), data.data(),
-               this->length * this->itemsize);
+        memcpy(this->buffer->contents(), data.data(), this->length * this->itemsize);
 
         if (this->storageMode == MTLCompute::ResourceStorage::Managed) {
-            this->buffer->didModifyRange(
-                NS::Range(0, this->length * this->itemsize));
+            this->buffer->didModifyRange(NS::Range(0, this->length * this->itemsize));
         }
     }
 
@@ -246,12 +240,10 @@ template <typename T> class Buffer {
         vec<T> data = texture.getData();
 
         // flawfinder: ignore
-        memcpy(this->buffer->contents(), data.data(),
-               this->length * this->itemsize);
+        memcpy(this->buffer->contents(), data.data(), this->length * this->itemsize);
 
         if (this->storageMode == MTLCompute::ResourceStorage::Managed) {
-            this->buffer->didModifyRange(
-                NS::Range(0, this->length * this->itemsize));
+            this->buffer->didModifyRange(NS::Range(0, this->length * this->itemsize));
         }
     }
 
@@ -283,8 +275,7 @@ template <typename T> class Buffer {
         vec<T> data(this->length);
 
         // flawfinder: ignore
-        memcpy(data.data(), this->buffer->contents(),
-               this->length * this->itemsize);
+        memcpy(data.data(), this->buffer->contents(), this->length * this->itemsize);
 
         return data;
     }
@@ -302,14 +293,11 @@ template <typename T> class Buffer {
             texture = data;
             return texture;
         } catch (const Error::TextureTypeError &e) {
-            throw Error::ConversionTypeError(
-                "Invalid type for conversion to Texture1D");
+            throw Error::ConversionTypeError("Invalid type for conversion to Texture1D");
         } catch (const Error::TextureSizeError &e) {
             throw Error::ConversionSizeError("Invalid size for conversion to "
-                                      "Texture1D (must be less than + " +
-                                      std::to_string(MAX_TEXTURE1D_SIZE) + ")");
-        } catch (const Error::TextureError &e) {
-            throw Error::ConversionError("Error creating Texture1D from Buffer data");
+                                             "Texture1D (must be less than + " +
+                                             std::to_string(MAX_TEXTURE1D_SIZE) + ")");
         }
     }
 
@@ -324,10 +312,9 @@ template <typename T> class Buffer {
                 "Invalid type for conversion to TextureBuffer");
         } catch (const Error::TextureSizeError &e) {
             throw Error::ConversionSizeError("Invalid size for conversion to "
-                                      "TextureBuffer (must be less than + " +
-                                      std::to_string(MAX_TEXTUREBUFFER_SIZE) + ")");
-        } catch (const Error::TextureError &e) {
-            throw Error::ConversionError("Error creating TextureBuffer from Buffer data");
+                                             "TextureBuffer (must be less than + " +
+                                             std::to_string(MAX_TEXTUREBUFFER_SIZE) +
+                                             ")");
         }
     }
 

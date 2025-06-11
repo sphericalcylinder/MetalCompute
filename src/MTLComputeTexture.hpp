@@ -375,8 +375,8 @@ template <typename T> class Texture1D {
 };
 
 template <typename T> class Texture2D : public Texture1D<T> {
-    ;
-
+    
+    
   protected:
     int height = -1; ///< The width and height of the texture
 

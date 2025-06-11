@@ -2,7 +2,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
 
-
 MTL::Device *gpu = MTL::CreateSystemDefaultDevice();
 MTLCompute::Texture2D<float> texture(gpu, 10, 10);
 vec2<float> data(10, vec<float>(10, 1.0));
@@ -41,7 +40,9 @@ TEST_CASE("Test default constructor") {
 TEST_CASE("Test OOB access") {
     MTLCompute::Texture2D<float> freedtexture(gpu, 10, 10);
     freedtexture.free();
-    REQUIRE_THROWS_AS_MESSAGE(freedtexture.getData(), MTLCompute::Error::TextureFreeError, "Texture already freed");
+    REQUIRE_THROWS_AS_MESSAGE(freedtexture.getData(),
+                              MTLCompute::Error::TextureFreeError,
+                              "Texture already freed");
     REQUIRE(freedtexture.getFreed() == true);
 }
 
@@ -88,36 +89,44 @@ TEST_CASE("Test get item with [] operator") {
 }
 
 TEST_CASE("Test create texture larger than max size") {
-    REQUIRE_THROWS_AS_MESSAGE(MTLCompute::Texture2D<float>(gpu, MTLCompute::MAX_TEXTURE2D_SIZE + 1, MTLCompute::MAX_TEXTURE2D_SIZE + 1),
-        MTLCompute::Error::TextureSizeError, ("Texture size too large, max size is " + std::to_string(MTLCompute::MAX_TEXTURE2D_SIZE)));
+    REQUIRE_THROWS_AS_MESSAGE(
+        MTLCompute::Texture2D<float>(gpu, MTLCompute::MAX_TEXTURE2D_SIZE + 1,
+                                     MTLCompute::MAX_TEXTURE2D_SIZE + 1),
+        MTLCompute::Error::TextureSizeError,
+        ("Texture size too large, max size is " +
+         std::to_string(MTLCompute::MAX_TEXTURE2D_SIZE)));
 }
 
 TEST_CASE("Test create texture with max size") {
-    REQUIRE_NOTHROW(MTLCompute::Texture2D<float>(gpu, MTLCompute::MAX_TEXTURE2D_SIZE, MTLCompute::MAX_TEXTURE2D_SIZE));
+    REQUIRE_NOTHROW(MTLCompute::Texture2D<float>(
+        gpu, MTLCompute::MAX_TEXTURE2D_SIZE, MTLCompute::MAX_TEXTURE2D_SIZE));
 }
 
 TEST_CASE("Test set with too much data") {
-    REQUIRE_THROWS_AS_MESSAGE(texture = toomuch, MTLCompute::Error::TextureSizeError,
-        "Data size does not match texture size");
+    REQUIRE_THROWS_AS_MESSAGE(texture = toomuch,
+                              MTLCompute::Error::TextureSizeError,
+                              "Data size does not match texture size");
 }
 
 TEST_CASE("Test set with too little data") {
-    REQUIRE_THROWS_AS_MESSAGE(texture = toolittle, MTLCompute::Error::TextureSizeError, 
-        "Data size does not match texture size");
+    REQUIRE_THROWS_AS_MESSAGE(texture = toolittle,
+                              MTLCompute::Error::TextureSizeError,
+                              "Data size does not match texture size");
 }
 
 TEST_CASE("Test OOB get with [] operator") {
     texture = data;
     REQUIRE_THROWS_AS_MESSAGE(texture[10], MTLCompute::Error::TextureIndexError,
-        "Texture index out of bounds");
+                              "Texture index out of bounds");
     REQUIRE_THROWS_AS_MESSAGE(texture[-1], MTLCompute::Error::TextureIndexError,
-        "Texture index out of bounds");
+                              "Texture index out of bounds");
 }
 
 TEST_CASE("Test uninitialized get") {
     MTLCompute::Texture2D<float> other;
-    REQUIRE_THROWS_AS_MESSAGE(other.getData(), MTLCompute::Error::TextureInitError,
-        "Texture not initialized");
+    REQUIRE_THROWS_AS_MESSAGE(other.getData(),
+                              MTLCompute::Error::TextureInitError,
+                              "Texture not initialized");
     REQUIRE_THROWS_AS_MESSAGE(other[0], MTLCompute::Error::TextureInitError,
-        "Texture not initialized");
+                              "Texture not initialized");
 }

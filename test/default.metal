@@ -16,3 +16,11 @@ kernel void both(const device float* a [[buffer(0)]],
   float sum = a[gid.y] + a[gid.x];
   b.write(sum, gid);
 }
+
+kernel void dim_add_textures(const texture1d<float, access::read> a [[texture(0)]],
+                             const texture2d<int, access::read> b [[texture(1)]],
+                             texture3d<float, access::write> c [[texture(2)]],
+                             uint3 gid [[thread_position_in_grid]]) {
+
+  c.write(a.read(uint(gid.x)) + (vec<float, 4>)b.read(uint2(gid.x, gid.y)), gid);
+}

@@ -2,6 +2,7 @@
 
 #include <tuple>
 #include <typeinfo>
+#include <map>
 #include <vector>
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
@@ -89,5 +90,108 @@ constexpr inline int numComponents() {
 
     return 1;
 }
+
+/*
+Apple Clang Version 17.0.0
+
+typeid name is implementation defined and may differ between
+compilers.
+
+typeid(your type here).name()
+uchar = h
+ushort = t
+uint = j
+char = c
+short = s
+int = i
+float = f
+uchar2 = NSt3__14pairIhhEE
+ushort2 = NSt3__14pairIttEE
+uint2 = NSt3__14pairIjjEE
+char2 = NSt3__14pairIccEE
+short2 = NSt3__14pairIssEE
+int2 = NSt3__14pairIiiEE
+float2 = NSt3__14pairIffEE
+uchar4 = NSt3__15tupleIJhhhhEEE
+ushort4 = NSt3__15tupleIJttttEEE
+uint4 = NSt3__15tupleIJjjjjEEE
+char4 = NSt3__15tupleIJccccEEE
+short4 = NSt3__15tupleIJssssEEE
+int4 = NSt3__15tupleIJiiiiEEE
+float4 = NSt3__15tupleIJffffEEE
+*/
+
+inline const char* demangleTypeName(const char *type) {
+    if (strcmp(type, typeid(uchar).name()) == 0)
+        return "uchar";
+    if (strcmp(type, typeid(ushort).name()) == 0)
+        return "ushort";
+    if (strcmp(type, typeid(uint).name()) == 0)
+        return "uint";
+    if (strcmp(type, typeid(char).name()) == 0)
+        return "char";
+    if (strcmp(type, typeid(short).name()) == 0)
+        return "short";
+    if (strcmp(type, typeid(int).name()) == 0)
+        return "int";
+    if (strcmp(type, typeid(float).name()) == 0)
+        return "float";
+
+    if (strcmp(type, typeid(uchar2).name()) == 0)
+        return "uchar2";
+    if (strcmp(type, typeid(ushort2).name()) == 0)
+        return "ushort2";
+    if (strcmp(type, typeid(uint2).name()) == 0)
+        return "uint2";
+    if (strcmp(type, typeid(char2).name()) == 0)
+        return "char2";
+    if (strcmp(type, typeid(short2).name()) == 0)
+        return "short2";
+    if (strcmp(type, typeid(int2).name()) == 0)
+        return "int2";
+    if (strcmp(type, typeid(float2).name()) == 0)
+        return "float2";
+
+    if (strcmp(type, typeid(uchar4).name()) == 0)
+        return "uchar4";
+    if (strcmp(type, typeid(ushort4).name()) == 0)
+        return "ushort4";
+    if (strcmp(type, typeid(uint4).name()) == 0)
+        return "uint4";
+    if (strcmp(type, typeid(char4).name()) == 0)
+        return "char4";
+    if (strcmp(type, typeid(short4).name()) == 0)
+        return "short4";
+    if (strcmp(type, typeid(int4).name()) == 0)
+        return "int4";
+    if (strcmp(type, typeid(float4).name()) == 0)
+        return "float4";
+
+    return "unknown";
+}
+
+inline std::map<const char*, MTL::PixelFormat> pixelFormatMap = {
+    {"uchar", MTL::PixelFormatR8Uint},
+    {"ushort", MTL::PixelFormatR16Uint},
+    {"uint", MTL::PixelFormatR32Uint},
+    {"char", MTL::PixelFormatR8Sint},
+    {"short", MTL::PixelFormatR16Sint},
+    {"int", MTL::PixelFormatR32Sint},
+    {"float", MTL::PixelFormatR32Float},
+    {"uchar2", MTL::PixelFormatRG8Uint},
+    {"ushort2", MTL::PixelFormatRG16Uint},
+    {"uint2", MTL::PixelFormatRG32Uint},
+    {"char2", MTL::PixelFormatRG8Sint},
+    {"short2", MTL::PixelFormatRG16Sint},
+    {"int2", MTL::PixelFormatRG32Sint},
+    {"float2", MTL::PixelFormatRG32Float},
+    {"uchar4", MTL::PixelFormatRGBA8Uint},
+    {"ushort4", MTL::PixelFormatRGBA16Uint},
+    {"uint4", MTL::PixelFormatRGBA32Uint},
+    {"char4", MTL::PixelFormatRGBA8Sint},
+    {"short4", MTL::PixelFormatRGBA16Sint},
+    {"int4", MTL::PixelFormatRGBA32Sint},
+    {"float4", MTL::PixelFormatRGBA32Float}
+};
 
 } // namespace MTLCompute
