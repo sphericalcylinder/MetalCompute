@@ -47,6 +47,7 @@ add_custom_target(
     alltests DEPENDS ${TESTLIST}
     # remove generated gcda files
     COMMAND find . -name "*.gcda" -print0 | xargs -0 rm
+    COMMAND ${CMAKE_COMMAND} -E echo "Removed gcda files before running tests"
 )
 
 if (MTLCOMPUTE_INSTALL_TESTS)

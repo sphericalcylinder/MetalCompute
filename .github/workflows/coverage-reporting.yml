@@ -1,0 +1,42 @@
+name: Code Coverage Reporting
+# Upload to Codecov
+
+on:
+  push:
+    branches: [ "github-actions-testing", "dev", "main" ]
+  pull_request:
+    branches: [ "github-actions-testing", "dev", "main" ]
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install lcov
+      run: brew install lcov
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DMTLCOMPUTE_BUILD_TESTS=ON -DCOVERAGE=ON -G"Unix Makefiles"
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      run: cmake --build ${{github.workspace}}/build --target coverage -j 4
+
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v5
+      with:
+        files: ${{github.workspace}}/build/coverage.info
+        fail_ci_if_error: true
+        disable_search: true
+    
+    - name: Upload Test Report
+      if: ${{ !cancelled()}}
+      uses: codecov/test-results-action@v1
+      with:
+        files: ${{github.workspace}}/build/junit.xml
+        fail_ci_if_error: true
+        
